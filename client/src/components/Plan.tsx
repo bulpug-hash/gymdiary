@@ -159,7 +159,22 @@ function DayCard({ day, isExpanded, onToggle, workoutData }: {
               }}>
                 <div style={{ width: 5, height: 5, borderRadius: '50%', background: getCategoryColor(ex.category), flexShrink: 0 }} />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, color: '#d0d0d0', fontWeight: 500 }}>{ex.name}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ fontSize: 13, color: '#d0d0d0', fontWeight: 500 }}>{ex.name}</div>
+                    {ex.isDropset && (
+                      <span style={{
+                        fontSize: 9,
+                        fontWeight: 700,
+                        letterSpacing: '0.08em',
+                        color: '#F5C842',
+                        background: 'rgba(245,200,66,0.15)',
+                        border: '1px solid rgba(245,200,66,0.3)',
+                        borderRadius: 4,
+                        padding: '1px 5px',
+                        textTransform: 'uppercase',
+                      }}>DROP</span>
+                    )}
+                  </div>
                   <div style={{ fontSize: 11, color: '#555', marginTop: 1 }}>
                     {ex.targetSets}×{ex.targetReps}
                     {ex.targetWeight ? ` · ${ex.targetWeight}` : ''}
