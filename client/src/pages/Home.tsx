@@ -1,11 +1,13 @@
 // Gold Performance Design – Main App Shell
-// Bottom tab navigation: Přehled | Plán | Deník | Progres
+// Bottom tab navigation: Přehled | Plán | Deník | Progres | Nástroje
 import { useState } from 'react';
 import Overview from '@/components/Overview';
 import Plan from '@/components/Plan';
 import Diary from '@/components/Diary';
 import Progress from '@/components/Progress';
+import Tools from '@/components/Tools';
 import { useWorkoutData } from '@/hooks/useWorkoutData';
+import { useTheme } from '@/contexts/ThemeContext';
 import type { Tab } from '@/lib/types';
 export type { Tab };
 
@@ -14,11 +16,18 @@ const TABS: { key: Tab; label: string; icon: string }[] = [
   { key: 'plan', label: 'Plán', icon: '📋' },
   { key: 'diary', label: 'Deník', icon: '📓' },
   { key: 'progress', label: 'Progres', icon: '📈' },
+  { key: 'tools', label: 'Nástroje', icon: '🔧' },
 ];
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const workoutData = useWorkoutData();
+  const { theme } = useTheme();
+
+  const isDark = theme === 'dark';
+  const bg = isDark ? '#0c0c0c' : '#f5f5f0';
+  const tabBg = isDark ? 'rgba(12,12,12,0.97)' : 'rgba(245,245,240,0.97)';
+  const tabBorder = isDark ? '#1c1c1c' : '#e0e0d8';
 
   return (
     <div style={{
@@ -27,8 +36,9 @@ export default function Home() {
       margin: '0 auto',
       display: 'flex',
       flexDirection: 'column',
-      background: '#0c0c0c',
+      background: bg,
       position: 'relative',
+      transition: 'background 0.3s ease',
     }}>
       {/* Main content area */}
       <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 72 }}>
@@ -36,6 +46,7 @@ export default function Home() {
         {activeTab === 'plan' && <Plan workoutData={workoutData} />}
         {activeTab === 'diary' && <Diary workoutData={workoutData} />}
         {activeTab === 'progress' && <Progress workoutData={workoutData} />}
+        {activeTab === 'tools' && <Tools workoutData={workoutData} />}
       </div>
 
       {/* Bottom tab bar */}
@@ -47,8 +58,8 @@ export default function Home() {
         width: '100%',
         maxWidth: 480,
         display: 'flex',
-        background: 'rgba(12,12,12,0.97)',
-        borderTop: '1px solid #1c1c1c',
+        background: tabBg,
+        borderTop: `1px solid ${tabBorder}`,
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         zIndex: 100,
@@ -72,11 +83,11 @@ export default function Home() {
               gap: 2,
             }}
           >
-            <span style={{ fontSize: 20, lineHeight: 1 }}>{tab.icon}</span>
+            <span style={{ fontSize: 18, lineHeight: 1 }}>{tab.icon}</span>
             <span style={{
-              fontSize: 10,
+              fontSize: 9,
               fontWeight: activeTab === tab.key ? 700 : 400,
-              color: activeTab === tab.key ? '#F5C842' : '#555',
+              color: activeTab === tab.key ? '#F5C842' : (isDark ? '#555' : '#999'),
               letterSpacing: '0.02em',
               transition: 'color 0.15s ease',
             }}>
