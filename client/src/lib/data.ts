@@ -57,15 +57,24 @@ export type RecordsMap = Record<string, TrainingRecord[]>;
 export const GOALS = {
   bench: 130,
   squat: 190,
-  frontSquat: 150,
-  deadlift: 235,
+  frontSquat: 130,
+  deadlift: 250,
 };
 
+// Aktuální reálná maxima (ne odhadovaná 1RM) – stav k 7.4.2026
 export const STARTING_MAXES = {
-  bench: 120,
-  squat: 180,
+  bench: 105,   // Bench Press – poslední trénink 105 kg 4×8
+  squat: 160,   // Back Squat – 160 kg 4×1 (Fáze 2 T8)
+  frontSquat: 105, // Front Squat – 105 kg 3×8
+  deadlift: 230, // Conventional Deadlift – 230 kg 3×2
+};
+
+// Aktuální reálná maxima pro zobrazení v UI (skutečně zvednuté váhy)
+export const CURRENT_MAXES = {
+  bench: 105,
+  squat: 160,
   frontSquat: 105,
-  deadlift: 225,
+  deadlift: 230,
 };
 
 // ============================================================

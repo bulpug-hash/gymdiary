@@ -1,7 +1,7 @@
 // Overview – Přehled tab
 // Gold Performance Design
 // Shows: today's workout, week strip, goals progress, recent PRs
-import { PHASE3_WEEKS, getTodayDayKey, getCurrentWeek, getCategoryColor, estimate1RM, formatDate, GOALS } from '@/lib/data';
+import { PHASE3_WEEKS, getTodayDayKey, getCurrentWeek, getCategoryColor, formatDate, GOALS, CURRENT_MAXES } from '@/lib/data';
 import type { WorkoutDataHook, Tab } from '@/lib/types';
 
 interface Props {
@@ -21,19 +21,20 @@ export default function Overview({ workoutData, onNavigate }: Props) {
   const currentWeek = getCurrentWeek();
   const todayDay = currentWeek.days.find(d => d.key === todayKey);
 
-  // Latest records for main lifts
+  // Latest records for main lifts – zobrazujeme reálnou váhu, ne odhadované 1RM
   const latestBench = workoutData.getLatestRecord('bench');
   const latestSquat = workoutData.getLatestRecord('squat');
   const latestDL = workoutData.getLatestRecord('deadlift');
 
-  const bench1RM = latestBench ? estimate1RM(parseFloat(latestBench.weight) || 0, parseInt(latestBench.reps) || 1) : 105;
-  const squat1RM = latestSquat ? estimate1RM(parseFloat(latestSquat.weight) || 0, parseInt(latestSquat.reps) || 1) : 160;
-  const dl1RM = latestDL ? estimate1RM(parseFloat(latestDL.weight) || 0, parseInt(latestDL.reps) || 1) : 230;
+  // Reálná aktuální maxima (skutečně zvednuté váhy)
+  const benchCurrent = latestBench ? (parseFloat(latestBench.weight) || CURRENT_MAXES.bench) : CURRENT_MAXES.bench;
+  const squatCurrent = latestSquat ? (parseFloat(latestSquat.weight) || CURRENT_MAXES.squat) : CURRENT_MAXES.squat;
+  const dlCurrent = latestDL ? (parseFloat(latestDL.weight) || CURRENT_MAXES.deadlift) : CURRENT_MAXES.deadlift;
 
   const goals = [
-    { name: 'Bench Press', current: bench1RM, goal: GOALS.bench, unit: 'kg' },
-    { name: 'Back Squat', current: squat1RM, goal: GOALS.squat, unit: 'kg' },
-    { name: 'Mrtvý tah', current: dl1RM, goal: GOALS.deadlift, unit: 'kg' },
+    { name: 'Bench Press', current: benchCurrent, goal: GOALS.bench, unit: 'kg', note: latestBench ? `${latestBench.sets}×${latestBench.reps}` : '' },
+    { name: 'Back Squat', current: squatCurrent, goal: GOALS.squat, unit: 'kg', note: latestSquat ? `${latestSquat.sets}×${latestSquat.reps}` : '' },
+    { name: 'Mrtvý tah', current: dlCurrent, goal: GOALS.deadlift, unit: 'kg', note: latestDL ? `${latestDL.sets}×${latestDL.reps}` : '' },
   ];
 
   return (
@@ -150,17 +151,20 @@ export default function Overview({ workoutData, onNavigate }: Props) {
 
       {/* Goals progress */}
       <div style={{ padding: '14px 20px', borderBottom: '1px solid #1c1c1c' }}>
-        <div style={{ color: '#444', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>CÍLOVÉ VÝKONY – FÁZE 3</div>
-        {goals.map(({ name, current, goal }) => {
+        <div style={{ color: '#444', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>AKTUÁLNÍ MAXIMA → CÍL FÁZE 3</div>
+        {goals.map(({ name, current, goal, note }) => {
           const pct = Math.min(100, Math.round((current / goal) * 100));
           return (
             <div key={name} style={{ marginBottom: 14 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
                 <span style={{ fontSize: 13, color: '#ccc' }}>{name}</span>
-                <span style={{ fontSize: 13, fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700 }}>
-                  <span style={{ color: '#F5C842' }}>{current} kg</span>
-                  <span style={{ color: '#333' }}> / {goal} kg</span>
-                </span>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: 13, fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700 }}>
+                    <span style={{ color: '#F5C842' }}>{current} kg</span>
+                    <span style={{ color: '#333' }}> → {goal} kg</span>
+                  </div>
+                  {note && <div style={{ fontSize: 10, color: '#555', marginTop: 1 }}>{note}</div>}
+                </div>
               </div>
               <div style={{ height: 3, background: '#1c1c1c', borderRadius: 2, overflow: 'hidden' }}>
                 <div style={{

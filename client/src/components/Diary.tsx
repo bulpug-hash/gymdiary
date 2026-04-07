@@ -1,36 +1,47 @@
-// Diary – Deník tab
-// Gold Performance Design
+// Gold Performance Design – Diary Tab
 // BUG FIX: editace záznamu správně předává date, sets, weight, reps, note
-import { useState, useCallback } from 'react';
-import { PHASE3_WEEKS, getCategoryColor, formatDate, formatDateFull, getTodayISO, nanoid } from '@/lib/data';
+// NOVÉ: cviky rozděleny podle tréninkových dnů (Po/Út/Čt/Pá/So)
+import { useState } from 'react';
+import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel, formatDate, formatDateFull, getTodayISO } from '@/lib/data';
 import type { WorkoutDataHook } from '@/lib/types';
-import type { Exercise, TrainingRecord } from '@/lib/data';
+import type { Exercise, TrainingRecord, WorkoutDay } from '@/lib/data';
 import { toast } from 'sonner';
 
 interface Props {
   workoutData: WorkoutDataHook;
 }
 
-type ViewMode = 'exercises' | 'records';
+const DAY_TYPE_LABEL: Record<string, string> = {
+  lower: 'LOWER BODY',
+  upper: 'UPPER BODY',
+  fullbody: 'FULL BODY',
+  hiit: 'HIIT / KARDIO',
+  run: 'ZONE 2 RUN',
+  rest: 'VOLNO',
+};
+
+const DAY_TYPE_COLOR: Record<string, string> = {
+  lower: '#F5C842',
+  upper: '#6EE7B7',
+  fullbody: '#93C5FD',
+  hiit: '#F87171',
+  run: '#A78BFA',
+  rest: '#555',
+};
+
+// Get unique training days from Phase 3 week 1 (excluding rest)
+function getTrainingDays(): WorkoutDay[] {
+  const week = PHASE3_WEEKS[0];
+  return week.days.filter(d => d.type !== 'rest' && d.exercises.length > 0);
+}
 
 export default function Diary({ workoutData }: Props) {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingRecord, setEditingRecord] = useState<TrainingRecord | null>(null);
 
-  // Flatten all exercises from all days (unique by id)
-  const allExercises: Exercise[] = [];
-  const seen = new Set<string>();
-  for (const week of PHASE3_WEEKS.slice(0, 1)) {
-    for (const day of week.days) {
-      for (const ex of day.exercises) {
-        if (!seen.has(ex.id)) {
-          seen.add(ex.id);
-          allExercises.push(ex);
-        }
-      }
-    }
-  }
+  const trainingDays = getTrainingDays();
 
   if (selectedExercise) {
     return (
@@ -56,51 +67,109 @@ export default function Diary({ workoutData }: Props) {
         <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: '#f0f0f0' }}>
           Záznamy cviků
         </h2>
-        <p style={{ color: '#666', fontSize: 12, marginTop: 6 }}>Klikni na cvik pro zobrazení a přidání záznamů.</p>
+        <p style={{ color: '#666', fontSize: 12, marginTop: 6 }}>Vyber tréninkový den a cvik pro zobrazení a přidání záznamů.</p>
       </div>
 
-      {/* Exercise list */}
+      {/* Training days grouped */}
       <div style={{ padding: '14px 20px' }}>
-        {allExercises.map(ex => {
-          const latest = workoutData.getLatestRecord(ex.id);
-          const records = workoutData.getRecords(ex.id);
+        {trainingDays.map(day => {
+          const isOpen = selectedDay === day.key;
+          const typeColor = DAY_TYPE_COLOR[day.type] || '#F5C842';
+          const typeLabel = DAY_TYPE_LABEL[day.type] || day.type.toUpperCase();
+
+          // Count total records for this day
+          const totalRecords = day.exercises.reduce((sum, ex) => {
+            return sum + workoutData.getRecords(ex.id).length;
+          }, 0);
+
           return (
-            <button
-              key={ex.id}
-              onClick={() => setSelectedExercise(ex)}
-              style={{
-                width: '100%',
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid #1c1c1c',
-                borderRadius: 12,
-                padding: '12px 14px',
-                marginBottom: 8,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                cursor: 'pointer',
-                textAlign: 'left',
-                transition: 'all 0.15s ease',
-              }}
-            >
-              <div style={{ width: 4, height: 40, background: getCategoryColor(ex.category), borderRadius: 2, flexShrink: 0 }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#e0e0e0' }}>{ex.name}</div>
-                <div style={{ fontSize: 11, color: '#555', marginTop: 2 }}>
-                  {records.length} záznamů
-                  {latest ? ` · poslední: ${formatDate(latest.date)}` : ''}
-                </div>
-              </div>
-              {latest && (
-                <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                  <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, fontWeight: 800, color: '#F5C842' }}>
-                    {latest.weight !== '0' ? `${latest.weight} kg` : latest.reps + ' min'}
+            <div key={day.key} style={{ marginBottom: 10 }}>
+              {/* Day header button */}
+              <button
+                onClick={() => setSelectedDay(isOpen ? null : day.key)}
+                style={{
+                  width: '100%',
+                  background: isOpen ? 'rgba(245,200,66,0.06)' : 'rgba(255,255,255,0.02)',
+                  border: isOpen ? `1px solid rgba(245,200,66,0.25)` : '1px solid #1c1c1c',
+                  borderRadius: isOpen ? '12px 12px 0 0' : 12,
+                  padding: '14px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <div style={{ width: 4, height: 44, background: typeColor, borderRadius: 2, flexShrink: 0 }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#e0e0e0', fontFamily: 'Barlow Condensed, sans-serif', letterSpacing: '-0.01em' }}>
+                    {day.label}
                   </div>
-                  <div style={{ fontSize: 10, color: '#444' }}>{latest.sets}×{latest.reps}</div>
+                  <div style={{ fontSize: 11, color: typeColor, fontWeight: 600, letterSpacing: '0.08em', marginTop: 2 }}>
+                    {typeLabel}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <div style={{ fontSize: 12, color: '#555' }}>{day.exercises.length} cviků</div>
+                  <div style={{ fontSize: 11, color: '#444', marginTop: 2 }}>{totalRecords} záznamů</div>
+                </div>
+                <div style={{ color: isOpen ? '#F5C842' : '#333', fontSize: 18, transition: 'transform 0.2s', transform: isOpen ? 'rotate(90deg)' : 'none' }}>›</div>
+              </button>
+
+              {/* Exercises list for this day */}
+              {isOpen && (
+                <div style={{
+                  background: 'rgba(255,255,255,0.01)',
+                  border: '1px solid rgba(245,200,66,0.15)',
+                  borderTop: 'none',
+                  borderRadius: '0 0 12px 12px',
+                  overflow: 'hidden',
+                }}>
+                  {day.exercises.map((ex, idx) => {
+                    const latest = workoutData.getLatestRecord(ex.id);
+                    const records = workoutData.getRecords(ex.id);
+                    const exColor = getCategoryColor(ex.category);
+                    return (
+                      <button
+                        key={ex.id}
+                        onClick={() => setSelectedExercise(ex)}
+                        style={{
+                          width: '100%',
+                          background: 'transparent',
+                          border: 'none',
+                          borderTop: idx > 0 ? '1px solid #161616' : 'none',
+                          padding: '11px 16px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 12,
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          transition: 'background 0.1s ease',
+                        }}
+                      >
+                        <div style={{ width: 3, height: 32, background: exColor, borderRadius: 2, flexShrink: 0, opacity: 0.7 }} />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: '#d0d0d0' }}>{ex.name}</div>
+                          <div style={{ fontSize: 11, color: '#555', marginTop: 1 }}>
+                            {records.length > 0 ? `${records.length} záznamů · poslední: ${formatDate(workoutData.getLatestRecord(ex.id)?.date || '')}` : 'Žádné záznamy'}
+                          </div>
+                        </div>
+                        {latest && (
+                          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 800, color: '#F5C842' }}>
+                              {latest.weight !== '0' ? `${latest.weight} kg` : latest.reps + ' min'}
+                            </div>
+                            <div style={{ fontSize: 10, color: '#444' }}>{latest.sets}×{latest.reps}</div>
+                          </div>
+                        )}
+                        <div style={{ color: '#2a2a2a', fontSize: 14 }}>›</div>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
-              <div style={{ color: '#333', fontSize: 16 }}>›</div>
-            </button>
+            </div>
           );
         })}
       </div>
@@ -142,7 +211,7 @@ function ExerciseDetail({
         >‹</button>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 11, color: color, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-            {exercise.category}
+            {getCategoryLabel(exercise.category)}
           </div>
           <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 20, fontWeight: 800, color: '#f0f0f0', letterSpacing: '-0.02em' }}>
             {exercise.name}
@@ -157,6 +226,18 @@ function ExerciseDetail({
           }}
         >+ Přidat</button>
       </div>
+
+      {/* Target prescription */}
+      {exercise.targetSets && (
+        <div style={{ margin: '10px 20px 0', padding: '10px 14px', background: 'rgba(245,200,66,0.04)', border: '1px solid rgba(245,200,66,0.1)', borderRadius: 10 }}>
+          <div style={{ fontSize: 10, color: '#666', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>Cíl Fáze 3</div>
+          <div style={{ fontSize: 13, color: '#aaa' }}>
+            {exercise.targetSets}×{exercise.targetReps}
+            {exercise.targetWeight ? ` · ${exercise.targetWeight}` : ''}
+            {exercise.note ? ` · ${exercise.note}` : ''}
+          </div>
+        </div>
+      )}
 
       {/* Add / Edit Form */}
       {(showAddForm || editingRecord) && (
@@ -236,6 +317,7 @@ function RecordForm({
     width: '100%',
     outline: 'none',
     fontFamily: 'Inter, sans-serif',
+    boxSizing: 'border-box' as const,
   };
 
   const labelStyle = {
@@ -249,7 +331,7 @@ function RecordForm({
 
   return (
     <div style={{
-      margin: '0 20px 16px',
+      margin: '12px 20px 16px',
       background: '#111',
       border: '1px solid rgba(245,200,66,0.2)',
       borderRadius: 14,

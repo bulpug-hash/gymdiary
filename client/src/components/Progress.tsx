@@ -3,7 +3,7 @@
 // Shows: progress charts for main lifts, estimated 1RM over time, body weight trend
 import { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { estimate1RM, formatDate, GOALS } from '@/lib/data';
+import { estimate1RM, formatDate, GOALS, CURRENT_MAXES } from '@/lib/data';
 import type { WorkoutDataHook } from '@/lib/types';
 
 interface Props {
@@ -56,12 +56,19 @@ export default function Progress({ workoutData }: Props) {
   const improvement = latest && first ? latest.est1RM - first.est1RM : 0;
   const pctToGoal = latest ? Math.min(100, Math.round((latest.est1RM / lift.goal) * 100)) : 0;
 
-  // Stats for all 3 lifts
+  // Stats for all 3 lifts – zobrazujeme reálnou váhu + odhadované 1RM
+  const defaultMaxes: Record<string, number> = {
+    bench: CURRENT_MAXES.bench,
+    squat: CURRENT_MAXES.squat,
+    deadlift: CURRENT_MAXES.deadlift,
+  };
   const allStats = LIFTS.map(l => {
     const recs = workoutData.getRecords(l.exerciseId);
-    const latest = recs[recs.length - 1];
-    const est = latest ? estimate1RM(parseFloat(latest.weight) || 0, parseInt(latest.reps) || 1) : 0;
-    return { ...l, est1RM: est, pct: Math.min(100, Math.round((est / l.goal) * 100)) };
+    const latestRec = recs[recs.length - 1];
+    const realWeight = latestRec ? (parseFloat(latestRec.weight) || defaultMaxes[l.key]) : defaultMaxes[l.key];
+    const est = latestRec ? estimate1RM(parseFloat(latestRec.weight) || 0, parseInt(latestRec.reps) || 1) : realWeight;
+    const pct = Math.min(100, Math.round((realWeight / l.goal) * 100));
+    return { ...l, realWeight, est1RM: est, pct, lastSetsReps: latestRec ? `${latestRec.sets}×${latestRec.reps}` : '' };
   });
 
   return (
@@ -78,7 +85,7 @@ export default function Progress({ workoutData }: Props) {
 
       {/* Summary stats */}
       <div style={{ padding: '14px 20px', borderBottom: '1px solid #1c1c1c' }}>
-        <div style={{ color: '#444', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>ODHADOVANÉ 1RM</div>
+        <div style={{ color: '#444', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>AKTUÁLNÍ MAXIMA</div>
         <div style={{ display: 'flex', gap: 8 }}>
           {allStats.map(s => (
             <button
@@ -95,11 +102,12 @@ export default function Progress({ workoutData }: Props) {
                 transition: 'all 0.15s ease',
               }}
             >
-              <div style={{ fontSize: 10, color: '#555', marginBottom: 4 }}>{s.label.split(' ')[0]}</div>
+              <div style={{ fontSize: 10, color: '#555', marginBottom: 3 }}>{s.label.split(' ')[0]}</div>
               <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 22, fontWeight: 800, color: s.color, lineHeight: 1 }}>
-                {s.est1RM > 0 ? s.est1RM : '–'}
+                {s.realWeight > 0 ? s.realWeight : '–'}
               </div>
-              <div style={{ fontSize: 9, color: '#444', marginTop: 2 }}>kg · {s.pct}%</div>
+              <div style={{ fontSize: 9, color: '#444', marginTop: 1 }}>{s.lastSetsReps || 'kg'}</div>
+              <div style={{ fontSize: 9, color: '#333', marginTop: 2 }}>1RM~{s.est1RM} · {s.pct}%</div>
             </button>
           ))}
         </div>
