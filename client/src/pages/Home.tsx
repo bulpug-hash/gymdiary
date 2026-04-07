@@ -1,25 +1,90 @@
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { Streamdown } from 'streamdown';
+// Gold Performance Design – Main App Shell
+// Bottom tab navigation: Přehled | Plán | Deník | Progres
+import { useState } from 'react';
+import Overview from '@/components/Overview';
+import Plan from '@/components/Plan';
+import Diary from '@/components/Diary';
+import Progress from '@/components/Progress';
+import { useWorkoutData } from '@/hooks/useWorkoutData';
+import type { Tab } from '@/lib/types';
+export type { Tab };
 
-/**
- * All content in this page are only for example, replace with your own feature implementation
- * When building pages, remember your instructions in Frontend Best Practices, Design Guide and Common Pitfalls
- */
+const TABS: { key: Tab; label: string; icon: string }[] = [
+  { key: 'overview', label: 'Přehled', icon: '⚡' },
+  { key: 'plan', label: 'Plán', icon: '📋' },
+  { key: 'diary', label: 'Deník', icon: '📓' },
+  { key: 'progress', label: 'Progres', icon: '📈' },
+];
+
 export default function Home() {
-  // If theme is switchable in App.tsx, we can implement theme toggling like this:
-  // const { theme, toggleTheme } = useTheme();
+  const [activeTab, setActiveTab] = useState<Tab>('overview');
+  const workoutData = useWorkoutData();
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main>
-        {/* Example: lucide-react for icons */}
-        <Loader2 className="animate-spin" />
-        Example Page
-        {/* Example: Streamdown for markdown rendering */}
-        <Streamdown>Any **markdown** content</Streamdown>
-        <Button variant="default">Example Button</Button>
-      </main>
+    <div style={{
+      minHeight: '100dvh',
+      maxWidth: 480,
+      margin: '0 auto',
+      display: 'flex',
+      flexDirection: 'column',
+      background: '#0c0c0c',
+      position: 'relative',
+    }}>
+      {/* Main content area */}
+      <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 72 }}>
+        {activeTab === 'overview' && <Overview workoutData={workoutData} onNavigate={setActiveTab} />}
+        {activeTab === 'plan' && <Plan workoutData={workoutData} />}
+        {activeTab === 'diary' && <Diary workoutData={workoutData} />}
+        {activeTab === 'progress' && <Progress workoutData={workoutData} />}
+      </div>
+
+      {/* Bottom tab bar */}
+      <div style={{
+        position: 'fixed',
+        bottom: 0,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '100%',
+        maxWidth: 480,
+        display: 'flex',
+        background: 'rgba(12,12,12,0.97)',
+        borderTop: '1px solid #1c1c1c',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        zIndex: 100,
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+      }}>
+        {TABS.map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            style={{
+              flex: 1,
+              padding: '10px 0 8px',
+              background: 'none',
+              border: 'none',
+              borderTop: activeTab === tab.key ? '2px solid #F5C842' : '2px solid transparent',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 2,
+            }}
+          >
+            <span style={{ fontSize: 20, lineHeight: 1 }}>{tab.icon}</span>
+            <span style={{
+              fontSize: 10,
+              fontWeight: activeTab === tab.key ? 700 : 400,
+              color: activeTab === tab.key ? '#F5C842' : '#555',
+              letterSpacing: '0.02em',
+              transition: 'color 0.15s ease',
+            }}>
+              {tab.label}
+            </span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

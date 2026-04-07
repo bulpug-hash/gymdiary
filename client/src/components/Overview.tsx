@@ -1,0 +1,201 @@
+// Overview – Přehled tab
+// Gold Performance Design
+// Shows: today's workout, week strip, goals progress, recent PRs
+import { PHASE3_WEEKS, getTodayDayKey, getCurrentWeek, getCategoryColor, estimate1RM, formatDate, GOALS } from '@/lib/data';
+import type { WorkoutDataHook, Tab } from '@/lib/types';
+
+interface Props {
+  workoutData: WorkoutDataHook;
+  onNavigate: (tab: Tab) => void;
+}
+
+const DAY_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+const DAY_SHORT = ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'];
+
+const TYPE_LABEL: Record<string, string> = {
+  lower: 'LOWER', upper: 'UPPER', fullbody: 'FULL', hiit: 'HIIT', run: 'RUN', rest: 'VOL',
+};
+
+export default function Overview({ workoutData, onNavigate }: Props) {
+  const todayKey = getTodayDayKey();
+  const currentWeek = getCurrentWeek();
+  const todayDay = currentWeek.days.find(d => d.key === todayKey);
+
+  // Latest records for main lifts
+  const latestBench = workoutData.getLatestRecord('bench');
+  const latestSquat = workoutData.getLatestRecord('squat');
+  const latestDL = workoutData.getLatestRecord('deadlift');
+
+  const bench1RM = latestBench ? estimate1RM(parseFloat(latestBench.weight) || 0, parseInt(latestBench.reps) || 1) : 105;
+  const squat1RM = latestSquat ? estimate1RM(parseFloat(latestSquat.weight) || 0, parseInt(latestSquat.reps) || 1) : 160;
+  const dl1RM = latestDL ? estimate1RM(parseFloat(latestDL.weight) || 0, parseInt(latestDL.reps) || 1) : 230;
+
+  const goals = [
+    { name: 'Bench Press', current: bench1RM, goal: GOALS.bench, unit: 'kg' },
+    { name: 'Back Squat', current: squat1RM, goal: GOALS.squat, unit: 'kg' },
+    { name: 'Mrtvý tah', current: dl1RM, goal: GOALS.deadlift, unit: 'kg' },
+  ];
+
+  return (
+    <div style={{ padding: '0 0 16px' }}>
+      {/* Header */}
+      <div style={{ padding: '20px 20px 0', borderBottom: '1px solid #1c1c1c', paddingBottom: 16 }}>
+        <div style={{ color: '#F5C842', fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>
+          TRÉNINKOVÝ DENÍK · FÁZE 3
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+          <div>
+            <h1 style={{
+              fontFamily: 'Barlow Condensed, Inter, sans-serif',
+              fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em',
+              lineHeight: 1.1, margin: 0, color: '#f0f0f0',
+            }}>
+              Silově-hypertrofický<br />plán 2026
+            </h1>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: 11, color: '#555', marginBottom: 2 }}>Týden</div>
+            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 28, fontWeight: 800, color: '#F5C842', lineHeight: 1 }}>
+              {currentWeek.number}
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
+          <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#F5C842' }} />
+          <span style={{ color: '#666', fontSize: 12 }}>
+            {currentWeek.label} · {currentWeek.dateFrom.split('-').slice(1).reverse().join('.')} – {currentWeek.dateTo.split('-').slice(1).reverse().join('.')}
+          </span>
+        </div>
+      </div>
+
+      {/* Week strip */}
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid #1c1c1c' }}>
+        <div style={{ color: '#444', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 10 }}>TÝDENNÍ ROZVRH</div>
+        <div style={{ display: 'flex', gap: 5 }}>
+          {DAY_KEYS.map((key, i) => {
+            const day = currentWeek.days.find(d => d.key === key);
+            const isToday = key === todayKey;
+            const isRest = day?.type === 'rest';
+            return (
+              <div key={key} style={{
+                flex: 1, textAlign: 'center', padding: '8px 0',
+                borderRadius: 10,
+                background: isToday ? '#F5C842' : 'rgba(255,255,255,0.03)',
+                border: isToday ? 'none' : '1px solid #1c1c1c',
+                transition: 'all 0.15s ease',
+              }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: isToday ? '#0c0c0c' : '#666' }}>{DAY_SHORT[i]}</div>
+                <div style={{ fontSize: 8, color: isToday ? 'rgba(0,0,0,0.7)' : '#444', marginTop: 2, fontWeight: isToday ? 700 : 400 }}>
+                  {isRest ? '–' : (day ? TYPE_LABEL[day.type] || '?' : '?')}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Today's workout card */}
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid #1c1c1c' }}>
+        {todayDay && todayDay.type !== 'rest' ? (
+          <div
+            style={{
+              background: 'rgba(245,200,66,0.06)',
+              border: '1px solid rgba(245,200,66,0.2)',
+              borderLeft: '3px solid #F5C842',
+              borderRadius: 14,
+              padding: '14px 16px',
+              cursor: 'pointer',
+            }}
+            onClick={() => onNavigate('plan')}
+          >
+            <div style={{ color: '#F5C842', fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>DNES TRÉNUJEŠ</div>
+            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em', color: '#f0f0f0' }}>
+              {todayDay.label.toUpperCase()} – {todayDay.description.split('–')[0].trim().toUpperCase()}
+            </div>
+            <div style={{ color: '#666', fontSize: 12, marginTop: 4 }}>
+              {todayDay.exercises.length > 0 ? `${todayDay.exercises.length} cviků` : ''} · {todayDay.description.split('.')[0]}
+            </div>
+            <div style={{ marginTop: 12, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {todayDay.exercises.slice(0, 3).map(ex => (
+                <span key={ex.id} style={{
+                  fontSize: 11, padding: '3px 8px', borderRadius: 6,
+                  background: 'rgba(245,200,66,0.1)',
+                  color: getCategoryColor(ex.category),
+                  border: `1px solid ${getCategoryColor(ex.category)}25`,
+                }}>
+                  {ex.nameShort || ex.name}
+                </span>
+              ))}
+              {todayDay.exercises.length > 3 && (
+                <span style={{ fontSize: 11, color: '#555', padding: '3px 0' }}>+{todayDay.exercises.length - 3} dalších</span>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid #1c1c1c',
+            borderRadius: 14,
+            padding: '14px 16px',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: 24, marginBottom: 6 }}>🌙</div>
+            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, fontWeight: 700, color: '#888' }}>
+              Dnes je volno
+            </div>
+            <div style={{ color: '#555', fontSize: 12, marginTop: 4 }}>Aktivní regenerace, strečink, sauna</div>
+          </div>
+        )}
+      </div>
+
+      {/* Goals progress */}
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid #1c1c1c' }}>
+        <div style={{ color: '#444', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>CÍLOVÉ VÝKONY – FÁZE 3</div>
+        {goals.map(({ name, current, goal }) => {
+          const pct = Math.min(100, Math.round((current / goal) * 100));
+          return (
+            <div key={name} style={{ marginBottom: 14 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+                <span style={{ fontSize: 13, color: '#ccc' }}>{name}</span>
+                <span style={{ fontSize: 13, fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700 }}>
+                  <span style={{ color: '#F5C842' }}>{current} kg</span>
+                  <span style={{ color: '#333' }}> / {goal} kg</span>
+                </span>
+              </div>
+              <div style={{ height: 3, background: '#1c1c1c', borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{
+                  height: '100%',
+                  width: `${pct}%`,
+                  background: pct >= 95 ? '#6EE7B7' : 'linear-gradient(90deg, #F5C842, #F59E0B)',
+                  borderRadius: 2,
+                  transition: 'width 0.8s ease',
+                }} />
+              </div>
+              <div style={{ fontSize: 10, color: '#444', marginTop: 3, textAlign: 'right' }}>{pct}% cíle</div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Phase description */}
+      <div style={{ padding: '14px 20px' }}>
+        <div style={{ color: '#444', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 10 }}>POPIS FÁZE 3</div>
+        <div style={{ background: '#111', border: '1px solid #1c1c1c', borderRadius: 12, padding: '14px 16px' }}>
+          <div style={{ color: '#F5C842', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Peaking & Testovací fáze (12 týdnů)</div>
+          <div style={{ color: '#888', fontSize: 12, lineHeight: 1.6 }}>
+            Vědecky podložený silově-hypertrofický program. 3 silové tréninky + 3 kardio jednotky týdně.
+            Cíl: Bench 130 kg · Squat 190 kg · Deadlift 235 kg do konce června 2026.
+          </div>
+          <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
+            {[['T1–T4', 'Akumulace'], ['T5–T8', 'Transmutace'], ['T9–T12', 'Peaking']].map(([weeks, label]) => (
+              <div key={weeks} style={{ flex: 1, background: 'rgba(245,200,66,0.06)', borderRadius: 8, padding: '8px', textAlign: 'center', border: '1px solid rgba(245,200,66,0.12)' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#F5C842' }}>{weeks}</div>
+                <div style={{ fontSize: 10, color: '#666', marginTop: 2 }}>{label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
