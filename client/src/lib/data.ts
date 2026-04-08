@@ -73,6 +73,9 @@ export const CURRENT_MAXES = {
   deadlift: 225,
 };
 
+// Plan start date – W1 starts on this Monday
+export const PLAN_START_DATE = '2026-04-14';  // Příští pondělí
+
 // ============================================================
 // HELPERS – day builders
 // ============================================================
@@ -753,8 +756,20 @@ export const PHASE3_WEEKS: Week[] = [
 // HISTORICAL DATA – Záznamy z předchozích tréninků
 // ============================================================
 
+// ============================================================
+// ALL-TIME PR BASELINE – historická data z CSV (Fáze 1 + Fáze 2, Jan–Mar 2026)
+// Tato data jsou pevně zabudována jako výchozí záznamy pro all-time PR detekci.
+// Uživatel je může vidět v Deníku jako "Hist. Fáze 1/2" záznamy.
+// ============================================================
 export const DEFAULT_RECORDS: RecordsMap = {
   'Low-Bar Back Squat': [
+    // CSV historická data (Fáze 1 + 2)
+    { id: 'hist_0', date: '2026-01-26', sets: '3', weight: '120', reps: '6', note: 'Hist. Fáze 1 – start' },
+    { id: 'hist_17', date: '2026-02-02', sets: '3', weight: '120', reps: '8', note: 'Hist. Fáze 1' },
+    { id: 'hist_34', date: '2026-02-09', sets: '3', weight: '130', reps: '6', note: 'Hist. Fáze 1' },
+    { id: 'hist_51', date: '2026-02-16', sets: '3', weight: '135', reps: '6', note: 'Hist. Fáze 1 – PR 135×6' },
+    { id: 'hist_68', date: '2026-03-02', sets: '3', weight: '160', reps: '1', note: 'Hist. Fáze 2 – PR 160×1!' },
+    // Nové záznamy Fáze 3
     { id: 'sq1', date: '2026-03-02', sets: '4', weight: '160', reps: '1', note: 'Nové PR! Technika dobrá.' },
     { id: 'sq2', date: '2026-02-23', sets: '4', weight: '155', reps: '2', note: 'RPE 9.' },
     { id: 'sq3', date: '2026-02-16', sets: '4', weight: '150', reps: '3', note: 'RPE 8–9.' },
@@ -795,6 +810,13 @@ export const DEFAULT_RECORDS: RecordsMap = {
     { id: 'hlr4', date: '2026-02-09', sets: '3', weight: '0', reps: '15', note: 'BW.' },
   ],
   'Barbell Bench Press': [
+    // CSV historická data (Fáze 1 + 2)
+    { id: 'hist_6', date: '2026-01-27', sets: '3', weight: '100', reps: '8', note: 'Hist. Fáze 1 – start' },
+    { id: 'hist_23', date: '2026-02-03', sets: '3', weight: '105', reps: '8', note: 'Hist. Fáze 1 – PR 105×8!' },
+    { id: 'hist_39', date: '2026-02-10', sets: '3', weight: '100', reps: '8', note: 'Hist. Fáze 1' },
+    { id: 'hist_56', date: '2026-02-17', sets: '3', weight: '105', reps: '8', note: 'Hist. Fáze 1' },
+    { id: 'hist_73', date: '2026-03-03', sets: '3', weight: '110', reps: '3', note: 'Hist. Fáze 2 – PR 110×3!' },
+    // Nové záznamy
     { id: 'bp1', date: '2026-03-17', sets: '4', weight: '105', reps: '8', note: 'RPE 8. Nové PR na 8 rep!' },
     { id: 'bp2', date: '2026-03-10', sets: '4', weight: '102.5', reps: '8', note: 'RPE 8.' },
     { id: 'bp3', date: '2026-03-03', sets: '4', weight: '100', reps: '8', note: 'RPE 8.' },
@@ -815,12 +837,24 @@ export const DEFAULT_RECORDS: RecordsMap = {
     { id: 'idp3', date: '2026-03-03', sets: '3', weight: '28', reps: '10', note: '' },
   ],
   'Weighted Pull-Up': [
+    // CSV historická data (Fáze 1 + 2)
+    { id: 'hist_8', date: '2026-01-27', sets: '3', weight: '10', reps: '5', note: 'Hist. Fáze 1' },
+    { id: 'hist_25', date: '2026-02-03', sets: '3', weight: '10', reps: '5', note: 'Hist. Fáze 1' },
+    { id: 'hist_41', date: '2026-02-10', sets: '3', weight: '10', reps: '5', note: 'Hist. Fáze 1' },
+    { id: 'hist_58', date: '2026-02-17', sets: '3', weight: '0', reps: '10', note: 'Hist. Fáze 1 – BW' },
+    { id: 'hist_74', date: '2026-03-03', sets: '3', weight: '15', reps: '4', note: 'Hist. Fáze 2 – PR +15 kg!' },
+    // Nové záznamy
     { id: 'wpu1', date: '2026-03-17', sets: '4', weight: '15', reps: '6', note: 'RPE 8.' },
     { id: 'wpu2', date: '2026-03-10', sets: '4', weight: '12.5', reps: '6', note: '' },
     { id: 'wpu3', date: '2026-03-03', sets: '4', weight: '10', reps: '6', note: '' },
     { id: 'wpu4', date: '2026-02-24', sets: '4', weight: '10', reps: '6', note: '' },
   ],
   'Conventional Deadlift': [
+    // CSV historická data (Fáze 1 + 2)
+    { id: 'hist_11', date: '2026-01-30', sets: '3', weight: '180', reps: '6', note: 'Hist. Fáze 1 – start' },
+    { id: 'hist_28', date: '2026-02-06', sets: '3', weight: '200', reps: '8', note: 'Hist. Fáze 1 – PR 200×8!' },
+    { id: 'hist_44', date: '2026-02-13', sets: '3', weight: '200', reps: '8', note: 'Hist. Fáze 1' },
+    // Nové záznamy
     { id: 'dl1', date: '2026-03-06', sets: '3', weight: '230', reps: '2', note: 'RPE 9. Nové PR!' },
     { id: 'dl2', date: '2026-02-27', sets: '3', weight: '225', reps: '2', note: 'RPE 9.' },
     { id: 'dl3', date: '2026-02-20', sets: '3', weight: '220', reps: '3', note: 'RPE 8–9.' },

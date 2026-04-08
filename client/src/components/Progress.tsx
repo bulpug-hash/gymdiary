@@ -3,7 +3,7 @@
 // Shows: progress charts for main lifts, estimated 1RM over time, body weight trend
 import { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { estimate1RM, formatDate, GOALS, CURRENT_MAXES } from '@/lib/data';
+import { estimate1RM, formatDate, GOALS, CURRENT_MAXES, PLAN_START_DATE } from '@/lib/data';
 import type { WorkoutDataHook } from '@/lib/types';
 
 interface Props {
@@ -181,6 +181,9 @@ export default function Progress({ workoutData }: Props) {
         </div>
       </div>
 
+      {/* Weekly Volume Section */}
+      <WeeklyVolumeSection workoutData={workoutData} />
+
       {/* Recent records table */}
       <div style={{ padding: '14px 20px' }}>
         <div style={{ color: '#444', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>
@@ -214,6 +217,60 @@ export default function Progress({ workoutData }: Props) {
           ))
         )}
       </div>
+    </div>
+  );
+}
+
+// ============================================================
+// Weekly Volume Section
+// ============================================================
+function WeeklyVolumeSection({ workoutData }: { workoutData: WorkoutDataHook }) {
+  const today = new Date();
+  const weeks: { label: string; startDate: string; volume: number }[] = [];
+  const weekStart = new Date(today);
+  const dayOfWeek = weekStart.getDay();
+  const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  weekStart.setDate(weekStart.getDate() - daysToMonday);
+  for (let i = 7; i >= 0; i--) {
+    const ws = new Date(weekStart);
+    ws.setDate(ws.getDate() - i * 7);
+    const wsISO = ws.toISOString().slice(0, 10);
+    const vol = workoutData.getWeeklyVolume(wsISO);
+    const label = `${ws.getDate()}.${ws.getMonth() + 1}`;
+    weeks.push({ label, startDate: wsISO, volume: vol });
+  }
+  const maxVol = Math.max(...weeks.map(w => w.volume), 1);
+  const currentWeekVol = weeks[weeks.length - 1]?.volume ?? 0;
+  const prevWeekVol = weeks[weeks.length - 2]?.volume ?? 0;
+  const volChange = currentWeekVol - prevWeekVol;
+  return (
+    <div style={{ padding: '14px 20px', borderBottom: '1px solid #1c1c1c' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <div style={{ color: '#444', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase' }}>TÝDENNÍ OBJEM (kg)</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: volChange >= 0 ? '#6EE7B7' : '#F87171' }}>
+          {currentWeekVol.toLocaleString()} kg{volChange !== 0 ? (volChange > 0 ? ` +${volChange.toLocaleString()}` : ` ${volChange.toLocaleString()}`) : ''}
+        </div>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 80 }}>
+        {weeks.map((w, i) => {
+          const isCurrentWeek = i === weeks.length - 1;
+          const barHeight = maxVol > 0 ? Math.max(4, (w.volume / maxVol) * 72) : 4;
+          return (
+            <div key={w.startDate} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: '100%', height: barHeight, background: isCurrentWeek ? '#F5C842' : w.volume > 0 ? 'rgba(245,200,66,0.3)' : '#1c1c1c', borderRadius: '3px 3px 0 0', alignSelf: 'flex-end' }} />
+              <div style={{ fontSize: 8, color: isCurrentWeek ? '#F5C842' : '#444', whiteSpace: 'nowrap' }}>{w.label}</div>
+            </div>
+          );
+        })}
+      </div>
+      {prevWeekVol > 0 && (
+        <div style={{ marginTop: 10, fontSize: 11, color: '#555', textAlign: 'center' }}>
+          Minulý týden: {prevWeekVol.toLocaleString()} kg
+          <span style={{ color: volChange > 0 ? '#6EE7B7' : volChange < 0 ? '#F87171' : '#555', marginLeft: 6, fontWeight: 700 }}>
+            {volChange > 0 ? `+${volChange.toLocaleString()}` : volChange < 0 ? `${volChange.toLocaleString()}` : '='} kg
+          </span>
+        </div>
+      )}
     </div>
   );
 }

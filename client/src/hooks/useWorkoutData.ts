@@ -107,5 +107,40 @@ export function useWorkoutData() {
     return list.length > 0 ? list[list.length - 1] : null;
   }, [getRecords]);
 
-  return { records, addRecord, updateRecord, deleteRecord, getRecords, getLatestRecord };
+  // Get all-time PR (max weight) for an exercise
+  const getAllTimePR = useCallback((exerciseId: string): number => {
+    const list = getRecords(exerciseId);
+    if (list.length === 0) return 0;
+    return Math.max(...list.map(r => parseFloat(r.weight) || 0));
+  }, [getRecords]);
+
+  // Check if a given weight is a new all-time PR for an exercise
+  // (considering only records BEFORE the given recordId)
+  const isNewPR = useCallback((exerciseId: string, recordId: string, weight: number): boolean => {
+    const list = getRecords(exerciseId);
+    const idx = list.findIndex(r => r.id === recordId);
+    if (idx <= 0) return false; // first record can't be a PR
+    const prevMax = Math.max(...list.slice(0, idx).map(r => parseFloat(r.weight) || 0));
+    return weight > prevMax;
+  }, [getRecords]);
+
+  // Get weekly volume (total kg × reps) for all exercises in a given ISO week
+  const getWeeklyVolume = useCallback((weekStartDate: string): number => {
+    const start = new Date(weekStartDate);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 6);
+    let total = 0;
+    for (const exerciseId of Object.keys(records)) {
+      const list = records[exerciseId] ?? [];
+      for (const r of list) {
+        const d = new Date(r.date);
+        if (d >= start && d <= end) {
+          total += (parseFloat(r.weight) || 0) * (parseInt(r.reps as string) || 0) * (parseInt(r.sets as string) || 1);
+        }
+      }
+    }
+    return Math.round(total);
+  }, [records]);
+
+  return { records, addRecord, updateRecord, deleteRecord, getRecords, getLatestRecord, getAllTimePR, isNewPR, getWeeklyVolume };
 }

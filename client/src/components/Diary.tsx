@@ -195,6 +195,7 @@ function ExerciseDetail({
 }) {
   const records = workoutData.getRecords(exercise.id);
   const color = getCategoryColor(exercise.category);
+  const allTimePR = workoutData.getAllTimePR(exercise.id);
 
   const handleDelete = (recordId: string) => {
     workoutData.deleteRecord(exercise.id, recordId);
@@ -262,6 +263,7 @@ function ExerciseDetail({
               key={record.id}
               record={record}
               isLatest={idx === 0}
+              isPR={parseFloat(record.weight) > 0 && parseFloat(record.weight) >= allTimePR && allTimePR > 0}
               onEdit={() => { setEditingRecord(record); setShowAddForm(false); }}
               onDelete={() => handleDelete(record.id)}
             />
@@ -420,9 +422,10 @@ function RecordForm({
 // ============================================================
 // Record Row
 // ============================================================
-function RecordRow({ record, isLatest, onEdit, onDelete }: {
+function RecordRow({ record, isLatest, isPR, onEdit, onDelete }: {
   record: TrainingRecord;
   isLatest: boolean;
+  isPR: boolean;
   onEdit: () => void;
   onDelete: () => void;
 }) {
@@ -447,6 +450,11 @@ function RecordRow({ record, isLatest, onEdit, onDelete }: {
             {isLatest && (
               <span style={{ fontSize: 9, background: 'rgba(245,200,66,0.15)', color: '#F5C842', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>
                 POSLEDNÍ
+              </span>
+            )}
+            {isPR && (
+              <span style={{ fontSize: 9, background: 'rgba(255,215,0,0.2)', color: '#FFD700', padding: '2px 6px', borderRadius: 4, fontWeight: 800, border: '1px solid rgba(255,215,0,0.4)' }}>
+                🏆 ALL-TIME PR
               </span>
             )}
           </div>
