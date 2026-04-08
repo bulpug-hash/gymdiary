@@ -1,7 +1,8 @@
 // Overview – Přehled tab
 // Gold Performance Design
 // Shows: today's workout, week strip, goals progress, recent PRs
-import { PHASE3_WEEKS, getTodayDayKey, getCurrentWeek, getCategoryColor, formatDate, GOALS, CURRENT_MAXES } from '@/lib/data';
+import { PHASE3_WEEKS, getTodayDayKey, getCurrentWeek, getCategoryColor, GOALS, CURRENT_MAXES } from '@/lib/data';
+import type { Week } from '@/lib/data';
 import type { WorkoutDataHook, Tab } from '@/lib/types';
 
 interface Props {
@@ -18,7 +19,8 @@ const TYPE_LABEL: Record<string, string> = {
 
 export default function Overview({ workoutData, onNavigate }: Props) {
   const todayKey = getTodayDayKey();
-  const currentWeek = getCurrentWeek();
+  const currentWeekNum = getCurrentWeek();
+  const currentWeek: Week = PHASE3_WEEKS.find(w => w.number === currentWeekNum) || PHASE3_WEEKS[0];
   const todayDay = currentWeek.days.find(d => d.key === todayKey);
 
   // Latest records for main lifts – zobrazujeme reálnou váhu, ne odhadované 1RM
@@ -42,7 +44,7 @@ export default function Overview({ workoutData, onNavigate }: Props) {
       {/* Header */}
       <div style={{ padding: '20px 20px 0', borderBottom: '1px solid #1c1c1c', paddingBottom: 16 }}>
         <div style={{ color: '#F5C842', fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>
-          TRÉNINKOVÝ DENÍK · FÁZE 3
+          TRÉNINKOVÝ DENÍK · 16T. PLÁN 2026
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <div>
@@ -51,7 +53,7 @@ export default function Overview({ workoutData, onNavigate }: Props) {
               fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em',
               lineHeight: 1.1, margin: 0, color: '#f0f0f0',
             }}>
-              Silově-hypertrofický<br />plán 2026
+              Vědecky podložený<br />plán 2026 v2.0
             </h1>
           </div>
           <div style={{ textAlign: 'right' }}>
@@ -183,16 +185,15 @@ export default function Overview({ workoutData, onNavigate }: Props) {
 
       {/* Phase description */}
       <div style={{ padding: '14px 20px' }}>
-        <div style={{ color: '#444', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 10 }}>POPIS FÁZE 3</div>
+          <div style={{ color: '#444', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 10 }}>AKTUÁLNÍ FÁZE</div>
         <div style={{ background: '#111', border: '1px solid #1c1c1c', borderRadius: 12, padding: '14px 16px' }}>
-          <div style={{ color: '#F5C842', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Peaking & Testovací fáze (12 týdnů)</div>
+          <div style={{ color: '#F5C842', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>{currentWeek.phase}</div>
           <div style={{ color: '#888', fontSize: 12, lineHeight: 1.6 }}>
-            Vědecky podložený silově-hypertrofický program. 3 silové tréninky + 3 kardio jednotky týdně.
-            Cíl: Bench 130 kg · Squat 190 kg · Deadlift 235 kg do konce června 2026.
+            {currentWeek.description}
           </div>
           <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
-            {[['T1–T4', 'Akumulace'], ['T5–T8', 'Transmutace'], ['T9–T12', 'Peaking']].map(([weeks, label]) => (
-              <div key={weeks} style={{ flex: 1, background: 'rgba(245,200,66,0.06)', borderRadius: 8, padding: '8px', textAlign: 'center', border: '1px solid rgba(245,200,66,0.12)' }}>
+            {[['W1–4', 'Akumulace'], ['W5–8', 'Síla'], ['W9–12', 'Intenzifikace'], ['W13–16', 'Peaking']].map(([weeks, label]) => (
+              <div key={weeks} style={{ flex: 1, background: 'rgba(245,200,66,0.06)', borderRadius: 8, padding: '6px 4px', textAlign: 'center', border: '1px solid rgba(245,200,66,0.12)' }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#F5C842' }}>{weeks}</div>
                 <div style={{ fontSize: 10, color: '#666', marginTop: 2 }}>{label}</div>
               </div>

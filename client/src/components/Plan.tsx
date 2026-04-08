@@ -1,6 +1,6 @@
 // Plan – Plán tab
 // Gold Performance Design
-// Shows: Phase 3 weekly plan, all 12 weeks, exercise details per day
+// Shows: 16-week progressive plan v2.0, exercise details per day with dropset badges
 import { useState } from 'react';
 import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel } from '@/lib/data';
 import type { WorkoutDataHook } from '@/lib/types';
@@ -34,10 +34,10 @@ export default function Plan({ workoutData }: Props) {
           TRÉNINKOVÝ PLÁN
         </div>
         <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: '#f0f0f0' }}>
-          Fáze 3 – Peaking 2026
+          Vědecky podložený plán 2026 v2.0
         </h2>
         <p style={{ color: '#666', fontSize: 12, marginTop: 6, lineHeight: 1.5 }}>
-          Vědecky podložený silově-hypertrofický program. 12 týdnů · 3 silové + 3 kardio.
+          16týdenní silově-hypertrofický program · W1–4 Akumulace · W5–8 Síla · W9–12 Intenzifikace · W13–16 Peaking
         </p>
       </div>
 
