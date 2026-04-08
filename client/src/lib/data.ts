@@ -16,6 +16,9 @@ export interface Exercise {
   targetWeight?: string;
   note?: string;
   isDropset?: boolean;
+  description?: string;  // Proč je cvik zařazený, jak se provádí
+  execution?: string;    // Technické provedení krok za krokem
+  whyInPlan?: string;    // Vědecké zdůvodnění zařazení
 }
 
 export interface WorkoutDay {

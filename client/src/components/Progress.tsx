@@ -57,18 +57,24 @@ export default function Progress({ workoutData }: Props) {
   const pctToGoal = latest ? Math.min(100, Math.round((latest.est1RM / lift.goal) * 100)) : 0;
 
   // Stats for all 3 lifts – zobrazujeme reálnou váhu + odhadované 1RM
-  const defaultMaxes: Record<string, number> = {
+  // Real 1RM maxes always from CURRENT_MAXES (document values), not last diary entry
+  const realMaxes: Record<string, number> = {
     bench: CURRENT_MAXES.bench,
     squat: CURRENT_MAXES.squat,
     deadlift: CURRENT_MAXES.deadlift,
   };
   const allStats = LIFTS.map(l => {
     const recs = workoutData.getRecords(l.exerciseId);
-    const latestRec = recs[recs.length - 1];
-    const realWeight = latestRec ? (parseFloat(latestRec.weight) || defaultMaxes[l.key]) : defaultMaxes[l.key];
-    const est = latestRec ? estimate1RM(parseFloat(latestRec.weight) || 0, parseInt(latestRec.reps) || 1) : realWeight;
+    const latestRec = recs.length > 0 ? recs[recs.length - 1] : null;
+    // realWeight = confirmed 1RM from documents, not working weight from diary
+    const realWeight = realMaxes[l.key];
+    // Estimate 1RM from best diary record (highest weight × reps)
+    const bestRec = recs.reduce((best, r) => {
+      const e = estimate1RM(parseFloat(r.weight) || 0, parseInt(r.reps) || 1);
+      return e > best ? e : best;
+    }, realWeight);
     const pct = Math.min(100, Math.round((realWeight / l.goal) * 100));
-    return { ...l, realWeight, est1RM: est, pct, lastSetsReps: latestRec ? `${latestRec.sets}×${latestRec.reps}` : '' };
+    return { ...l, realWeight, est1RM: bestRec, pct, lastSetsReps: latestRec ? `${latestRec.sets}×${latestRec.reps}` : '' };
   });
 
   return (

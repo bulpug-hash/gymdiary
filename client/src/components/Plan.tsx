@@ -3,8 +3,9 @@
 // Shows: 16-week progressive plan v2.0, exercise details per day with dropset badges
 import { useState } from 'react';
 import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel } from '@/lib/data';
+import { getExerciseInfo, CATEGORY_COLORS } from '@/lib/exerciseDescriptions';
 import type { WorkoutDataHook } from '@/lib/types';
-import type { WorkoutDay } from '@/lib/data';
+import type { WorkoutDay, Exercise } from '@/lib/data';
 
 interface Props {
   workoutData: WorkoutDataHook;
@@ -100,6 +101,85 @@ export default function Plan({ workoutData }: Props) {
   );
 }
 
+function ExerciseRow({ ex, idx, total, latest }: {
+  ex: Exercise;
+  idx: number;
+  total: number;
+  latest: any;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const info = getExerciseInfo(ex.id);
+  const catColor = info ? (CATEGORY_COLORS[info.category] || '#888') : getCategoryColor(ex.category);
+
+  return (
+    <div style={{ borderBottom: idx < total - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+      {/* Exercise header row */}
+      <div
+        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', cursor: info ? 'pointer' : 'default' }}
+        onClick={() => info && setExpanded(!expanded)}
+      >
+        <div style={{ width: 5, height: 5, borderRadius: '50%', background: catColor, flexShrink: 0, marginTop: 2 }} />
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+            <div style={{ fontSize: 13, color: '#d0d0d0', fontWeight: 500 }}>{ex.name}</div>
+            {ex.isDropset && (
+              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', color: '#F5C842', background: 'rgba(245,200,66,0.15)', border: '1px solid rgba(245,200,66,0.3)', borderRadius: 4, padding: '1px 5px', textTransform: 'uppercase' }}>DROP</span>
+            )}
+            {info && (
+              <span style={{ fontSize: 9, color: catColor, background: `${catColor}15`, border: `1px solid ${catColor}30`, borderRadius: 4, padding: '1px 5px', letterSpacing: '0.05em' }}>{info.category}</span>
+            )}
+          </div>
+          <div style={{ fontSize: 11, color: '#555', marginTop: 1 }}>
+            {ex.targetSets}×{ex.targetReps}
+            {ex.targetWeight ? ` · ${ex.targetWeight}` : ''}
+            {ex.note ? ` · ${ex.note}` : ''}
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          {latest && (
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 12, fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, color: '#F5C842' }}>
+                {latest.weight !== '0' ? `${latest.weight} kg` : '–'}
+              </div>
+              <div style={{ fontSize: 10, color: '#444' }}>poslední</div>
+            </div>
+          )}
+          {info && (
+            <div style={{ color: '#444', fontSize: 12, transition: 'transform 0.2s', transform: expanded ? 'rotate(180deg)' : 'none', flexShrink: 0 }}>ⓘ</div>
+          )}
+        </div>
+      </div>
+
+      {/* Expandable description */}
+      {expanded && info && (
+        <div style={{ margin: '0 0 10px 15px', padding: '12px 14px', background: 'rgba(0,0,0,0.3)', borderRadius: 10, border: `1px solid ${catColor}20` }}>
+          {/* Why */}
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: 10, color: catColor, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>PROČ JE V PLÁNU</div>
+            <div style={{ fontSize: 12, color: '#aaa', lineHeight: 1.6 }}>{info.why}</div>
+          </div>
+          {/* How */}
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: 10, color: '#888', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>JAK PROVÁDĚT</div>
+            <div style={{ fontSize: 12, color: '#888', lineHeight: 1.6, whiteSpace: 'pre-line' }}>{info.how}</div>
+          </div>
+          {/* Tip */}
+          {info.tip && (
+            <div style={{ padding: '8px 10px', background: 'rgba(245,200,66,0.06)', borderRadius: 8, borderLeft: '2px solid #F5C842' }}>
+              <div style={{ fontSize: 10, color: '#F5C842', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 2 }}>💡 TIP</div>
+              <div style={{ fontSize: 12, color: '#bba030', lineHeight: 1.5 }}>{info.tip}</div>
+            </div>
+          )}
+          {/* Target muscles */}
+          {info.targetMuscles && (
+            <div style={{ marginTop: 8, fontSize: 11, color: '#555' }}>🎯 {info.targetMuscles}</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function DayCard({ day, isExpanded, onToggle, workoutData }: {
   day: WorkoutDay;
   isExpanded: boolean;
@@ -150,46 +230,7 @@ function DayCard({ day, isExpanded, onToggle, workoutData }: {
           {day.exercises.map((ex, idx) => {
             const latest = workoutData.getLatestRecord(ex.id);
             return (
-              <div key={ex.id} style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '8px 0',
-                borderBottom: idx < day.exercises.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-              }}>
-                <div style={{ width: 5, height: 5, borderRadius: '50%', background: getCategoryColor(ex.category), flexShrink: 0 }} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <div style={{ fontSize: 13, color: '#d0d0d0', fontWeight: 500 }}>{ex.name}</div>
-                    {ex.isDropset && (
-                      <span style={{
-                        fontSize: 9,
-                        fontWeight: 700,
-                        letterSpacing: '0.08em',
-                        color: '#F5C842',
-                        background: 'rgba(245,200,66,0.15)',
-                        border: '1px solid rgba(245,200,66,0.3)',
-                        borderRadius: 4,
-                        padding: '1px 5px',
-                        textTransform: 'uppercase',
-                      }}>DROP</span>
-                    )}
-                  </div>
-                  <div style={{ fontSize: 11, color: '#555', marginTop: 1 }}>
-                    {ex.targetSets}×{ex.targetReps}
-                    {ex.targetWeight ? ` · ${ex.targetWeight}` : ''}
-                    {ex.note ? ` · ${ex.note}` : ''}
-                  </div>
-                </div>
-                {latest && (
-                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ fontSize: 12, fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, color: '#F5C842' }}>
-                      {latest.weight !== '0' ? `${latest.weight} kg` : '–'}
-                    </div>
-                    <div style={{ fontSize: 10, color: '#444' }}>poslední</div>
-                  </div>
-                )}
-              </div>
+              <ExerciseRow key={ex.id} ex={ex} idx={idx} total={day.exercises.length} latest={latest} />
             );
           })}
         </div>
