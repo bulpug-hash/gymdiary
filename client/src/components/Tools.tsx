@@ -56,7 +56,7 @@ function calc1RMFromWeight(weight: number, reps: number): number {
 // Main Tools Component
 // ============================================================
 export default function Tools({ workoutData }: Props) {
-  const [section, setSection] = useState<'rpe' | 'bodyweight' | 'timer' | 'export' | 'nutrition'>('rpe');
+  const [section, setSection] = useState<'rpe' | 'bodyweight' | 'timer' | 'export' | 'nutrition' | 'autoregulation'>('rpe');
   const { theme, toggleTheme, switchable } = useTheme();
 
   const sectionBtnStyle = (active: boolean) => ({
@@ -117,6 +117,7 @@ export default function Tools({ workoutData }: Props) {
             { key: 'timer', label: 'Timer' },
             { key: 'export', label: 'Export' },
             { key: 'nutrition', label: '🥩 Výživa' },
+            { key: 'autoregulation', label: '🧠 Auto' },
           ].map(s => (
             <button
               key={s.key}
@@ -136,6 +137,7 @@ export default function Tools({ workoutData }: Props) {
         {section === 'timer' && <RestTimer />}
         {section === 'export' && <ExportData workoutData={workoutData} />}
         {section === 'nutrition' && <NutritionGuide />}
+        {section === 'autoregulation' && <AutoregulationGuide />}
       </div>
     </div>
   );
@@ -1052,6 +1054,146 @@ function NutritionGuide() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// ============================================================
+// Autoregulation Guide – Vědecké principy plánu v4
+// ============================================================
+function AutoregulationGuide() {
+  const [openSection, setOpenSection] = useState<string | null>(null);
+
+  const sections = [
+    {
+      id: 'rpe-autoregulation',
+      title: 'RPE Autoregulace (Tuchscherer)',
+      icon: '🎯',
+      color: '#F5C842',
+      summary: 'Pokud RPE > cílové o 1+ → sniž váhu o 5%. Pokud RPE < cílové o 1+ → přidej 2.5 kg.',
+      content: [
+        { label: 'Pravidlo 1', text: 'Každý trénink začínej s plánovanou váhou. Pokud první série má RPE o 1 vyšší než plán → sniž váhu o 5% pro zbývající série.' },
+        { label: 'Pravidlo 2', text: 'Pokud RPE je o 1 nižší než plán → přidej 2.5 kg na další sérii (max +5 kg celkem).' },
+        { label: 'Pravidlo 3', text: 'RPE > 9.5 na plánovaném RPE 8 = špatný den. Dokonči trénink s −10% váhou. Nezkoušej překonat únavu silou vůle.' },
+        { label: 'Pravidlo 4', text: 'Deload (W4, W8, W12) = RPE 6–7 bez výjimky. Cíl: regenerace, ne výkon.' },
+      ],
+    },
+    {
+      id: 'double-progression',
+      title: 'Double Progression (Fáze 1–2)',
+      icon: '📈',
+      color: '#6EE7B7',
+      summary: 'Nejprve přidej rep (6→8→10), pak přidej váhu (+2.5 kg) a vrať se na 6 repů.',
+      content: [
+        { label: 'Jak funguje', text: 'Cíl: 4×6–10 @ RPE 7–8. Začni s 6 repy. Každý trénink přidej 1 rep dokud nedosáhneš 10. Pak přidej 2.5 kg a vrať se na 6 repů.' },
+        { label: 'Proč to funguje', text: 'Kombináce volumové a intenzitní progrese. Tělo se adaptuje na objem (více repů) i intenzitu (více váhy). Zdroj: Israetel – Scientific Principles of Strength Training.' },
+        { label: 'Kdy přestane fungovat', text: 'Kolem W4–5. Pak přecházíš na pyramidu RAMP/TOP SET/BACK-OFF (Fáze 2+).' },
+      ],
+    },
+    {
+      id: 'ramp-topset',
+      title: 'RAMP / TOP SET / BACK-OFF (Fáze 2–4)',
+      icon: '🏔️',
+      color: '#93C5FD',
+      summary: 'Ramp = příprava na top set. Top set = maximální úsilí. Back-off = −8% pro objem.',
+      content: [
+        { label: 'RAMP série', text: '2–3 série s 75–85% 1RM. Cíl: aktivace CNS, příprava kloubů, technická příprava. RPE 7.' },
+        { label: 'TOP SET', text: '1 série s maximální plánovanou váhou. RPE 8–9. Metoda maximálního úsilí (Zatsiorsky s.81). Toto je hlavní stimul pro sílu.' },
+        { label: 'BACK-OFF série', text: '2–3 série s −8% z top setu. RPE 7–8. Cíl: hypertrofický objem bez nadměrné únavy. Zdroj: Tuchscherer – Reactive Training Manual.' },
+        { label: 'Příklad W9 Squat', text: 'RAMP: 2×4 @ 145 kg (RPE 7) → TOP SET: 1×2 @ 162.5 kg (RPE 8–9) → BACK-OFF: 2×3 @ 150 kg (RPE 7–8)' },
+      ],
+    },
+    {
+      id: 'fatigue-management',
+      title: 'Fatigue Management (Israetel)',
+      icon: '⚡',
+      color: '#F87171',
+      summary: 'Únava maskuje fitness. Deload odstraní únavu a odhalí skutečnou sílu.',
+      content: [
+        { label: 'Princip', text: 'Každý trénink přidává únavu. Únava dočasně snižuje výkon. Deload (W4, W8, W12) odstraní únavu → superkompenzace = nové maximum.' },
+        { label: 'Zatsiorského dvou-faktorový model', text: 'Fitness (pozitivní adaptace) + Únava (negativní) = Výkon. Cíl: maximalizovat fitness, minimalizovat únavu. Deload sníží únavu, fitness zůstane.' },
+        { label: 'Příznaky přetrénování', text: 'RPE trvale o 1+ vyšší než plán · Spánek zhoršený · Motivace nulová · Klouby bolí. → Přidej deload týden okamžitě.' },
+        { label: 'Deload protokol', text: 'Objem −30–50%, intenzita zachována (75–80% 1RM). Žádné nové maxima. Cíl: aktivní regenerace.' },
+      ],
+    },
+    {
+      id: 'run-interference',
+      title: 'Běh & Interference (Viada)',
+      icon: '🏃',
+      color: '#A78BFA',
+      summary: 'Min. 24h buffer mezi během a deadliftem. HIIT ve středu/sobotu = optimální načasování.',
+      content: [
+        { label: 'Interference efekt', text: 'Vytrvalostní trénink aktivuje AMPK (katabolická dráha), silový trénink aktivuje mTOR (anabolická dráha). Souběžný trénink může snížit silové zisky o 20–30%. Zdroj: Viada – Hybrid Athlete.' },
+        { label: 'Řešení: časový buffer', text: 'Min. 24h mezi během a deadliftem (Čtvrtek → Pátek). Ideálně 48h. Pokud nemožné → HIIT místo běhu v den před deadliftem.' },
+        { label: 'HIIT vs. Zone 2', text: 'HIIT (středa/sobota): Silově-vytrvalostní. Kratší, intenzivnější. Méně interference. Zone 2 (čtvrtek): Aerobní základ. Nízká intenzita. Podporuje regeneraci.' },
+        { label: 'Taper (W15–16)', text: 'Žádný běh v taperu! Energie musí jít do peakingu. Výjimka: lehká procházka pro aktivní regeneraci.' },
+      ],
+    },
+    {
+      id: 'sleep-nutrition',
+      title: 'Spánek & Výživa pro sílu',
+      icon: '😴',
+      color: '#34D399',
+      summary: '8+ h spánku. 2.2 g/kg bílkovin. Sacharidy kolem tréninku. Kreatin 5g/den.',
+      content: [
+        { label: 'Spánek', text: 'Cíl: 8–9 h. Spánek je nejsilnější anabolický stimulus. GH se vylučuje primárně v hlubokém spánku. Méně než 6h → −10–15% síly. Zdroj: Schumann – Strength Training.' },
+        { label: 'Bílkoviny', text: '2.0–2.2 g/kg tělesné váhy. Rovnoměrně rozděleno do 4–5 jídel (25–40g/jídlo). Leucin threshold: min. 3g leucinu/jídlo pro maximální MPS.' },
+        { label: 'Sacharidy kolem tréninku', text: 'Pre-workout: 40–60g sacharidů 60–90 min před. Post-workout: 40–60g rychlých sacharidů okamžitě po (AMPK/mTOR interference window). Celkový příjem: 4–6g/kg.' },
+        { label: 'Suplementace', text: 'Kreatin monohydrát: 5g/den (bez loading). Kofein: 3–6 mg/kg 60 min před. Vitamin D: 2000–4000 IU/den. Omega-3: 2–3g EPA+DHA/den.' },
+      ],
+    },
+  ];
+
+  const cardStyle = {
+    background: 'rgba(255,255,255,0.02)',
+    border: '1px solid #1c1c1c',
+    borderRadius: 12,
+    marginBottom: 8,
+    overflow: 'hidden' as const,
+  };
+
+  return (
+    <div>
+      <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, fontWeight: 800, color: '#F5C842', marginBottom: 4 }}>
+        Autoregulace & Vědecké principy
+      </div>
+      <p style={{ fontSize: 12, color: '#555', marginBottom: 16, lineHeight: 1.6 }}>
+        Klíčové principy plánu v4 – Israetel, Tuchscherer, Zatsiorsky, Viada, Schumann.
+      </p>
+
+      {sections.map(sec => (
+        <div key={sec.id} style={cardStyle}>
+          <button
+            onClick={() => setOpenSection(openSection === sec.id ? null : sec.id)}
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px',
+              background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left',
+            }}
+          >
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: `${sec.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>
+              {sec.icon}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: sec.color }}>{sec.title}</div>
+              <div style={{ fontSize: 11, color: '#555', marginTop: 2, lineHeight: 1.4 }}>{sec.summary}</div>
+            </div>
+            <div style={{ color: '#333', fontSize: 12, transition: 'transform 0.2s', transform: openSection === sec.id ? 'rotate(180deg)' : 'none', flexShrink: 0 }}>▼</div>
+          </button>
+
+          {openSection === sec.id && (
+            <div style={{ padding: '0 14px 14px', borderTop: `1px solid ${sec.color}20` }}>
+              {sec.content.map((item, i) => (
+                <div key={i} style={{ paddingTop: 12 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: sec.color, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 3 }}>
+                    {item.label}
+                  </div>
+                  <div style={{ fontSize: 12, color: '#888', lineHeight: 1.6 }}>{item.text}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }

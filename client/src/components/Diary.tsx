@@ -1,10 +1,11 @@
 // Gold Performance Design – Diary Tab
 // BUG FIX: editace záznamu správně předává date, sets, weight, reps, note
 // NOVÉ: cviky rozděleny podle tréninkových dnů (Po/Út/Čt/Pá/So)
-import { useState } from 'react';
-import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel, formatDate, formatDateFull, getTodayISO } from '@/lib/data';
+import { useState, useEffect } from 'react';
+import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel, formatDate, formatDateFull, getTodayISO, RUN_LOG_KEY } from '@/lib/data';
 import type { WorkoutDataHook } from '@/lib/types';
-import type { Exercise, TrainingRecord, WorkoutDay } from '@/lib/data';
+import type { Exercise, TrainingRecord, WorkoutDay, RunRecord } from '@/lib/data';
+import { nanoid } from 'nanoid';
 import { toast } from 'sonner';
 
 interface Props {
@@ -40,6 +41,7 @@ export default function Diary({ workoutData }: Props) {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingRecord, setEditingRecord] = useState<TrainingRecord | null>(null);
+  const [activeTab, setActiveTab] = useState<'exercises' | 'runs'>('exercises');
 
   const trainingDays = getTrainingDays();
 
@@ -65,13 +67,36 @@ export default function Diary({ workoutData }: Props) {
           TRÉNINKOVÝ DENÍK
         </div>
         <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: '#f0f0f0' }}>
-          Záznamy cviků
+          {activeTab === 'exercises' ? 'Záznamy cviků' : 'Běžecký log'}
         </h2>
-        <p style={{ color: '#666', fontSize: 12, marginTop: 6 }}>Vyber tréninkový den a cvik pro zobrazení a přidání záznamů.</p>
+        <p style={{ color: '#666', fontSize: 12, marginTop: 6 }}>
+          {activeTab === 'exercises' ? 'Vyber tréninkový den a cvik pro zobrazení a přidání záznamů.' : 'Záznamy běhů – čas, vzdálenost, tepová zóna.'}
+        </p>
       </div>
 
+      {/* Tab switcher */}
+      <div style={{ display: 'flex', padding: '10px 20px', gap: 8, borderBottom: '1px solid #1c1c1c' }}>
+        {(['exercises', 'runs'] as const).map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            style={{
+              flex: 1, padding: '8px', borderRadius: 8,
+              border: activeTab === tab ? '1px solid rgba(245,200,66,0.4)' : '1px solid #1c1c1c',
+              background: activeTab === tab ? 'rgba(245,200,66,0.1)' : 'transparent',
+              color: activeTab === tab ? '#F5C842' : '#555',
+              fontSize: 12, fontWeight: activeTab === tab ? 700 : 400, cursor: 'pointer',
+            }}
+          >
+            {tab === 'exercises' ? '🏋️‍♂️ Cviky' : '🏃 Běhy'}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'runs' && <RunLog />}
+
       {/* Training days grouped */}
-      <div style={{ padding: '14px 20px' }}>
+      {activeTab === 'exercises' && <div style={{ padding: '14px 20px' }}>
         {trainingDays.map(day => {
           const isOpen = selectedDay === day.key;
           const typeColor = DAY_TYPE_COLOR[day.type] || '#F5C842';
@@ -172,7 +197,7 @@ export default function Diary({ workoutData }: Props) {
             </div>
           );
         })}
-      </div>
+      </div>}
     </div>
   );
 }
@@ -487,6 +512,265 @@ function RecordRow({ record, isLatest, isPR, onEdit, onDelete }: {
               borderRadius: 8, color: '#F87171', fontSize: 12, fontWeight: 600, padding: '7px',
               cursor: 'pointer',
             }}
+          >🗑️ Smazat</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// RunLog – Běžecký log
+// ============================================================
+const ZONES = ['Zóna 1 (recovery)', 'Zóna 2 (aerobní)', 'Zóna 3 (tempo)', 'Zóna 4 (laktátový práh)', 'Zóna 5 (sprint/VO2max)'];
+const ZONE_COLORS: Record<string, string> = {
+  'Zóna 1 (recovery)': '#6EE7B7',
+  'Zóna 2 (aerobní)': '#34D399',
+  'Zóna 3 (tempo)': '#F5C842',
+  'Zóna 4 (laktátový práh)': '#F97316',
+  'Zóna 5 (sprint/VO2max)': '#F87171',
+};
+
+function RunLog() {
+  const [runs, setRuns] = useState<RunRecord[]>(() => {
+    try { return JSON.parse(localStorage.getItem(RUN_LOG_KEY) || '[]'); } catch { return []; }
+  });
+  const [showForm, setShowForm] = useState(false);
+  const [editingRun, setEditingRun] = useState<RunRecord | null>(null);
+
+  const save = (updated: RunRecord[]) => {
+    setRuns(updated);
+    localStorage.setItem(RUN_LOG_KEY, JSON.stringify(updated));
+  };
+
+  const handleDelete = (id: string) => {
+    save(runs.filter(r => r.id !== id));
+    toast.success('Běh smazán');
+  };
+
+  return (
+    <div style={{ padding: '14px 20px' }}>
+      {/* Add button */}
+      <button
+        onClick={() => { setShowForm(true); setEditingRun(null); }}
+        style={{
+          width: '100%', padding: '12px', borderRadius: 10,
+          background: 'rgba(245,200,66,0.1)', border: '1px dashed rgba(245,200,66,0.3)',
+          color: '#F5C842', fontSize: 13, fontWeight: 700, cursor: 'pointer', marginBottom: 14,
+        }}
+      >
+        + Přidat běh
+      </button>
+
+      {/* Form */}
+      {(showForm || editingRun) && (
+        <RunForm
+          editingRun={editingRun}
+          onClose={() => { setShowForm(false); setEditingRun(null); }}
+          onSave={(run) => {
+            if (editingRun) {
+              save(runs.map(r => r.id === editingRun.id ? run : r));
+              toast.success('Běh upraven ✓');
+            } else {
+              save([...runs, run]);
+              toast.success('Běh přidán ✓');
+            }
+            setShowForm(false);
+            setEditingRun(null);
+          }}
+        />
+      )}
+
+      {/* Stats summary */}
+      {runs.length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 14 }}>
+          {[
+            { label: 'Celkem běhů', value: runs.length.toString() },
+            { label: 'Celkem km', value: runs.reduce((s, r) => s + parseFloat(r.distance || '0'), 0).toFixed(1) },
+            { label: 'Celkem min', value: runs.reduce((s, r) => s + parseInt(r.duration || '0'), 0).toString() },
+          ].map(stat => (
+            <div key={stat.label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #1c1c1c', borderRadius: 10, padding: '10px 12px', textAlign: 'center' }}>
+              <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 20, fontWeight: 800, color: '#F5C842' }}>{stat.value}</div>
+              <div style={{ fontSize: 10, color: '#555', marginTop: 2 }}>{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Run list */}
+      {runs.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '40px 0', color: '#444' }}>
+          <div style={{ fontSize: 32, marginBottom: 8 }}>🏃</div>
+          <div style={{ fontSize: 14 }}>Žádné záznamy běhů. Přidej první!</div>
+        </div>
+      ) : (
+        [...runs].reverse().map((run, idx) => (
+          <RunRow
+            key={run.id}
+            run={run}
+            isLatest={idx === 0}
+            onEdit={() => { setEditingRun(run); setShowForm(false); }}
+            onDelete={() => handleDelete(run.id)}
+          />
+        ))
+      )}
+    </div>
+  );
+}
+
+function RunForm({ editingRun, onClose, onSave }: {
+  editingRun: RunRecord | null;
+  onClose: () => void;
+  onSave: (run: RunRecord) => void;
+}) {
+  const [date, setDate] = useState(editingRun?.date || getTodayISO());
+  const [duration, setDuration] = useState(editingRun?.duration || '');
+  const [distance, setDistance] = useState(editingRun?.distance || '');
+  const [zone, setZone] = useState(editingRun?.zone || 'Zóna 2 (aerobní)');
+  const [avgPace, setAvgPace] = useState(editingRun?.avgPace || '');
+  const [avgHr, setAvgHr] = useState(editingRun?.avgHr || '');
+  const [note, setNote] = useState(editingRun?.note || '');
+
+  const handleSubmit = () => {
+    if (!date || !duration) {
+      toast.error('Vyplň datum a čas');
+      return;
+    }
+    onSave({ id: editingRun?.id || nanoid(), date, duration, distance, zone, avgPace, avgHr, note });
+  };
+
+  const inputStyle = {
+    background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 8,
+    color: '#e0e0e0', padding: '10px 12px', fontSize: 14, width: '100%',
+    outline: 'none', fontFamily: 'Inter, sans-serif', boxSizing: 'border-box' as const,
+  };
+  const labelStyle = {
+    fontSize: 11, color: '#666', letterSpacing: '0.1em', textTransform: 'uppercase' as const,
+    marginBottom: 4, display: 'block',
+  };
+
+  return (
+    <div style={{ background: '#111', border: '1px solid rgba(110,231,183,0.25)', borderRadius: 14, padding: '16px', marginBottom: 14 }}>
+      <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 700, color: '#6EE7B7', marginBottom: 14 }}>
+        {editingRun ? '✏️ Upravit běh' : '🏃 Nový běh'}
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+        <div>
+          <label style={labelStyle}>Datum</label>
+          <input type="date" value={date} onChange={e => setDate(e.target.value)} style={inputStyle} />
+        </div>
+        <div>
+          <label style={labelStyle}>Čas (min)</label>
+          <input type="number" value={duration} onChange={e => setDuration(e.target.value)} placeholder="35" style={inputStyle} />
+        </div>
+        <div>
+          <label style={labelStyle}>Vzdálenost (km)</label>
+          <input type="text" value={distance} onChange={e => setDistance(e.target.value)} placeholder="5.2" style={inputStyle} />
+        </div>
+        <div>
+          <label style={labelStyle}>Průměrné tempo</label>
+          <input type="text" value={avgPace} onChange={e => setAvgPace(e.target.value)} placeholder="5:30/km" style={inputStyle} />
+        </div>
+        <div>
+          <label style={labelStyle}>Průměrný TF (bpm)</label>
+          <input type="text" value={avgHr} onChange={e => setAvgHr(e.target.value)} placeholder="145" style={inputStyle} />
+        </div>
+        <div>
+          <label style={labelStyle}>Tepová zóna</label>
+          <select value={zone} onChange={e => setZone(e.target.value)} style={{ ...inputStyle, appearance: 'none' as any }}>
+            {ZONES.map(z => <option key={z} value={z}>{z}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 14 }}>
+        <label style={labelStyle}>Poznámka</label>
+        <input type="text" value={note} onChange={e => setNote(e.target.value)} placeholder="Pocit, trasa, počasí..." style={inputStyle} />
+      </div>
+
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button
+          onClick={handleSubmit}
+          style={{ flex: 1, background: '#6EE7B7', border: 'none', borderRadius: 8, color: '#0c0c0c', fontSize: 14, fontWeight: 700, padding: '10px', cursor: 'pointer' }}
+        >
+          {editingRun ? 'Uložit změny' : 'Přidat běh'}
+        </button>
+        <button
+          onClick={onClose}
+          style={{ padding: '10px 16px', background: 'transparent', border: '1px solid #2a2a2a', borderRadius: 8, color: '#666', fontSize: 14, cursor: 'pointer' }}
+        >Zrušit</button>
+      </div>
+    </div>
+  );
+}
+
+function RunRow({ run, isLatest, onEdit, onDelete }: {
+  run: RunRecord;
+  isLatest: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const [showActions, setShowActions] = useState(false);
+  const zoneColor = ZONE_COLORS[run.zone] || '#6EE7B7';
+
+  return (
+    <div
+      style={{
+        background: isLatest ? 'rgba(110,231,183,0.05)' : 'rgba(255,255,255,0.02)',
+        border: isLatest ? '1px solid rgba(110,231,183,0.2)' : '1px solid #1c1c1c',
+        borderRadius: 10, padding: '12px 14px', marginBottom: 8, cursor: 'pointer',
+      }}
+      onClick={() => setShowActions(!showActions)}
+    >
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+        <div style={{ width: 3, height: 40, background: zoneColor, borderRadius: 2, flexShrink: 0, marginTop: 2 }} />
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 12, color: '#888' }}>{formatDateFull(run.date)}</span>
+            <span style={{ fontSize: 9, background: `${zoneColor}20`, color: zoneColor, padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>
+              {run.zone.split(' ')[0]} {run.zone.split(' ')[1]}
+            </span>
+            {isLatest && (
+              <span style={{ fontSize: 9, background: 'rgba(110,231,183,0.15)', color: '#6EE7B7', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>POSLEDNÍ</span>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: 14, marginTop: 6, flexWrap: 'wrap' }}>
+            <div>
+              <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, fontWeight: 800, color: '#6EE7B7' }}>{run.duration}</span>
+              <span style={{ fontSize: 11, color: '#555', marginLeft: 3 }}>min</span>
+            </div>
+            {run.distance && (
+              <div>
+                <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, fontWeight: 800, color: '#d0d0d0' }}>{run.distance}</span>
+                <span style={{ fontSize: 11, color: '#555', marginLeft: 3 }}>km</span>
+              </div>
+            )}
+            {run.avgPace && (
+              <div>
+                <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 700, color: '#888' }}>{run.avgPace}</span>
+              </div>
+            )}
+            {run.avgHr && (
+              <div>
+                <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 700, color: '#F87171' }}>{run.avgHr}</span>
+                <span style={{ fontSize: 11, color: '#555', marginLeft: 3 }}>bpm</span>
+              </div>
+            )}
+          </div>
+          {run.note && <div style={{ fontSize: 11, color: '#555', marginTop: 4 }}>{run.note}</div>}
+        </div>
+      </div>
+
+      {showActions && (
+        <div style={{ display: 'flex', gap: 8, marginTop: 10, paddingTop: 10, borderTop: '1px solid #1c1c1c' }}>
+          <button
+            onClick={e => { e.stopPropagation(); onEdit(); setShowActions(false); }}
+            style={{ flex: 1, background: 'rgba(110,231,183,0.1)', border: '1px solid rgba(110,231,183,0.2)', borderRadius: 8, color: '#6EE7B7', fontSize: 12, fontWeight: 600, padding: '7px', cursor: 'pointer' }}
+          >✏️ Upravit</button>
+          <button
+            onClick={e => { e.stopPropagation(); onDelete(); }}
+            style={{ flex: 1, background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 8, color: '#F87171', fontSize: 12, fontWeight: 600, padding: '7px', cursor: 'pointer' }}
           >🗑️ Smazat</button>
         </div>
       )}

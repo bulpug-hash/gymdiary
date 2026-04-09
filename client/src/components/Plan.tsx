@@ -2,7 +2,7 @@
 // Gold Performance Design
 // Shows: 16-week progressive plan v2.0, exercise details per day with dropset badges
 import { useState } from 'react';
-import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel } from '@/lib/data';
+import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel, WARMUP_PROTOCOL } from '@/lib/data';
 import { getExerciseInfo, CATEGORY_COLORS } from '@/lib/exerciseDescriptions';
 import type { WorkoutDataHook } from '@/lib/types';
 import type { WorkoutDay, Exercise } from '@/lib/data';
@@ -84,6 +84,9 @@ export default function Plan({ workoutData }: Props) {
         </div>
       </div>
 
+      {/* Warm-up Protocol */}
+      <WarmupSection />
+
       {/* Days */}
       <div style={{ padding: '14px 20px' }}>
         <div style={{ color: '#444', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>DENNÍ ROZVRH</div>
@@ -97,6 +100,62 @@ export default function Plan({ workoutData }: Props) {
           />
         ))}
       </div>
+    </div>
+  );
+}
+
+function WarmupSection() {
+  const [open, setOpen] = useState(false);
+
+  const steps = [
+    { label: '1. Rotoped', detail: '5 min · Lehká intenzita, rozhejbání kloubů' },
+    { label: '2. Dynamický strečink + mobilita', detail: 'Banded ankles · Thorakální extenze · 90/90 stretch (Horschig)' },
+    { label: '3. Aktivace', detail: 'LOWER: Glute bridges 2×10 + Band walks 2×12\nUPPER: Scapular push-ups 2×10 + Band pull-aparts 2×15' },
+    { label: '4. Rozehřívací série (Zatsiorsky)', detail: 'Tyč (BW) → 40% 1RM → 60% 1RM → 75% 1RM → pracovní váha' },
+  ];
+
+  return (
+    <div style={{ margin: '0 20px 12px', borderRadius: 12, border: '1px solid rgba(245,200,66,0.2)', background: 'rgba(245,200,66,0.03)', overflow: 'hidden' }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px',
+          background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left',
+        }}
+      >
+        <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(245,200,66,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0 }}>🔥</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#F5C842', letterSpacing: '0.05em' }}>WARM-UP PROTOKOL</div>
+          <div style={{ fontSize: 11, color: '#666', marginTop: 1 }}>~12 min · Povinný před každým silovým tréninkem</div>
+        </div>
+        <div style={{ color: '#555', fontSize: 12, transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }}>▼</div>
+      </button>
+
+      {open && (
+        <div style={{ padding: '0 14px 14px', borderTop: '1px solid rgba(245,200,66,0.1)' }}>
+          {steps.map((step, i) => (
+            <div key={i} style={{ display: 'flex', gap: 12, paddingTop: 12 }}>
+              <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(245,200,66,0.15)', border: '1px solid rgba(245,200,66,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#F5C842', flexShrink: 0, marginTop: 1 }}>{i + 1}</div>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#d0d0d0' }}>{step.label}</div>
+                <div style={{ fontSize: 11, color: '#777', marginTop: 2, lineHeight: 1.6, whiteSpace: 'pre-line' }}>{step.detail}</div>
+              </div>
+            </div>
+          ))}
+          <div style={{ marginTop: 14, padding: '8px 10px', background: 'rgba(0,0,0,0.2)', borderRadius: 8, borderLeft: '2px solid rgba(245,200,66,0.4)' }}>
+            <div style={{ fontSize: 10, color: '#F5C842', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 2 }}>WARM-UP BENCH – speciální série</div>
+            <div style={{ fontSize: 11, color: '#888', lineHeight: 1.6 }}>Tyč ×10 → 60 kg ×6 → 80 kg ×4 → 95 kg ×2 → pracovní váha</div>
+          </div>
+          <div style={{ marginTop: 8, padding: '8px 10px', background: 'rgba(0,0,0,0.2)', borderRadius: 8, borderLeft: '2px solid rgba(245,200,66,0.4)' }}>
+            <div style={{ fontSize: 10, color: '#F5C842', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 2 }}>WARM-UP SQUAT – speciální série</div>
+            <div style={{ fontSize: 11, color: '#888', lineHeight: 1.6 }}>Tyč ×10 → 80 kg ×6 → 100 kg ×4 → 120 kg ×2 → pracovní váha</div>
+          </div>
+          <div style={{ marginTop: 8, padding: '8px 10px', background: 'rgba(0,0,0,0.2)', borderRadius: 8, borderLeft: '2px solid rgba(245,200,66,0.4)' }}>
+            <div style={{ fontSize: 10, color: '#F5C842', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 2 }}>WARM-UP DEADLIFT – speciální série</div>
+            <div style={{ fontSize: 11, color: '#888', lineHeight: 1.6 }}>Tyč ×10 → 100 kg ×5 → 130 kg ×3 → 155 kg ×1 → pracovní váha</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -227,6 +286,13 @@ function DayCard({ day, isExpanded, onToggle, workoutData }: {
           padding: '8px 14px 12px',
         }}>
           <div style={{ color: '#666', fontSize: 11, marginBottom: 10, paddingTop: 6 }}>{day.description}</div>
+          {/* Warm-up reminder for strength days */}
+          {(day.type === 'lower' || day.type === 'upper' || day.type === 'fullbody') && (
+            <div style={{ marginBottom: 12, padding: '8px 10px', background: 'rgba(245,200,66,0.05)', borderRadius: 8, borderLeft: '2px solid rgba(245,200,66,0.4)' }}>
+              <div style={{ fontSize: 9, color: '#F5C842', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 3 }}>WARM-UP · ~12 min</div>
+              <div style={{ fontSize: 11, color: '#888', lineHeight: 1.5 }}>Rotoped → Dynamický strečink → Aktivace → Rozehřívací série (tyč → 40% → 60% → 75% → pracovní váha)</div>
+            </div>
+          )}
           {day.exercises.map((ex, idx) => {
             const latest = workoutData.getLatestRecord(ex.id);
             return (
