@@ -56,7 +56,7 @@ function calc1RMFromWeight(weight: number, reps: number): number {
 // Main Tools Component
 // ============================================================
 export default function Tools({ workoutData }: Props) {
-  const [section, setSection] = useState<'rpe' | 'bodyweight' | 'timer' | 'export' | 'settings'>('rpe');
+  const [section, setSection] = useState<'rpe' | 'bodyweight' | 'timer' | 'export' | 'nutrition'>('rpe');
   const { theme, toggleTheme, switchable } = useTheme();
 
   const sectionBtnStyle = (active: boolean) => ({
@@ -116,6 +116,7 @@ export default function Tools({ workoutData }: Props) {
             { key: 'bodyweight', label: 'Váha' },
             { key: 'timer', label: 'Timer' },
             { key: 'export', label: 'Export' },
+            { key: 'nutrition', label: '🥩 Výživa' },
           ].map(s => (
             <button
               key={s.key}
@@ -134,6 +135,7 @@ export default function Tools({ workoutData }: Props) {
         {section === 'bodyweight' && <BodyWeightTracker />}
         {section === 'timer' && <RestTimer />}
         {section === 'export' && <ExportData workoutData={workoutData} />}
+        {section === 'nutrition' && <NutritionGuide />}
       </div>
     </div>
   );
@@ -784,6 +786,272 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
           💡 Data jsou uložena v prohlížeči (localStorage). Export slouží jako záloha. CSV lze otevřít v Excelu nebo Google Sheets.
         </div>
       </div>
+    </div>
+  );
+}
+
+// ============================================================
+// Nutrition Guide - based on v4 training plan
+// ============================================================
+function NutritionGuide() {
+  const [tab, setTab] = useState<'macros' | 'timing' | 'supplements' | 'rules'>('macros');
+
+  const tabStyle = (active: boolean) => ({
+    padding: '7px 14px',
+    borderRadius: 8,
+    border: 'none',
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: 'pointer',
+    background: active ? '#D4AF37' : 'rgba(255,255,255,0.04)',
+    color: active ? '#000' : '#888',
+    transition: 'all 0.2s',
+  });
+
+  const cardStyle = {
+    background: 'rgba(255,255,255,0.03)',
+    border: '1px solid #1c1c1c',
+    borderRadius: 12,
+    padding: '14px 16px',
+    marginBottom: 10,
+  };
+
+  const labelStyle = { fontSize: 10, color: '#666', letterSpacing: '0.08em', textTransform: 'uppercase' as const, marginBottom: 4 };
+  const valueStyle = { fontFamily: 'Barlow Condensed, sans-serif', fontSize: 22, fontWeight: 700, color: '#D4AF37' };
+  const subStyle = { fontSize: 12, color: '#888', marginTop: 2 };
+
+  return (
+    <div>
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 20, fontWeight: 700, color: '#fff', marginBottom: 4 }}>
+          Výživa & Suplementace
+        </div>
+        <div style={{ fontSize: 12, color: '#666' }}>Protokol z vědecky podloženého plánu 2026 v4</div>
+      </div>
+
+      {/* Sub-tabs */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
+        {[
+          { key: 'macros', label: 'Makra' },
+          { key: 'timing', label: 'Načasování' },
+          { key: 'supplements', label: 'Suplementy' },
+          { key: 'rules', label: 'Pravidla' },
+        ].map(t => (
+          <button key={t.key} onClick={() => setTab(t.key as typeof tab)} style={tabStyle(tab === t.key)}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'macros' && (
+        <div>
+          <div style={{ ...cardStyle, borderColor: 'rgba(212,175,55,0.2)', background: 'rgba(212,175,55,0.04)' }}>
+            <div style={labelStyle}>Cíl – Rekomposice těla</div>
+            <div style={{ fontSize: 13, color: '#ccc', lineHeight: 1.6 }}>
+              Mírný kalorický přebytek v tréninkové dny, udržovací příjem ve dnech odpočinku. Priorita: svalová hypertrofie + minimalizace tuku.
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+            <div style={cardStyle}>
+              <div style={labelStyle}>Tréninkový den</div>
+              <div style={valueStyle}>~2 800</div>
+              <div style={subStyle}>kcal · +200 přebytek</div>
+            </div>
+            <div style={cardStyle}>
+              <div style={labelStyle}>Odpočinkový den</div>
+              <div style={valueStyle}>~2 400</div>
+              <div style={subStyle}>kcal · udržovací</div>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+            <div style={{ ...cardStyle, borderColor: 'rgba(239,68,68,0.2)', background: 'rgba(239,68,68,0.04)' }}>
+              <div style={labelStyle}>Bílkoviny</div>
+              <div style={{ ...valueStyle, color: '#EF4444' }}>180–200g</div>
+              <div style={subStyle}>2,2–2,5 g/kg</div>
+            </div>
+            <div style={{ ...cardStyle, borderColor: 'rgba(59,130,246,0.2)', background: 'rgba(59,130,246,0.04)' }}>
+              <div style={labelStyle}>Sacharidy</div>
+              <div style={{ ...valueStyle, color: '#3B82F6' }}>280–350g</div>
+              <div style={subStyle}>3,5–4,5 g/kg</div>
+            </div>
+            <div style={{ ...cardStyle, borderColor: 'rgba(234,179,8,0.2)', background: 'rgba(234,179,8,0.04)' }}>
+              <div style={labelStyle}>Tuky</div>
+              <div style={{ ...valueStyle, color: '#EAB308' }}>70–90g</div>
+              <div style={subStyle}>0,9–1,1 g/kg</div>
+            </div>
+          </div>
+
+          <div style={{ ...cardStyle, marginTop: 10 }}>
+            <div style={labelStyle}>Hydratace</div>
+            <div style={{ fontSize: 13, color: '#ccc', lineHeight: 1.6 }}>
+              <strong style={{ color: '#D4AF37' }}>3–4 litry vody denně.</strong> V tréninkový den +500 ml navíc. Elektrolyty (sodík, draslík) při tréninku delším než 60 min.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {tab === 'timing' && (
+        <div>
+          {[
+            {
+              time: '07:00 – Ráno',
+              icon: '🌅',
+              color: '#F59E0B',
+              items: [
+                '300–400 kcal · sacharidy + bílkoviny',
+                'Ovesná kaše + protein shake nebo vejce',
+                'Kreatin 5g + multivitamin',
+              ],
+            },
+            {
+              time: 'Pre-workout (60–90 min před)',
+              icon: '⚡',
+              color: '#D4AF37',
+              items: [
+                '40–60g sacharidů (rýže, banán, ovesné vločky)',
+                '20–30g bílkovin (kuřecí, tvaroh, protein shake)',
+                'Kofein 150–200 mg (volitelně) · Kreatin (pokud ráno nevzat)',
+              ],
+            },
+            {
+              time: 'Intra-workout',
+              icon: '🏋️',
+              color: '#3B82F6',
+              items: [
+                'Voda 500–750 ml',
+                'Při tréninku >75 min: 30–40g rychlých sacharidů (sportovní nápoj, banán)',
+                'BCAA/EAA (volitelně)',
+              ],
+            },
+            {
+              time: 'Post-workout (do 30–60 min)',
+              icon: '🔄',
+              color: '#10B981',
+              items: [
+                '40–60g sacharidů (rýže, brambory, ovoce)',
+                '30–40g bílkovin (protein shake, kuřecí, tvaroh)',
+                'Kreatin 5g (pokud nebyl vzat ráno)',
+              ],
+            },
+            {
+              time: 'Večeře (2–3h před spaním)',
+              icon: '🌙',
+              color: '#8B5CF6',
+              items: [
+                '30–40g bílkovin (kasein, tvaroh, vejce)',
+                'Zelenina, zdravé tuky',
+                'Minimalizovat rychlé sacharidy',
+              ],
+            },
+          ].map((meal, i) => (
+            <div key={i} style={{ ...cardStyle, borderLeft: `3px solid ${meal.color}` }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <span style={{ fontSize: 18 }}>{meal.icon}</span>
+                <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 15, fontWeight: 700, color: '#fff' }}>{meal.time}</div>
+              </div>
+              {meal.items.map((item, j) => (
+                <div key={j} style={{ fontSize: 12, color: '#aaa', marginBottom: 3, paddingLeft: 4 }}>
+                  · {item}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {tab === 'supplements' && (
+        <div>
+          <div style={{ ...cardStyle, borderColor: 'rgba(212,175,55,0.2)', background: 'rgba(212,175,55,0.04)', marginBottom: 14 }}>
+            <div style={{ fontSize: 12, color: '#888' }}>
+              Suplementy jsou doplněk, ne náhrada. Priorita: jídlo, spánek, konzistence.
+            </div>
+          </div>
+
+          {[
+            { name: 'Kreatin monohydrát', dose: '5g / den', timing: 'Ráno nebo post-workout', priority: 'ZÁKLAD', color: '#D4AF37', note: 'Nejlépe vědecky podložený suplement. Zvyšuje sílu o 5–15%, svalovou hmotu, kognitivní funkce. Saturace za 3–4 týdny.' },
+            { name: 'Protein (syrovátkový)', dose: '25–40g / dávka', timing: 'Post-workout nebo mezi jídly', priority: 'ZÁKLAD', color: '#D4AF37', note: 'Pouze pokud nedosáhneš 180–200g bílkovin z jídla. Whey isolate = nejrychlejší vstřebávání.' },
+            { name: 'Kofein', dose: '150–200 mg', timing: '45–60 min před tréninkem', priority: 'VÝKON', color: '#F59E0B', note: 'Zvyšuje sílu, výdrž, fokus. Cykluj – 5 dní on / 2 dny off. Nepij po 14:00 (narušuje spánek).' },
+            { name: 'Omega-3 (rybí olej)', dose: '2–3g EPA+DHA / den', timing: 'S jídlem', priority: 'ZDRAVÍ', color: '#3B82F6', note: 'Protizánětlivé, podpora kloubů, kardiovaskulárního zdraví. Důležité při vysokém objemu tréninku.' },
+            { name: 'Vitamín D3 + K2', dose: '2 000–4 000 IU D3 + 100 mcg K2', timing: 'Ráno s jídlem', priority: 'ZDRAVÍ', color: '#3B82F6', note: 'Testosteron, imunita, kosti. Většina populace má deficit. K2 zajišťuje správné ukládání vápníku.' },
+            { name: 'Magnesium', dose: '300–400 mg', timing: 'Večer před spaním', priority: 'REGENERACE', color: '#10B981', note: 'Kvalita spánku, svalová relaxace, redukce křečí. Preferuj glycinát nebo malát (lepší vstřebávání než oxid).' },
+            { name: 'Zinek', dose: '15–25 mg', timing: 'Večer', priority: 'REGENERACE', color: '#10B981', note: 'Testosteron, imunita, hojení. Nekombinuj s vápníkem (snižuje vstřebávání).' },
+            { name: 'Beta-alanin', dose: '3,2–6,4g / den', timing: 'Pre-workout nebo s jídlem', priority: 'VOLITELNÉ', color: '#8B5CF6', note: 'Snižuje únavu při opakovaných sériích (8–15 opakování). Způsobuje brnění (parestézie) – normální.' },
+          ].map((s, i) => (
+            <div key={i} style={{ ...cardStyle, borderLeft: `3px solid ${s.color}` }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 700, color: '#fff' }}>{s.name}</div>
+                <span style={{ fontSize: 10, fontWeight: 700, color: s.color, background: `${s.color}18`, padding: '2px 8px', borderRadius: 4 }}>
+                  {s.priority}
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: 16, marginBottom: 6 }}>
+                <div>
+                  <div style={labelStyle}>Dávka</div>
+                  <div style={{ fontSize: 13, color: s.color, fontWeight: 600 }}>{s.dose}</div>
+                </div>
+                <div>
+                  <div style={labelStyle}>Načasování</div>
+                  <div style={{ fontSize: 13, color: '#aaa' }}>{s.timing}</div>
+                </div>
+              </div>
+              <div style={{ fontSize: 11, color: '#666', lineHeight: 1.5 }}>{s.note}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {tab === 'rules' && (
+        <div>
+          {[
+            {
+              title: '80/20 pravidlo',
+              icon: '🎯',
+              color: '#D4AF37',
+              text: '80% jídla z celých, minimálně zpracovaných potravin. 20% flexibilita – pizza, dezert, restaurace. Perfekcionismus vede k selhání.',
+            },
+            {
+              title: 'Bílkoviny jako základ',
+              icon: '🥩',
+              color: '#EF4444',
+              text: 'Každé jídlo = zdroj bílkovin. Kuřecí, hovězí, vejce, tvaroh, ryby, luštěniny. Cíl: 180–200g denně. Bez dostatku bílkovin nerostou svaly.',
+            },
+            {
+              title: 'Sacharidy = palivo',
+              icon: '⚡',
+              color: '#3B82F6',
+              text: 'Nejvíce sacharidů kolem tréninku (pre + post). Rýže, brambory, ovesné vločky, ovoce. Snižuj sacharidy ve dnech odpočinku.',
+            },
+            {
+              title: 'Spánek = suplement #1',
+              icon: '😴',
+              color: '#8B5CF6',
+              text: '7–9 hodin denně. Bez spánku nefunguje žádný trénink ani výživa. GH se vylučuje primárně v noci. Prioritizuj spánek nad vším ostatním.',
+            },
+            {
+              title: 'Konzistence > Perfekce',
+              icon: '📅',
+              color: '#10B981',
+              text: '1 špatný den nezničí výsledky. 1 měsíc špatných návyků ano. Zaměř se na průměr za týden, ne na každý den zvlášť.',
+            },
+            {
+              title: 'Deload = jez stejně',
+              icon: '🔄',
+              color: '#F59E0B',
+              text: 'V deload týdnu (W4, W8, W12, W16) nesniž příjem kalorií. Tělo potřebuje živiny pro regeneraci a superkompenzaci.',
+            },
+          ].map((rule, i) => (
+            <div key={i} style={{ ...cardStyle, borderLeft: `3px solid ${rule.color}` }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <span style={{ fontSize: 20 }}>{rule.icon}</span>
+                <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 700, color: '#fff' }}>{rule.title}</div>
+              </div>
+              <div style={{ fontSize: 12, color: '#aaa', lineHeight: 1.6 }}>{rule.text}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
