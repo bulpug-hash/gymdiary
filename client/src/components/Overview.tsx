@@ -23,20 +23,11 @@ export default function Overview({ workoutData, onNavigate }: Props) {
   const currentWeek: Week = PHASE3_WEEKS.find(w => w.number === currentWeekNum) || PHASE3_WEEKS[0];
   const todayDay = currentWeek.days.find(d => d.key === todayKey);
 
-  // Latest records for main lifts – zobrazujeme reálnou váhu, ne odhadované 1RM
-  const latestBench = workoutData.getLatestRecord('bench');
-  const latestSquat = workoutData.getLatestRecord('squat');
-  const latestDL = workoutData.getLatestRecord('deadlift');
-
-  // Reálná aktuální maxima (skutečně zvednuté váhy)
-  const benchCurrent = latestBench ? (parseFloat(latestBench.weight) || CURRENT_MAXES.bench) : CURRENT_MAXES.bench;
-  const squatCurrent = latestSquat ? (parseFloat(latestSquat.weight) || CURRENT_MAXES.squat) : CURRENT_MAXES.squat;
-  const dlCurrent = latestDL ? (parseFloat(latestDL.weight) || CURRENT_MAXES.deadlift) : CURRENT_MAXES.deadlift;
-
+  // Skutečná 1RM maxima z dokumentů – VŽDY zobrazujeme tato čísla, ne pracovní váhy z deníku
   const goals = [
-    { name: 'Bench Press', current: benchCurrent, goal: GOALS.bench, unit: 'kg', note: latestBench ? `${latestBench.sets}×${latestBench.reps}` : '' },
-    { name: 'Back Squat', current: squatCurrent, goal: GOALS.squat, unit: 'kg', note: latestSquat ? `${latestSquat.sets}×${latestSquat.reps}` : '' },
-    { name: 'Mrtvý tah', current: dlCurrent, goal: GOALS.deadlift, unit: 'kg', note: latestDL ? `${latestDL.sets}×${latestDL.reps}` : '' },
+    { name: 'Bench Press', current: CURRENT_MAXES.bench, goal: GOALS.bench, note: '1RM testováno' },
+    { name: 'Back Squat', current: CURRENT_MAXES.squat, goal: GOALS.squat, note: '1RM testováno' },
+    { name: 'Mrtvý tah', current: CURRENT_MAXES.deadlift, goal: GOALS.deadlift, note: '1RM testováno' },
   ];
 
   return (

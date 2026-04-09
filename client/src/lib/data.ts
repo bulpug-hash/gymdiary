@@ -765,7 +765,7 @@ export const PHASE3_WEEKS: Week[] = [
 // Uživatel je může vidět v Deníku jako "Hist. Fáze 1/2" záznamy.
 // ============================================================
 export const DEFAULT_RECORDS: RecordsMap = {
-  'Low-Bar Back Squat': [
+  'squat': [
     // CSV historická data (Fáze 1 + 2)
     { id: 'hist_0', date: '2026-01-26', sets: '3', weight: '120', reps: '6', note: 'Hist. Fáze 1 – start' },
     { id: 'hist_17', date: '2026-02-02', sets: '3', weight: '120', reps: '8', note: 'Hist. Fáze 1' },
@@ -779,40 +779,40 @@ export const DEFAULT_RECORDS: RecordsMap = {
     { id: 'sq4', date: '2026-02-09', sets: '4', weight: '145', reps: '3', note: 'RPE 8.' },
     { id: 'sq5', date: '2026-02-02', sets: '4', weight: '140', reps: '4', note: 'RPE 8.' },
   ],
-  'Front Squat': [
+  'front-squat': [
     { id: 'fsq1', date: '2026-02-16', sets: '3', weight: '105', reps: '8', note: 'RPE 7.' },
     { id: 'fsq2', date: '2026-02-09', sets: '3', weight: '102.5', reps: '8', note: 'RPE 7.' },
     { id: 'fsq3', date: '2026-02-02', sets: '3', weight: '100', reps: '8', note: 'RPE 7.' },
     { id: 'fsq4', date: '2026-01-26', sets: '3', weight: '97.5', reps: '8', note: 'RPE 7.' },
   ],
-  'Romanian Deadlift (RDL)': [
+  'rdl': [
     { id: 'rdl1', date: '2026-03-02', sets: '3', weight: '70', reps: '12', note: 'RPE 7.' },
     { id: 'rdl2', date: '2026-02-23', sets: '3', weight: '67.5', reps: '12', note: 'RPE 7.' },
     { id: 'rdl3', date: '2026-02-16', sets: '3', weight: '65', reps: '12', note: 'RPE 7.' },
     { id: 'rdl4', date: '2026-02-09', sets: '3', weight: '62.5', reps: '12', note: 'RPE 7.' },
     { id: 'rdl5', date: '2026-02-02', sets: '3', weight: '60', reps: '12', note: 'RPE 7.' },
   ],
-  'Leg Press': [
+  'leg-press': [
     { id: 'lp1', date: '2026-03-02', sets: '3', weight: '220', reps: '12', note: 'RPE 7.' },
     { id: 'lp2', date: '2026-02-23', sets: '3', weight: '210', reps: '12', note: 'RPE 7.' },
     { id: 'lp3', date: '2026-02-16', sets: '3', weight: '200', reps: '12', note: 'RPE 7.' },
     { id: 'lp4', date: '2026-02-09', sets: '3', weight: '190', reps: '12', note: 'RPE 7.' },
     { id: 'lp5', date: '2026-02-02', sets: '3', weight: '180', reps: '12', note: 'RPE 7.' },
   ],
-  'Seated Calf Raise': [
+  'calf-raise': [
     { id: 'cr1', date: '2026-03-02', sets: '4', weight: '60', reps: '12', note: 'RPE 7.' },
     { id: 'cr2', date: '2026-02-23', sets: '4', weight: '57.5', reps: '12', note: '' },
     { id: 'cr3', date: '2026-02-16', sets: '4', weight: '55', reps: '12', note: '' },
     { id: 'cr4', date: '2026-02-09', sets: '4', weight: '52.5', reps: '12', note: '' },
     { id: 'cr5', date: '2026-02-02', sets: '4', weight: '50', reps: '12', note: '' },
   ],
-  'Hanging Leg Raise': [
+  'hanging-leg-raise': [
     { id: 'hlr1', date: '2026-03-02', sets: '3', weight: '0', reps: '15', note: 'BW.' },
     { id: 'hlr2', date: '2026-02-23', sets: '3', weight: '0', reps: '15', note: 'BW.' },
     { id: 'hlr3', date: '2026-02-16', sets: '3', weight: '0', reps: '15', note: 'BW.' },
     { id: 'hlr4', date: '2026-02-09', sets: '3', weight: '0', reps: '15', note: 'BW.' },
   ],
-  'Barbell Bench Press': [
+  'bench': [
     // CSV historická data (Fáze 1 + 2)
     { id: 'hist_6', date: '2026-01-27', sets: '3', weight: '100', reps: '8', note: 'Hist. Fáze 1 – start' },
     { id: 'hist_23', date: '2026-02-03', sets: '3', weight: '105', reps: '8', note: 'Hist. Fáze 1 – PR 105×8!' },
@@ -829,17 +829,17 @@ export const DEFAULT_RECORDS: RecordsMap = {
     { id: 'bp7', date: '2026-02-03', sets: '4', weight: '90', reps: '8', note: 'RPE 7.' },
     { id: 'bp8', date: '2026-01-27', sets: '4', weight: '87.5', reps: '8', note: 'RPE 7.' },
   ],
-  'Close-Grip Bench Press': [
+  'close-grip-bench': [
     { id: 'cgb1', date: '2026-03-17', sets: '3', weight: '85', reps: '8', note: 'RPE 7.' },
     { id: 'cgb2', date: '2026-03-10', sets: '3', weight: '82.5', reps: '8', note: '' },
     { id: 'cgb3', date: '2026-03-03', sets: '3', weight: '80', reps: '8', note: '' },
   ],
-  'Incline Dumbbell Press': [
+  'incline-db-press': [
     { id: 'idp1', date: '2026-03-17', sets: '3', weight: '32', reps: '10', note: 'RPE 7.' },
     { id: 'idp2', date: '2026-03-10', sets: '3', weight: '30', reps: '10', note: '' },
     { id: 'idp3', date: '2026-03-03', sets: '3', weight: '28', reps: '10', note: '' },
   ],
-  'Weighted Pull-Up': [
+  'weighted-pullup': [
     // CSV historická data (Fáze 1 + 2)
     { id: 'hist_8', date: '2026-01-27', sets: '3', weight: '10', reps: '5', note: 'Hist. Fáze 1' },
     { id: 'hist_25', date: '2026-02-03', sets: '3', weight: '10', reps: '5', note: 'Hist. Fáze 1' },
@@ -852,7 +852,7 @@ export const DEFAULT_RECORDS: RecordsMap = {
     { id: 'wpu3', date: '2026-03-03', sets: '4', weight: '10', reps: '6', note: '' },
     { id: 'wpu4', date: '2026-02-24', sets: '4', weight: '10', reps: '6', note: '' },
   ],
-  'Conventional Deadlift': [
+  'deadlift': [
     // CSV historická data (Fáze 1 + 2)
     { id: 'hist_11', date: '2026-01-30', sets: '3', weight: '180', reps: '6', note: 'Hist. Fáze 1 – start' },
     { id: 'hist_28', date: '2026-02-06', sets: '3', weight: '200', reps: '8', note: 'Hist. Fáze 1 – PR 200×8!' },
@@ -865,22 +865,22 @@ export const DEFAULT_RECORDS: RecordsMap = {
     { id: 'dl5', date: '2026-02-06', sets: '3', weight: '210', reps: '4', note: 'RPE 8.' },
     { id: 'dl6', date: '2026-01-30', sets: '3', weight: '205', reps: '4', note: 'RPE 7–8.' },
   ],
-  'Pause Squat': [
+  'pause-squat': [
     { id: 'psq1', date: '2026-03-02', sets: '3', weight: '130', reps: '3', note: '2s pauza. RPE 8.' },
     { id: 'psq2', date: '2026-02-16', sets: '3', weight: '125', reps: '3', note: '2s pauza.' },
     { id: 'psq3', date: '2026-02-02', sets: '3', weight: '120', reps: '3', note: '2s pauza.' },
   ],
-  'GHD Raise': [
+  'ghd-raise': [
     { id: 'ghd1', date: '2026-03-02', sets: '3', weight: '0', reps: '10', note: 'BW.' },
     { id: 'ghd2', date: '2026-02-16', sets: '3', weight: '0', reps: '8', note: 'BW.' },
     { id: 'ghd3', date: '2026-02-02', sets: '3', weight: '0', reps: '8', note: 'BW.' },
   ],
-  'Face Pull': [
+  'face-pull': [
     { id: 'fp1', date: '2026-03-17', sets: '3', weight: '25', reps: '20', note: 'Prehab.' },
     { id: 'fp2', date: '2026-03-10', sets: '3', weight: '25', reps: '20', note: '' },
     { id: 'fp3', date: '2026-03-03', sets: '3', weight: '22.5', reps: '20', note: '' },
   ],
-  'Barbell Row': [
+  'barbell-row': [
     { id: 'br1', date: '2026-03-06', sets: '3', weight: '90', reps: '8', note: 'RPE 7.' },
     { id: 'br2', date: '2026-02-27', sets: '3', weight: '87.5', reps: '8', note: '' },
     { id: 'br3', date: '2026-02-20', sets: '3', weight: '85', reps: '8', note: '' },
