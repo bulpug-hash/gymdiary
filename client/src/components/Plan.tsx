@@ -21,10 +21,29 @@ const TYPE_LABELS: Record<string, string> = {
   hiit: 'HIIT', run: 'ZONE 2 RUN', rest: 'VOLNO',
 };
 
+// Detect current week index based on today's date
+function getCurrentWeekIndex(): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const idx = PHASE3_WEEKS.findIndex(w => {
+    const from = new Date(w.dateFrom);
+    const to = new Date(w.dateTo);
+    to.setHours(23, 59, 59, 999);
+    return today >= from && today <= to;
+  });
+  // If before plan start → show W1; if after plan end → show last week
+  if (idx === -1) {
+    const planStart = new Date(PHASE3_WEEKS[0].dateFrom);
+    return today < planStart ? 0 : PHASE3_WEEKS.length - 1;
+  }
+  return idx;
+}
+
 export default function Plan({ workoutData }: Props) {
-  const [selectedWeek, setSelectedWeek] = useState(0);
+  const [selectedWeek, setSelectedWeek] = useState(() => getCurrentWeekIndex());
   const [expandedDay, setExpandedDay] = useState<string | null>(null);
 
+  const currentWeekIndex = getCurrentWeekIndex();
   const week = PHASE3_WEEKS[selectedWeek];
 
   return (
@@ -44,35 +63,88 @@ export default function Plan({ workoutData }: Props) {
 
       {/* Week selector */}
       <div style={{ padding: '12px 20px', borderBottom: '1px solid #1c1c1c', overflowX: 'auto' }}>
-        <div style={{ display: 'flex', gap: 6, minWidth: 'max-content' }}>
-          {PHASE3_WEEKS.map((w, i) => (
+        <div style={{ display: 'flex', gap: 6, minWidth: 'max-content', alignItems: 'center' }}>
+          {PHASE3_WEEKS.map((w, i) => {
+            const isSelected = selectedWeek === i;
+            const isCurrent = currentWeekIndex === i;
+            return (
+              <button
+                key={w.number}
+                onClick={() => setSelectedWeek(i)}
+                style={{
+                  position: 'relative',
+                  padding: isCurrent ? '6px 12px 6px 20px' : '6px 12px',
+                  borderRadius: 8,
+                  border: isSelected
+                    ? '1px solid #F5C842'
+                    : isCurrent
+                    ? '1px solid rgba(94,207,177,0.5)'
+                    : '1px solid #1c1c1c',
+                  background: isSelected
+                    ? 'rgba(245,200,66,0.12)'
+                    : isCurrent
+                    ? 'rgba(94,207,177,0.07)'
+                    : 'transparent',
+                  color: isSelected ? '#F5C842' : isCurrent ? '#5ECFB1' : (w.isDeload ? '#5ECFB1' : '#666'),
+                  fontSize: 11,
+                  fontWeight: isSelected || isCurrent ? 700 : 400,
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {isCurrent && (
+                  <span style={{
+                    position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)',
+                    width: 6, height: 6, borderRadius: '50%', background: '#5ECFB1',
+                    boxShadow: '0 0 6px rgba(94,207,177,0.8)',
+                  }} />
+                )}
+                T{w.number}{w.isDeload ? ' 🔄' : ''}
+              </button>
+            );
+          })}
+          {/* Jump to current week button – shown only when viewing a different week */}
+          {selectedWeek !== currentWeekIndex && (
             <button
-              key={w.number}
-              onClick={() => setSelectedWeek(i)}
+              onClick={() => setSelectedWeek(currentWeekIndex)}
               style={{
-                padding: '6px 12px',
+                marginLeft: 8,
+                padding: '6px 10px',
                 borderRadius: 8,
-                border: selectedWeek === i ? '1px solid #F5C842' : '1px solid #1c1c1c',
-                background: selectedWeek === i ? 'rgba(245,200,66,0.12)' : 'transparent',
-                color: selectedWeek === i ? '#F5C842' : (w.isDeload ? '#5ECFB1' : '#666'),
-                fontSize: 11,
-                fontWeight: selectedWeek === i ? 700 : 400,
+                border: '1px solid rgba(94,207,177,0.4)',
+                background: 'rgba(94,207,177,0.1)',
+                color: '#5ECFB1',
+                fontSize: 10,
+                fontWeight: 700,
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
-                transition: 'all 0.15s ease',
+                letterSpacing: '0.05em',
               }}
             >
-              T{w.number}{w.isDeload ? ' 🔄' : ''}
+              ► AKTUÁLNÍ TÝDEN
             </button>
-          ))}
+          )}
         </div>
       </div>
 
       {/* Selected week info */}
       <div style={{ padding: '14px 20px', borderBottom: '1px solid #1c1c1c' }}>
-        <div style={{ borderLeft: '3px solid #F5C842', paddingLeft: 14 }}>
-          <div style={{ color: '#F5C842', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-            {week.phase}
+        <div style={{ borderLeft: `3px solid ${selectedWeek === currentWeekIndex ? '#5ECFB1' : '#F5C842'}`, paddingLeft: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ color: '#F5C842', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+              {week.phase}
+            </div>
+            {selectedWeek === currentWeekIndex && (
+              <span style={{
+                fontSize: 9, fontWeight: 700, letterSpacing: '0.12em',
+                color: '#5ECFB1', background: 'rgba(94,207,177,0.12)',
+                border: '1px solid rgba(94,207,177,0.4)', borderRadius: 4,
+                padding: '2px 6px', textTransform: 'uppercase',
+              }}>
+                ● AKTUÁLNÍ TÝDEN
+              </span>
+            )}
           </div>
           <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 20, fontWeight: 800, color: '#f0f0f0', marginTop: 2 }}>
             {week.label}
@@ -80,6 +152,9 @@ export default function Plan({ workoutData }: Props) {
           <div style={{ color: '#888', fontSize: 12, marginTop: 4, lineHeight: 1.5 }}>{week.description}</div>
           <div style={{ color: '#555', fontSize: 11, marginTop: 6 }}>
             {week.dateFrom.split('-').reverse().join('.')} – {week.dateTo.split('-').reverse().join('.')}
+            {selectedWeek === currentWeekIndex && (
+              <span style={{ color: '#5ECFB1', marginLeft: 8 }}>• Právě probíhá</span>
+            )}
           </div>
         </div>
       </div>
