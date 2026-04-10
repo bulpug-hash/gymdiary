@@ -1,11 +1,12 @@
 // Tools Tab – Gold Performance Design
-// Features: RPE kalkulačka, tělesná váha tracker, odpočinkový timer, export CSV, tmavý/světlý režim
+// Features: RPE kalkulačka, tělesná váha tracker, odpočinkový timer, export XLSX, zdrojové dokumenty
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTheme } from '@/contexts/ThemeContext';
 import { toast } from 'sonner';
-import { nanoid, formatDate } from '@/lib/data';
+import { nanoid, formatDate, PHASE3_WEEKS } from '@/lib/data';
 import type { WorkoutDataHook } from '@/lib/types';
+import * as XLSX from 'xlsx';
 
 interface Props {
   workoutData: WorkoutDataHook;
@@ -56,7 +57,7 @@ function calc1RMFromWeight(weight: number, reps: number): number {
 // Main Tools Component
 // ============================================================
 export default function Tools({ workoutData }: Props) {
-  const [section, setSection] = useState<'rpe' | 'bodyweight' | 'timer' | 'export' | 'nutrition' | 'autoregulation'>('rpe');
+  const [section, setSection] = useState<'rpe' | 'bodyweight' | 'timer' | 'export' | 'nutrition' | 'autoregulation' | 'documents'>('rpe');
   const { theme, toggleTheme, switchable } = useTheme();
 
   const sectionBtnStyle = (active: boolean) => ({
@@ -118,6 +119,7 @@ export default function Tools({ workoutData }: Props) {
             { key: 'export', label: 'Export' },
             { key: 'nutrition', label: '🥩 Výživa' },
             { key: 'autoregulation', label: '🧠 Auto' },
+            { key: 'documents', label: '📁 Docs' },
           ].map(s => (
             <button
               key={s.key}
@@ -138,6 +140,7 @@ export default function Tools({ workoutData }: Props) {
         {section === 'export' && <ExportData workoutData={workoutData} />}
         {section === 'nutrition' && <NutritionGuide />}
         {section === 'autoregulation' && <AutoregulationGuide />}
+        {section === 'documents' && <DocumentsSection />}
       </div>
     </div>
   );
@@ -660,54 +663,201 @@ function RestTimer() {
 }
 
 // ============================================================
-// Export Data
+// Export Data – XLSX multi-sheet export (identický se starým deníkem)
 // ============================================================
 function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
-  const exportCSV = () => {
-    const rows: string[] = ['Cvik,Datum,Série,Váha (kg),Opakování,Poznámka'];
-    const allExerciseIds = Object.keys(workoutData.records);
+
+  // Helper: find exercise name and day/week info from plan
+  const getExerciseInfo = (exId: string) => {
+    for (const week of PHASE3_WEEKS) {
+      for (const day of week.days) {
+        const ex = day.exercises.find(e => e.id === exId);
+        if (ex) return { name: ex.name, dayLabel: day.label, dayType: day.type, weekNum: week.number, phase: week.phase, category: ex.category };
+      }
+    }
+    return { name: exId, dayLabel: '–', dayType: '–', weekNum: 0, phase: '–', category: 'accessory' };
+  };
+
+  // Helper: get week for a date
+  const getWeekForDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    for (const week of PHASE3_WEEKS) {
+      const from = new Date(week.dateFrom);
+      const to = new Date(week.dateTo);
+      to.setHours(23,59,59,999);
+      if (d >= from && d <= to) return week;
+    }
+    return null;
+  };
+
+  // Helper: format date CZ style
+  const fmtDate = (iso: string) => {
+    const d = new Date(iso);
+    return `${d.getDate()}. ${d.getMonth()+1}. ${d.getFullYear()}`;
+  };
+
+  // Helper: day of week CZ
+  const dayNames = ['neděle','pondělí','úterý','středa','čtvrtek','pátek','sobota'];
+  const getDayName = (iso: string) => dayNames[new Date(iso).getDay()];
+
+  // Category labels
+  const catLabel: Record<string, string> = {
+    main: 'Hlavní cvik', accessory: 'Doplňkový cvik', isolation: 'Izolační cvik',
+    prevention: 'Prevence', core: 'Core', run: 'Běh', superset: 'Superset',
+  };
+
+  const exportXLSX = () => {
+    const allExerciseIds = Object.keys(workoutData.records).filter(id => workoutData.getRecords(id).length > 0);
+    const today = new Date().toISOString().split('T')[0];
+
+    // ===== List 1: Záznamy =====
+    const zaznamy: (string | number | null)[][] = [[
+      'Datum', 'Den v týdnu', 'Trénink', 'Cvik', 'Kategorie',
+      'Týden č.', 'Fáze', 'Plánovaná váha (kg)', 'Plánovaný záznam (celý)',
+      'Skutečná váha (kg)', 'Skutečná opakování', 'Objem (kg × op)',
+      '% splnění cíle váhy', 'Fitko', 'Extra aktivita', 'Poznámka'
+    ]];
 
     for (const exId of allExerciseIds) {
       const records = workoutData.getRecords(exId);
+      const info = getExerciseInfo(exId);
       for (const r of records) {
-        rows.push(`"${exId}","${r.date}","${r.sets}","${r.weight}","${r.reps}","${r.note || ''}"`);
+        const week = getWeekForDate(r.date);
+        const plannedWeight = parseFloat(r.weight) || 0;
+        const actualWeight = parseFloat(r.weight) || 0;
+        const actualReps = parseInt(r.reps as string) || 0;
+        const actualSets = parseInt(r.sets as string) || 1;
+        const volume = actualWeight * actualReps * actualSets;
+        const pctGoal = plannedWeight > 0 ? Math.round((actualWeight / plannedWeight) * 100) / 100 : null;
+        zaznamy.push([
+          fmtDate(r.date),
+          getDayName(r.date),
+          info.dayLabel + ' – ' + info.dayType.toUpperCase(),
+          info.name,
+          catLabel[info.category] || info.category,
+          week ? week.number : null,
+          week ? week.phase : '–',
+          plannedWeight || null,
+          `${r.weight} kg × ${r.reps} (${r.sets} sérií)`,
+          actualWeight || null,
+          actualReps || null,
+          volume || null,
+          pctGoal,
+          r.gym || null,
+          r.extraActivity || null,
+          r.note || null,
+        ]);
       }
     }
 
-    const csv = rows.join('\n');
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `treninkovy-denik-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success('CSV exportováno ✓');
+    // ===== List 2: Souhrn cviků =====
+    const souhrn: (string | number | null)[][] = [[
+      'Cvik', 'Trénink', 'Kategorie',
+      'Výchozí váha', 'Max. dosažená váha (kg)', 'Datum maxima',
+      'Poslední váha (kg)', 'Zlepšení celkem (kg)',
+      'Celkový objem (kg × op)', 'Počet záznamů', 'Trend (první → poslední váha)'
+    ]];
+
+    for (const exId of allExerciseIds) {
+      const records = workoutData.getRecords(exId);
+      if (records.length === 0) continue;
+      const info = getExerciseInfo(exId);
+      const weights = records.map(r => parseFloat(r.weight) || 0);
+      const maxW = Math.max(...weights);
+      const maxIdx = weights.indexOf(maxW);
+      const firstW = weights[0];
+      const lastW = weights[weights.length - 1];
+      const totalVol = records.reduce((s, r) => s + (parseFloat(r.weight)||0)*(parseInt(r.reps as string)||0)*(parseInt(r.sets as string)||1), 0);
+      souhrn.push([
+        info.name,
+        info.dayLabel,
+        catLabel[info.category] || info.category,
+        firstW > 0 ? `${firstW} kg` : '–',
+        maxW > 0 ? maxW : null,
+        maxIdx >= 0 ? fmtDate(records[maxIdx].date) : '–',
+        lastW > 0 ? lastW : null,
+        lastW - firstW,
+        Math.round(totalVol),
+        records.length,
+        `${firstW} kg → ${lastW} kg`,
+      ]);
+    }
+
+    // ===== List 3: Souhrn týdnů =====
+    const souhrntydnu: (string | number | null)[][] = [[
+      'Týden č.', 'Fáze', 'Datum od', 'Datum do', 'Focus týdne',
+      'Počet záznamů (setů)', 'Celkový objem (kg × op)', 'Poznámky'
+    ]];
+
+    for (const week of PHASE3_WEEKS) {
+      const from = new Date(week.dateFrom);
+      const to = new Date(week.dateTo);
+      to.setHours(23,59,59,999);
+      let weekRecords = 0;
+      let weekVolume = 0;
+      for (const exId of allExerciseIds) {
+        const recs = workoutData.getRecords(exId).filter(r => {
+          const d = new Date(r.date);
+          return d >= from && d <= to;
+        });
+        weekRecords += recs.length;
+        weekVolume += recs.reduce((s, r) => s + (parseFloat(r.weight)||0)*(parseInt(r.reps as string)||0)*(parseInt(r.sets as string)||1), 0);
+      }
+      souhrntydnu.push([
+        week.number,
+        week.phase,
+        `${from.getDate()}. ${from.getMonth()+1}.`,
+        `${to.getDate()}. ${to.getMonth()+1}.`,
+        week.description.substring(0, 80),
+        weekRecords > 0 ? weekRecords : null,
+        weekVolume > 0 ? Math.round(weekVolume) : null,
+        week.isDeload ? 'DELOAD / TAPER' : null,
+      ]);
+    }
+
+    // ===== List 4: Metadata =====
+    const metadata: (string | null)[][] = [
+      ['METADATA TRÉNINKOVÉHO PLÁNU', null],
+      ['Parametr', 'Hodnota'],
+      ['Název plánu', 'Silově-hypertrofický plán 2026 v4'],
+      ['Začátek plánu', '14. 4. 2026'],
+      ['Konec plánu', '3. 8. 2026'],
+      ['Počet týdnů', '16'],
+      ['Fáze 1', 'Akumulace W1–4 (14.4.–11.5.2026)'],
+      ['Fáze 2', 'Síla W5–8 (12.5.–8.6.2026)'],
+      ['Fáze 3', 'Intenzifikace W9–12 (9.6.–6.7.2026)'],
+      ['Fáze 4', 'Peaking W13–16 (7.7.–3.8.2026)'],
+      ['Cíl Squat', '190 kg (1RM)'],
+      ['Cíl Bench Press', '130 kg (1RM)'],
+      ['Cíl Deadlift', '235 kg (1RM)'],
+      ['Zdroje', 'Israetel, Tuchscherer, Smith, Zatsiorsky, Horschig, Schumann, Viada'],
+      ['Export vytvořen', today],
+      ['Počet exportovaných záznamů', String(zaznamy.length - 1)],
+    ];
+
+    // Build workbook
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(zaznamy), 'Záznamy');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(souhrn), 'Souhrn cviků');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(souhrntydnu), 'Souhrn týdnů');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(metadata), 'Metadata');
+
+    XLSX.writeFile(wb, `treninkovy-denik-${today}.xlsx`);
+    toast.success('XLSX exportováno – 4 listy ✓');
   };
 
   const exportBodyWeight = () => {
     const entries = loadBodyWeights();
-    if (entries.length === 0) {
-      toast.error('Žádné záznamy tělesné váhy');
-      return;
-    }
-    const rows = ['Datum,Váha (kg),Poznámka'];
-    for (const e of entries) {
-      rows.push(`"${e.date}","${e.weight}","${e.note || ''}"`);
-    }
-    const csv = rows.join('\n');
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `telesna-vaha-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    if (entries.length === 0) { toast.error('Žádné záznamy tělesné váhy'); return; }
+    const data = [['Datum', 'Váha (kg)', 'Poznámka'], ...entries.map(e => [e.date, e.weight, e.note || ''])];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), 'Tělesná váha');
+    XLSX.writeFile(wb, `telesna-vaha-${new Date().toISOString().split('T')[0]}.xlsx`);
     toast.success('Export tělesné váhy hotov ✓');
   };
 
   const totalRecords = Object.values(workoutData.records).reduce((sum, arr) => sum + arr.length, 0);
-  const exerciseCount = Object.keys(workoutData.records).length;
+  const exerciseCount = Object.keys(workoutData.records).filter(id => workoutData.getRecords(id).length > 0).length;
   const bwCount = loadBodyWeights().length;
 
   return (
@@ -716,7 +866,7 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
         Export dat
       </div>
       <p style={{ fontSize: 12, color: '#555', marginBottom: 20 }}>
-        Stáhni svá data jako CSV soubor pro zálohu nebo analýzu v Excelu.
+        Stáhni svá data jako XLSX soubor – 4 listy identické se starým deníkem.
       </p>
 
       {/* Stats */}
@@ -739,7 +889,7 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
       {/* Export buttons */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         <button
-          onClick={exportCSV}
+          onClick={exportXLSX}
           style={{
             background: 'rgba(245,200,66,0.08)',
             border: '1px solid rgba(245,200,66,0.2)',
@@ -750,14 +900,15 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
             gap: 12,
             cursor: 'pointer',
             textAlign: 'left',
+            width: '100%',
           }}
         >
           <span style={{ fontSize: 24 }}>📊</span>
-          <div>
-            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 700, color: '#F5C842' }}>Export tréninků</div>
-            <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>{totalRecords} záznamů · CSV formát</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 700, color: '#F5C842' }}>Export tréninků (XLSX)</div>
+            <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>{totalRecords} záznamů · 4 listy: Záznamy, Souhrn cviků, Souhrn týdnů, Metadata</div>
           </div>
-          <div style={{ marginLeft: 'auto', color: '#F5C842', fontSize: 16 }}>↓</div>
+          <div style={{ color: '#F5C842', fontSize: 16 }}>↓</div>
         </button>
 
         <button
@@ -772,20 +923,25 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
             gap: 12,
             cursor: 'pointer',
             textAlign: 'left',
+            width: '100%',
           }}
         >
           <span style={{ fontSize: 24 }}>⚖️</span>
-          <div>
-            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 700, color: '#6EE7B7' }}>Export tělesné váhy</div>
-            <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>{bwCount} záznamů · CSV formát</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 700, color: '#6EE7B7' }}>Export tělesné váhy (XLSX)</div>
+            <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>{bwCount} záznamů · 1 list</div>
           </div>
-          <div style={{ marginLeft: 'auto', color: '#6EE7B7', fontSize: 16 }}>↓</div>
+          <div style={{ color: '#6EE7B7', fontSize: 16 }}>↓</div>
         </button>
       </div>
 
-      <div style={{ marginTop: 20, padding: '12px', background: 'rgba(255,255,255,0.02)', border: '1px solid #1c1c1c', borderRadius: 10 }}>
-        <div style={{ fontSize: 11, color: '#555' }}>
-          💡 Data jsou uložena v prohlížeči (localStorage). Export slouží jako záloha. CSV lze otevřít v Excelu nebo Google Sheets.
+      <div style={{ marginTop: 16, padding: '10px 12px', background: 'rgba(245,200,66,0.04)', border: '1px solid rgba(245,200,66,0.15)', borderRadius: 10 }}>
+        <div style={{ fontSize: 10, color: '#F5C842', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>XLSX STRUKTURA (identická se starým deníkem)</div>
+        <div style={{ fontSize: 11, color: '#666', lineHeight: 1.6 }}>
+          📄 <b style={{color:'#aaa'}}>Záznamy</b> – všechny zápisy s datem, cvikem, váhou, objemem<br/>
+          📄 <b style={{color:'#aaa'}}>Souhrn cviků</b> – max váha, trend, celkový objem<br/>
+          📄 <b style={{color:'#aaa'}}>Souhrn týdnů</b> – objem a počet záznamů po týdních<br/>
+          📄 <b style={{color:'#aaa'}}>Metadata</b> – informace o plánu a exportu
         </div>
       </div>
     </div>
@@ -1194,6 +1350,121 @@ function AutoregulationGuide() {
           )}
         </div>
       ))}
+    </div>
+  );
+}
+
+// ============================================================
+// Documents Section – Zdrojové dokumenty ke stažení
+// ============================================================
+function DocumentsSection() {
+  const docs = [
+    {
+      icon: '📋',
+      title: 'Tréninkový plán 2026 v4',
+      subtitle: 'Zdrojový dokument · 16týdenní vědecky podložený plán',
+      type: 'DOCX',
+      color: '#F5C842',
+      url: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663392973146/MCSrHsYMzcpmCEqjyKDjDk/treninkovy-plan-2026-v4_720eaeb5.docx',
+      filename: 'treninkovy-plan-2026-v4.docx',
+    },
+    {
+      icon: '📊',
+      title: 'Tréninkový deník – analýza 2026',
+      subtitle: 'Předchozí období (leden–březen 2026) · Excel analýza',
+      type: 'XLSX',
+      color: '#6EE7B7',
+      url: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663392973146/MCSrHsYMzcpmCEqjyKDjDk/treninkovy-denik-analyza-2026-04-10_eb2fdc06.xlsx',
+      filename: 'treninkovy-denik-analyza-2026-04-10.xlsx',
+    },
+    {
+      icon: '🏃',
+      title: 'Strava profil',
+      subtitle: 'Běžecké a kardio aktivity · Strava.com',
+      type: 'LINK',
+      color: '#FC4C02',
+      url: 'https://www.strava.com',
+      filename: '',
+    },
+  ];
+
+  const handleDownload = (doc: typeof docs[0]) => {
+    if (doc.type === 'LINK') {
+      window.open(doc.url, '_blank');
+      return;
+    }
+    const a = document.createElement('a');
+    a.href = doc.url;
+    a.download = doc.filename;
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast.success(`${doc.title} – stahování zahájeno ✓`);
+  };
+
+  return (
+    <div>
+      <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, fontWeight: 800, color: '#F5C842', marginBottom: 4 }}>
+        Zdrojové dokumenty
+      </div>
+      <p style={{ fontSize: 12, color: '#555', marginBottom: 20, lineHeight: 1.5 }}>
+        Originální dokumenty plánu a předchozího deníku. Vždy dostupné ke stažení.
+      </p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {docs.map(doc => (
+          <button
+            key={doc.title}
+            onClick={() => handleDownload(doc)}
+            style={{
+              background: `rgba(${doc.color === '#F5C842' ? '245,200,66' : doc.color === '#6EE7B7' ? '110,231,183' : '252,76,2'},0.06)`,
+              border: `1px solid ${doc.color}30`,
+              borderRadius: 12,
+              padding: '14px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 14,
+              cursor: 'pointer',
+              textAlign: 'left',
+              transition: 'all 0.15s ease',
+              width: '100%',
+            }}
+          >
+            <div style={{
+              width: 44, height: 44, borderRadius: 10,
+              background: `${doc.color}15`,
+              border: `1px solid ${doc.color}30`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 22, flexShrink: 0,
+            }}>
+              {doc.icon}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 15, fontWeight: 700, color: '#e0e0e0' }}>{doc.title}</div>
+              <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>{doc.subtitle}</div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+              <div style={{
+                fontSize: 9, fontWeight: 700, letterSpacing: '0.1em',
+                color: doc.color, background: `${doc.color}15`,
+                border: `1px solid ${doc.color}30`,
+                borderRadius: 4, padding: '2px 6px',
+              }}>
+                {doc.type}
+              </div>
+              <div style={{ color: doc.color, fontSize: 16 }}>{doc.type === 'LINK' ? '↗' : '↓'}</div>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <div style={{ marginTop: 20, padding: '12px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid #1c1c1c', borderRadius: 10 }}>
+        <div style={{ fontSize: 10, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>ℹ️ O DOKUMENTECH</div>
+        <div style={{ fontSize: 11, color: '#555', lineHeight: 1.6 }}>
+          Soubory jsou trvale uloženy na CDN a jsou dostupné i po reinstalaci aplikace. Slouží jako záloha a referenční materiál.
+        </div>
+      </div>
     </div>
   );
 }
