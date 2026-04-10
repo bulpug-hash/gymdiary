@@ -77,6 +77,26 @@ export interface RunRecord {
 export const RUN_LOG_KEY = '__run_log__';
 export type RunRecordsStore = RunRecord[];
 
+export interface HIITRecord {
+  id: string;
+  date: string;
+  type: 'tabata' | 'circuit' | 'amrap' | 'emom' | 'other'; // typ HIIT
+  duration: string;      // celková délka v minutách, e.g. "25"
+  rounds?: string;       // počet kol, e.g. "8"
+  workInterval?: string; // pracovní interval v sekundách, e.g. "20"
+  restInterval?: string; // odpočinkový interval v sekundách, e.g. "10"
+  zone: string;          // tepová zóna, e.g. "Zóna 4"
+  avgHr?: string;        // průměrný TF v bpm, e.g. "165"
+  maxHr?: string;        // max TF v bpm, e.g. "185"
+  calories?: string;     // spálené kalorie, e.g. "320"
+  stravaUrl?: string;    // odkaz na Strava aktivitu
+  exercises?: string;    // seznam cviků, e.g. "Burpees, Box jumps, KB swings"
+  note: string;
+}
+
+export const HIIT_LOG_KEY = '__hiit_log__';
+export type HIITRecordsStore = HIITRecord[];
+
 // ============================================================
 // GOALS & MAXES
 // ============================================================

@@ -2,9 +2,9 @@
 // BUG FIX: editace záznamu správně předává date, sets, weight, reps, note
 // NOVÉ: cviky rozděleny podle tréninkových dnů (Po/Út/Čt/Pá/So)
 import { useState, useEffect } from 'react';
-import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel, formatDate, formatDateFull, getTodayISO, RUN_LOG_KEY } from '@/lib/data';
+import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel, formatDate, formatDateFull, getTodayISO, RUN_LOG_KEY, HIIT_LOG_KEY } from '@/lib/data';
 import type { WorkoutDataHook } from '@/lib/types';
-import type { Exercise, TrainingRecord, WorkoutDay, RunRecord } from '@/lib/data';
+import type { Exercise, TrainingRecord, WorkoutDay, RunRecord, HIITRecord } from '@/lib/data';
 import { nanoid } from 'nanoid';
 import { toast } from 'sonner';
 
@@ -41,7 +41,7 @@ export default function Diary({ workoutData }: Props) {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingRecord, setEditingRecord] = useState<TrainingRecord | null>(null);
-  const [activeTab, setActiveTab] = useState<'exercises' | 'runs'>('exercises');
+  const [activeTab, setActiveTab] = useState<'exercises' | 'runs' | 'hiit'>('exercises');
 
   const trainingDays = getTrainingDays();
 
@@ -67,33 +67,38 @@ export default function Diary({ workoutData }: Props) {
           TRÉNINKOVÝ DENÍK
         </div>
         <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: '#f0f0f0' }}>
-          {activeTab === 'exercises' ? 'Záznamy cviků' : 'Běžecký log'}
+          {activeTab === 'exercises' ? 'Záznamy cviků' : activeTab === 'runs' ? 'Běžecký log' : 'HIIT log'}
         </h2>
         <p style={{ color: '#666', fontSize: 12, marginTop: 6 }}>
-          {activeTab === 'exercises' ? 'Vyber tréninkový den a cvik pro zobrazení a přidání záznamů.' : 'Záznamy běhů – čas, vzdálenost, tepová zóna.'}
+          {activeTab === 'exercises' ? 'Vyber tréninkový den a cvik pro zobrazení a přidání záznamů.' : activeTab === 'runs' ? 'Záznamy běhů – čas, vzdálenost, tepová zóna.' : 'HIIT tréninky – Tabata, Circuit, AMRAP, EMOM. Tepovka, kalorie, Strava.'}
         </p>
       </div>
 
       {/* Tab switcher */}
       <div style={{ display: 'flex', padding: '10px 20px', gap: 8, borderBottom: '1px solid #1c1c1c' }}>
-        {(['exercises', 'runs'] as const).map(tab => (
+        {([
+          { key: 'exercises', label: '🏋️‍♂️ Cviky' },
+          { key: 'runs', label: '🏃 Běhy' },
+          { key: 'hiit', label: '🔥 HIIT' },
+        ] as const).map(tab => (
           <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
             style={{
               flex: 1, padding: '8px', borderRadius: 8,
-              border: activeTab === tab ? '1px solid rgba(245,200,66,0.4)' : '1px solid #1c1c1c',
-              background: activeTab === tab ? 'rgba(245,200,66,0.1)' : 'transparent',
-              color: activeTab === tab ? '#F5C842' : '#555',
-              fontSize: 12, fontWeight: activeTab === tab ? 700 : 400, cursor: 'pointer',
+              border: activeTab === tab.key ? '1px solid rgba(245,200,66,0.4)' : '1px solid #1c1c1c',
+              background: activeTab === tab.key ? 'rgba(245,200,66,0.1)' : 'transparent',
+              color: activeTab === tab.key ? '#F5C842' : '#555',
+              fontSize: 12, fontWeight: activeTab === tab.key ? 700 : 400, cursor: 'pointer',
             }}
           >
-            {tab === 'exercises' ? '🏋️‍♂️ Cviky' : '🏃 Běhy'}
+            {tab.label}
           </button>
         ))}
       </div>
 
       {activeTab === 'runs' && <RunLog />}
+      {activeTab === 'hiit' && <HIITLog />}
 
       {/* Training days grouped */}
       {activeTab === 'exercises' && <div style={{ padding: '14px 20px' }}>
@@ -772,6 +777,406 @@ function RunRow({ run, isLatest, onEdit, onDelete }: {
             onClick={e => { e.stopPropagation(); onDelete(); }}
             style={{ flex: 1, background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 8, color: '#F87171', fontSize: 12, fontWeight: 600, padding: '7px', cursor: 'pointer' }}
           >🗑️ Smazat</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// HIIT Log Component
+// ============================================================
+function loadHIITRecords(): HIITRecord[] {
+  try {
+    const raw = localStorage.getItem(HIIT_LOG_KEY);
+    if (raw) return JSON.parse(raw) as HIITRecord[];
+  } catch { /* ignore */ }
+  return [];
+}
+
+function saveHIITRecords(records: HIITRecord[]) {
+  try {
+    localStorage.setItem(HIIT_LOG_KEY, JSON.stringify(records));
+  } catch { /* ignore */ }
+}
+
+const HIIT_TYPES = [
+  { key: 'tabata', label: 'Tabata', desc: '20s práce / 10s odpočinek × 8 kol', color: '#F87171' },
+  { key: 'circuit', label: 'Circuit', desc: 'Okruhový trénink, postupně cviky', color: '#FB923C' },
+  { key: 'amrap', label: 'AMRAP', desc: 'As Many Rounds As Possible', color: '#FBBF24' },
+  { key: 'emom', label: 'EMOM', desc: 'Every Minute On the Minute', color: '#34D399' },
+  { key: 'other', label: 'Jiný', desc: 'Vlastní formát', color: '#A78BFA' },
+];
+
+const HR_ZONES = ['Zóna 1 (< 115 bpm)', 'Zóna 2 (115–135 bpm)', 'Zóna 3 (135–155 bpm)', 'Zóna 4 (155–175 bpm)', 'Zóna 5 (> 175 bpm)'];
+
+function HIITLog() {
+  const [records, setRecords] = useState<HIITRecord[]>(() => loadHIITRecords());
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Form state
+  const [form, setForm] = useState<Omit<HIITRecord, 'id'>>({
+    date: getTodayISO(),
+    type: 'tabata',
+    duration: '',
+    rounds: '',
+    workInterval: '',
+    restInterval: '',
+    zone: 'Zóna 4 (155–175 bpm)',
+    avgHr: '',
+    maxHr: '',
+    calories: '',
+    stravaUrl: '',
+    exercises: '',
+    note: '',
+  });
+
+  const resetForm = () => {
+    setForm({
+      date: getTodayISO(), type: 'tabata', duration: '', rounds: '',
+      workInterval: '', restInterval: '', zone: 'Zóna 4 (155–175 bpm)',
+      avgHr: '', maxHr: '', calories: '', stravaUrl: '', exercises: '', note: '',
+    });
+    setEditingId(null);
+  };
+
+  const handleSave = () => {
+    if (!form.duration) { toast.error('Vyplň délku tréninku'); return; }
+    let updated: HIITRecord[];
+    if (editingId) {
+      updated = records.map(r => r.id === editingId ? { ...form, id: editingId } : r);
+      toast.success('HIIT záznam upraven ✓');
+    } else {
+      updated = [{ ...form, id: nanoid() }, ...records];
+      toast.success('HIIT trénink uložen 🔥');
+    }
+    updated.sort((a, b) => b.date.localeCompare(a.date));
+    setRecords(updated);
+    saveHIITRecords(updated);
+    setShowForm(false);
+    resetForm();
+  };
+
+  const handleEdit = (r: HIITRecord) => {
+    setForm({ date: r.date, type: r.type, duration: r.duration, rounds: r.rounds || '',
+      workInterval: r.workInterval || '', restInterval: r.restInterval || '',
+      zone: r.zone, avgHr: r.avgHr || '', maxHr: r.maxHr || '',
+      calories: r.calories || '', stravaUrl: r.stravaUrl || '',
+      exercises: r.exercises || '', note: r.note });
+    setEditingId(r.id);
+    setShowForm(true);
+  };
+
+  const handleDelete = (id: string) => {
+    const updated = records.filter(r => r.id !== id);
+    setRecords(updated);
+    saveHIITRecords(updated);
+    toast.success('Záznam smazán');
+  };
+
+  // Stats
+  const totalSessions = records.length;
+  const totalMinutes = records.reduce((s, r) => s + (parseInt(r.duration) || 0), 0);
+  const totalCalories = records.reduce((s, r) => s + (parseInt(r.calories || '0') || 0), 0);
+  const avgHrAll = records.filter(r => r.avgHr).map(r => parseInt(r.avgHr!));
+  const avgHrMean = avgHrAll.length > 0 ? Math.round(avgHrAll.reduce((a, b) => a + b, 0) / avgHrAll.length) : 0;
+
+  const inputStyle = {
+    width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid #2a2a2a',
+    borderRadius: 8, padding: '9px 12px', color: '#e0e0e0', fontSize: 13,
+    outline: 'none', boxSizing: 'border-box' as const,
+  };
+  const labelStyle = { fontSize: 10, color: '#666', letterSpacing: '0.08em', textTransform: 'uppercase' as const, marginBottom: 4, display: 'block' };
+  const fieldStyle = { marginBottom: 12 };
+
+  const typeInfo = HIIT_TYPES.find(t => t.key === form.type) || HIIT_TYPES[0];
+
+  return (
+    <div style={{ padding: '14px 20px' }}>
+
+      {/* Stats row */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        {[
+          { label: 'Tréninků', value: totalSessions, color: '#F87171' },
+          { label: 'Minut', value: totalMinutes, color: '#FBBF24' },
+          { label: 'kcal', value: totalCalories > 0 ? totalCalories : '–', color: '#34D399' },
+          { label: 'Avg TF', value: avgHrMean > 0 ? `${avgHrMean} bpm` : '–', color: '#A78BFA' },
+        ].map(s => (
+          <div key={s.label} style={{
+            flex: 1, background: 'rgba(255,255,255,0.02)', border: '1px solid #1c1c1c',
+            borderRadius: 10, padding: '8px 6px', textAlign: 'center',
+          }}>
+            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 20, fontWeight: 800, color: s.color }}>{s.value}</div>
+            <div style={{ fontSize: 9, color: '#555', marginTop: 1 }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Add button */}
+      {!showForm && (
+        <button
+          onClick={() => { resetForm(); setShowForm(true); }}
+          style={{
+            width: '100%', background: 'rgba(248,113,113,0.08)', border: '1px dashed rgba(248,113,113,0.3)',
+            borderRadius: 10, padding: '12px', color: '#F87171', fontSize: 13, fontWeight: 600,
+            cursor: 'pointer', marginBottom: 16,
+          }}
+        >
+          🔥 Přidat HIIT trénink
+        </button>
+      )}
+
+      {/* Form */}
+      {showForm && (
+        <div style={{
+          background: 'rgba(255,255,255,0.02)', border: `1px solid ${typeInfo.color}30`,
+          borderRadius: 12, padding: '16px', marginBottom: 16,
+        }}>
+          <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 700, color: typeInfo.color, marginBottom: 14 }}>
+            {editingId ? '✏️ Upravit HIIT záznam' : '🔥 Nový HIIT trénink'}
+          </div>
+
+          {/* Type selector */}
+          <div style={fieldStyle}>
+            <span style={labelStyle}>Typ HIIT</span>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {HIIT_TYPES.map(t => (
+                <button
+                  key={t.key}
+                  onClick={() => setForm(f => ({ ...f, type: t.key as HIITRecord['type'] }))}
+                  style={{
+                    padding: '6px 12px', borderRadius: 8, border: `1px solid ${form.type === t.key ? t.color : '#2a2a2a'}`,
+                    background: form.type === t.key ? `${t.color}15` : 'transparent',
+                    color: form.type === t.key ? t.color : '#666',
+                    fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                  }}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+            {typeInfo && <div style={{ fontSize: 11, color: '#555', marginTop: 6 }}>{typeInfo.desc}</div>}
+          </div>
+
+          {/* Date + Duration */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+            <div>
+              <span style={labelStyle}>Datum</span>
+              <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} style={inputStyle} />
+            </div>
+            <div>
+              <span style={labelStyle}>Délka (min) *</span>
+              <input type="number" placeholder="25" value={form.duration} onChange={e => setForm(f => ({ ...f, duration: e.target.value }))} style={inputStyle} />
+            </div>
+          </div>
+
+          {/* Rounds + Intervals */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 12 }}>
+            <div>
+              <span style={labelStyle}>Kola</span>
+              <input type="number" placeholder="8" value={form.rounds} onChange={e => setForm(f => ({ ...f, rounds: e.target.value }))} style={inputStyle} />
+            </div>
+            <div>
+              <span style={labelStyle}>Práce (s)</span>
+              <input type="number" placeholder="20" value={form.workInterval} onChange={e => setForm(f => ({ ...f, workInterval: e.target.value }))} style={inputStyle} />
+            </div>
+            <div>
+              <span style={labelStyle}>Odpočinek (s)</span>
+              <input type="number" placeholder="10" value={form.restInterval} onChange={e => setForm(f => ({ ...f, restInterval: e.target.value }))} style={inputStyle} />
+            </div>
+          </div>
+
+          {/* Heart rate */}
+          <div style={fieldStyle}>
+            <span style={labelStyle}>Tepová zóna</span>
+            <select value={form.zone} onChange={e => setForm(f => ({ ...f, zone: e.target.value }))} style={{ ...inputStyle, cursor: 'pointer' }}>
+              {HR_ZONES.map(z => <option key={z} value={z}>{z}</option>)}
+            </select>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 12 }}>
+            <div>
+              <span style={labelStyle}>Avg TF (bpm)</span>
+              <input type="number" placeholder="165" value={form.avgHr} onChange={e => setForm(f => ({ ...f, avgHr: e.target.value }))} style={inputStyle} />
+            </div>
+            <div>
+              <span style={labelStyle}>Max TF (bpm)</span>
+              <input type="number" placeholder="185" value={form.maxHr} onChange={e => setForm(f => ({ ...f, maxHr: e.target.value }))} style={inputStyle} />
+            </div>
+            <div>
+              <span style={labelStyle}>Kalorie (kcal)</span>
+              <input type="number" placeholder="320" value={form.calories} onChange={e => setForm(f => ({ ...f, calories: e.target.value }))} style={inputStyle} />
+            </div>
+          </div>
+
+          {/* Exercises */}
+          <div style={fieldStyle}>
+            <span style={labelStyle}>Cviky (volitelné)</span>
+            <input type="text" placeholder="Burpees, Box jumps, KB swings, Battle ropes..." value={form.exercises} onChange={e => setForm(f => ({ ...f, exercises: e.target.value }))} style={inputStyle} />
+          </div>
+
+          {/* Strava URL */}
+          <div style={fieldStyle}>
+            <span style={labelStyle}>🟠 Strava odkaz (volitelné)</span>
+            <input
+              type="url"
+              placeholder="https://www.strava.com/activities/..."
+              value={form.stravaUrl}
+              onChange={e => setForm(f => ({ ...f, stravaUrl: e.target.value }))}
+              style={{ ...inputStyle, borderColor: form.stravaUrl ? 'rgba(252,76,2,0.4)' : '#2a2a2a' }}
+            />
+            {form.stravaUrl && (
+              <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 10, color: '#FC4C02' }}>✓ Strava aktivita propojená</span>
+                <a href={form.stravaUrl} target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: 10, color: '#FC4C02', textDecoration: 'underline' }}>
+                  Otevřít ↗
+                </a>
+              </div>
+            )}
+          </div>
+
+          {/* Note */}
+          <div style={fieldStyle}>
+            <span style={labelStyle}>Poznámka</span>
+            <textarea
+              placeholder="Jak se cítil trénink, co šlo dobře, co příště zlepšit..."
+              value={form.note}
+              onChange={e => setForm(f => ({ ...f, note: e.target.value }))}
+              rows={2}
+              style={{ ...inputStyle, resize: 'vertical' as const }}
+            />
+          </div>
+
+          {/* Buttons */}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={handleSave}
+              style={{
+                flex: 1, background: typeInfo.color, border: 'none', borderRadius: 8,
+                padding: '10px', color: '#000', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+              }}
+            >
+              {editingId ? 'Uložit změny' : '🔥 Uložit HIIT'}
+            </button>
+            <button
+              onClick={() => { setShowForm(false); resetForm(); }}
+              style={{
+                padding: '10px 16px', background: 'transparent', border: '1px solid #333',
+                borderRadius: 8, color: '#666', fontSize: 13, cursor: 'pointer',
+              }}
+            >
+              Zrušit
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Records list */}
+      {records.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '40px 20px', color: '#333' }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>🔥</div>
+          <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, fontWeight: 700, color: '#444' }}>Žádné HIIT záznamy</div>
+          <div style={{ fontSize: 12, color: '#333', marginTop: 4 }}>Přidej svůj první HIIT trénink výše.</div>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {records.map(r => {
+            const typeInfo = HIIT_TYPES.find(t => t.key === r.type) || HIIT_TYPES[0];
+            return (
+              <div key={r.id} style={{
+                background: 'rgba(255,255,255,0.02)', border: `1px solid ${typeInfo.color}20`,
+                borderRadius: 12, padding: '14px 16px',
+              }}>
+                {/* Header row */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                  <div style={{
+                    background: `${typeInfo.color}15`, border: `1px solid ${typeInfo.color}30`,
+                    borderRadius: 8, padding: '4px 10px',
+                    fontSize: 11, fontWeight: 700, color: typeInfo.color, letterSpacing: '0.05em',
+                  }}>
+                    {typeInfo.label.toUpperCase()}
+                  </div>
+                  <div style={{ fontSize: 12, color: '#888' }}>{formatDateFull(r.date)}</div>
+                  <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+                    <button onClick={() => handleEdit(r)} style={{ background: 'transparent', border: '1px solid #2a2a2a', borderRadius: 6, padding: '4px 8px', color: '#666', fontSize: 11, cursor: 'pointer' }}>✏️</button>
+                    <button onClick={() => handleDelete(r.id)} style={{ background: 'transparent', border: '1px solid #2a2a2a', borderRadius: 6, padding: '4px 8px', color: '#F87171', fontSize: 11, cursor: 'pointer' }}>🗑️</button>
+                  </div>
+                </div>
+
+                {/* Stats chips */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: r.exercises || r.note || r.stravaUrl ? 10 : 0 }}>
+                  <span style={{ fontSize: 12, color: '#ccc', background: 'rgba(255,255,255,0.05)', borderRadius: 6, padding: '3px 8px' }}>
+                    ⏱ {r.duration} min
+                  </span>
+                  {r.rounds && (
+                    <span style={{ fontSize: 12, color: '#ccc', background: 'rgba(255,255,255,0.05)', borderRadius: 6, padding: '3px 8px' }}>
+                      🔄 {r.rounds} kol
+                    </span>
+                  )}
+                  {r.workInterval && r.restInterval && (
+                    <span style={{ fontSize: 12, color: '#ccc', background: 'rgba(255,255,255,0.05)', borderRadius: 6, padding: '3px 8px' }}>
+                      {r.workInterval}s/{r.restInterval}s
+                    </span>
+                  )}
+                  <span style={{ fontSize: 12, color: '#A78BFA', background: 'rgba(167,139,250,0.08)', borderRadius: 6, padding: '3px 8px' }}>
+                    ❤️ {r.zone.split(' ')[0]} {r.zone.split(' ')[1]}
+                  </span>
+                  {r.avgHr && (
+                    <span style={{ fontSize: 12, color: '#F87171', background: 'rgba(248,113,113,0.08)', borderRadius: 6, padding: '3px 8px' }}>
+                      avg {r.avgHr} bpm
+                    </span>
+                  )}
+                  {r.maxHr && (
+                    <span style={{ fontSize: 12, color: '#FB923C', background: 'rgba(251,146,60,0.08)', borderRadius: 6, padding: '3px 8px' }}>
+                      max {r.maxHr} bpm
+                    </span>
+                  )}
+                  {r.calories && (
+                    <span style={{ fontSize: 12, color: '#FBBF24', background: 'rgba(251,191,36,0.08)', borderRadius: 6, padding: '3px 8px' }}>
+                      🔥 {r.calories} kcal
+                    </span>
+                  )}
+                </div>
+
+                {/* Exercises */}
+                {r.exercises && (
+                  <div style={{ fontSize: 11, color: '#666', marginBottom: 6 }}>
+                    <span style={{ color: '#444' }}>Cviky: </span>{r.exercises}
+                  </div>
+                )}
+
+                {/* Note */}
+                {r.note && (
+                  <div style={{ fontSize: 11, color: '#666', fontStyle: 'italic', marginBottom: r.stravaUrl ? 8 : 0 }}>
+                    {r.note}
+                  </div>
+                )}
+
+                {/* Strava link */}
+                {r.stravaUrl && (
+                  <a
+                    href={r.stravaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      background: 'rgba(252,76,2,0.08)', border: '1px solid rgba(252,76,2,0.25)',
+                      borderRadius: 8, padding: '6px 12px',
+                      color: '#FC4C02', fontSize: 11, fontWeight: 600,
+                      textDecoration: 'none',
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#FC4C02">
+                      <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/>
+                    </svg>
+                    Zobrazit na Strava ↗
+                  </a>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
