@@ -178,15 +178,6 @@ const w1: Week = {
   phase: 'Fáze 1 – Akumulace', phaseKey: 'phase1',
   description: 'W1: Startovní váhy odpovídají RPE 7–8 (Tuchscherer). SQ 78 % 1RM, BP 75 %, DL 84 %. Double progression: nejprve přidej rep, pak váhu.',
   days: [
-    lowerDay([
-      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '4', targetReps: '8', targetWeight: '140 kg (78 % 1RM)', rpe: '7–8', note: 'Rovné série. Focus: hloubka, bracing, kontrolovaná excentrika.' },
-      { id: 'tempo-squat', name: 'Tempo Squat (3-1-0)', nameShort: 'Tempo Squat', category: 'accessory', targetSets: '3', targetReps: '8', targetWeight: '120 kg', rpe: '7', note: '3s excentrika, 1s pauza. Kontrola v díře.' },
-      { id: 'hack-squat', name: 'Hack Squat (stroj)', nameShort: 'Hack Squat', category: 'accessory', targetSets: '3', targetReps: '10', targetWeight: 'Stroj — střední', rpe: '7–8', note: 'Fatigue mgmt (Israetel s. 134): quad objem bez axiálního zatížení.' },
-      { id: 'rdl', name: 'Romanian Deadlift (RDL)', nameShort: 'RDL', category: 'accessory', targetSets: '3', targetReps: '10', targetWeight: '100–117.5 kg', rpe: '7–8', note: 'Hip hinge, hamstringy. Straps OK.' },
-      { id: 'bulgarian', name: 'Bulgarian Split Squat', nameShort: 'BSS', category: 'accessory', targetSets: '3', targetReps: '8–10/noha', targetWeight: '45–55 kg (2×DB)', rpe: '7–8', note: 'Unilaterální quad práce.' },
-      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '8–10', note: 'BW. Superset A1 s Pallof Press.', isSuperset: true, supersetWith: 'Pallof Press' },
-      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '3', targetReps: '10/strana', note: 'Lehká. Superset A2 s GHD Raise.', isSuperset: true, supersetWith: 'GHD Raise' },
-    ]),
     upperDay([
       { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', targetSets: '4', targetReps: '8', targetWeight: '90 kg (75 % 1RM)', rpe: '7–8', note: 'Soutěžní setup: lopatky, arch, leg drive.' },
       { id: 'paused-bench', name: 'Paused Bench Press (2s)', nameShort: 'Paused Bench', category: 'accessory', targetSets: '3', targetReps: '8', targetWeight: '77.5–80 kg', rpe: '7–8', note: '2s pauza na hrudi. Eliminuje bounce. Cílí slabinu (start z prsu).' },
@@ -196,8 +187,19 @@ const w1: Week = {
       { id: 'bicep-curl', name: 'Bicep Curl', category: 'isolation', targetSets: '3', targetReps: '10–12', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'Face Pulls' },
       { id: 'ab-wheel', name: 'Ab Wheel / Hanging Leg Raise', nameShort: 'Core', category: 'core', targetSets: '3', targetReps: '10–12', note: 'BW. Core stabilita.' },
     ]),
+    tuesdayRest,
     wednesdayHiit(),
+    lowerDay([
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '4', targetReps: '8', targetWeight: '140 kg (78 % 1RM)', rpe: '7–8', note: 'Rovné série. Focus: hloubka, bracing, kontrolovaná excentrika.' },
+      { id: 'tempo-squat', name: 'Tempo Squat (3-1-0)', nameShort: 'Tempo Squat', category: 'accessory', targetSets: '3', targetReps: '8', targetWeight: '120 kg', rpe: '7', note: '3s excentrika, 1s pauza. Kontrola v díře.' },
+      { id: 'hack-squat', name: 'Hack Squat (stroj)', nameShort: 'Hack Squat', category: 'accessory', targetSets: '3', targetReps: '10', targetWeight: 'Stroj — střední', rpe: '7–8', note: 'Fatigue mgmt (Israetel s. 134): quad objem bez axiálního zatížení.' },
+      { id: 'rdl', name: 'Romanian Deadlift (RDL)', nameShort: 'RDL', category: 'accessory', targetSets: '3', targetReps: '10', targetWeight: '100–117.5 kg', rpe: '7–8', note: 'Hip hinge, hamstringy. Straps OK.' },
+      { id: 'bulgarian', name: 'Bulgarian Split Squat', nameShort: 'BSS', category: 'accessory', targetSets: '3', targetReps: '8–10/noha', targetWeight: '45–55 kg (2×DB)', rpe: '7–8', note: 'Unilaterální quad práce.' },
+      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '8–10', note: 'BW. Superset A1 s Pallof Press.', isSuperset: true, supersetWith: 'Pallof Press' },
+      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '3', targetReps: '10/strana', note: 'Lehká. Superset A2 s GHD Raise.', isSuperset: true, supersetWith: 'GHD Raise' },
+    ]),
     fridayRun(1, 'Easy run', '25–35 min', 'Zóna 2 (<75% max TF). Buduje aerobní základ.'),
+    saturdayHiit(),
     fullBodyDay([
       { id: 'deadlift', name: 'Deadlift (Konventní)', nameShort: 'Deadlift', category: 'main', targetSets: '3', targetReps: '8', targetWeight: '190 kg (84 % 1RM)', rpe: '7–8', note: 'Soutěžní setup. Důraz na techniku a bracing.' },
       { id: 'hack-squat-dl', name: 'Hack Dřep (stroj)', nameShort: 'Hack Dřep', category: 'accessory', targetSets: '3', targetReps: '8', targetWeight: 'Stroj — střední', rpe: '7–8', note: 'Quad variace bez axiálního zatížení.' },
@@ -208,8 +210,6 @@ const w1: Week = {
       { id: 'cop-adduction', name: 'Copenhagen Addukce', nameShort: 'Cop. Add.', category: 'prevention', targetSets: '2', targetReps: '8/strana', note: 'BW. Prevence třísla (Horschig). Superset A2.', isSuperset: true, supersetWith: 'Nordic Curls' },
       { id: 'ab-wheel-dl', name: 'Ab Wheel / Hanging Leg Raise', nameShort: 'Core', category: 'core', targetSets: '3', targetReps: '10–12', note: 'BW. Core / břícho.' },
     ]),
-    saturdayHiit(),
-    tuesdayRest,
   ],
 };
 
@@ -218,15 +218,6 @@ const w2: Week = {
   phase: 'Fáze 1 – Akumulace', phaseKey: 'phase1',
   description: 'W2: Progrese +5 kg SQ, +2.5 BP. DL: reps klesají na 6 (váha roste na 195 kg = 87 % 1RM). Pokud RPE>9 → sniž o 5 % (Tuchscherer).',
   days: [
-    lowerDay([
-      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '4', targetReps: '8', targetWeight: '145 kg (81 % 1RM)', rpe: '7–8', note: 'Rovné série. Focus: hloubka, bracing, kontrolovaná excentrika.' },
-      { id: 'tempo-squat', name: 'Tempo Squat (3-1-0)', nameShort: 'Tempo Squat', category: 'accessory', targetSets: '3', targetReps: '8', targetWeight: '122.5 kg', rpe: '7–8', note: '3s excentrika, 1s pauza. Kontrola v díře.' },
-      { id: 'hack-squat', name: 'Hack Squat (stroj)', nameShort: 'Hack Squat', category: 'accessory', targetSets: '3', targetReps: '10', targetWeight: 'Stroj — střední', rpe: '7–8', note: 'Fatigue mgmt (Israetel s. 134): quad objem bez axiálního zatížení.' },
-      { id: 'rdl', name: 'Romanian Deadlift (RDL)', nameShort: 'RDL', category: 'accessory', targetSets: '3', targetReps: '10', targetWeight: '107.5–125 kg', rpe: '7–8', note: 'Hip hinge, hamstringy. Straps OK.' },
-      { id: 'bulgarian', name: 'Bulgarian Split Squat', nameShort: 'BSS', category: 'accessory', targetSets: '3', targetReps: '8–10/noha', targetWeight: '45–55 kg (2×DB)', rpe: '7–8', note: 'Unilaterální quad práce.' },
-      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '8–10', note: 'BW–+10 kg. Superset A1.', isSuperset: true, supersetWith: 'Pallof Press' },
-      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '3', targetReps: '10/strana', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'GHD Raise' },
-    ]),
     upperDay([
       { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', targetSets: '4', targetReps: '8', targetWeight: '92.5 kg (77 % 1RM)', rpe: '7–8', note: 'Soutěžní setup: lopatky, arch, leg drive.' },
       { id: 'paused-bench', name: 'Paused Bench Press (2s)', nameShort: 'Paused Bench', category: 'accessory', targetSets: '3', targetReps: '8', targetWeight: '80–85 kg', rpe: '7–8', note: '2s pauza na hrudi. Eliminuje bounce. Cílí slabinu (start z prsu).' },
@@ -236,8 +227,19 @@ const w2: Week = {
       { id: 'bicep-curl', name: 'Bicep Curl', category: 'isolation', targetSets: '3', targetReps: '10–12', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'Face Pulls' },
       { id: 'ab-wheel', name: 'Ab Wheel / Hanging Leg Raise', nameShort: 'Core', category: 'core', targetSets: '3', targetReps: '10–12', note: 'BW. Core stabilita.' },
     ]),
+    tuesdayRest,
     wednesdayHiit(),
+    lowerDay([
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '4', targetReps: '8', targetWeight: '145 kg (81 % 1RM)', rpe: '7–8', note: 'Rovné série. Focus: hloubka, bracing, kontrolovaná excentrika.' },
+      { id: 'tempo-squat', name: 'Tempo Squat (3-1-0)', nameShort: 'Tempo Squat', category: 'accessory', targetSets: '3', targetReps: '8', targetWeight: '122.5 kg', rpe: '7–8', note: '3s excentrika, 1s pauza. Kontrola v díře.' },
+      { id: 'hack-squat', name: 'Hack Squat (stroj)', nameShort: 'Hack Squat', category: 'accessory', targetSets: '3', targetReps: '10', targetWeight: 'Stroj — střední', rpe: '7–8', note: 'Fatigue mgmt (Israetel s. 134): quad objem bez axiálního zatížení.' },
+      { id: 'rdl', name: 'Romanian Deadlift (RDL)', nameShort: 'RDL', category: 'accessory', targetSets: '3', targetReps: '10', targetWeight: '107.5–125 kg', rpe: '7–8', note: 'Hip hinge, hamstringy. Straps OK.' },
+      { id: 'bulgarian', name: 'Bulgarian Split Squat', nameShort: 'BSS', category: 'accessory', targetSets: '3', targetReps: '8–10/noha', targetWeight: '45–55 kg (2×DB)', rpe: '7–8', note: 'Unilaterální quad práce.' },
+      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '8–10', note: 'BW–+10 kg. Superset A1.', isSuperset: true, supersetWith: 'Pallof Press' },
+      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '3', targetReps: '10/strana', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'GHD Raise' },
+    ]),
     fridayRun(2, 'Easy run', '25–35 min', 'Zóna 2 (<75% max TF). Nezvyšuj tempo.'),
+    saturdayHiit(),
     fullBodyDay([
       { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', targetSets: '3', targetReps: '6', targetWeight: '195 kg (87 % 1RM)', rpe: '7–8', note: 'Soutěžní setup. Důraz na techniku a bracing.' },
       { id: 'hack-squat-dl', name: 'Hack Dřep (stroj)', nameShort: 'Hack Dřep', category: 'accessory', targetSets: '3', targetReps: '8', targetWeight: 'Stroj — střední', rpe: '7–8', note: 'Quad variace bez axiálního zatížení.' },
@@ -248,8 +250,6 @@ const w2: Week = {
       { id: 'cop-adduction', name: 'Copenhagen Addukce', nameShort: 'Cop. Add.', category: 'prevention', targetSets: '2', targetReps: '8/strana', note: 'BW. Superset A2.', isSuperset: true, supersetWith: 'Nordic Curls' },
       { id: 'ab-wheel-dl', name: 'Ab Wheel / Hanging Leg Raise', nameShort: 'Core', category: 'core', targetSets: '3', targetReps: '10–12', note: 'BW. Core / břícho.' },
     ]),
-    saturdayHiit(),
-    tuesdayRest,
   ],
 };
 
@@ -258,15 +258,6 @@ const w3: Week = {
   phase: 'Fáze 1 – Akumulace', phaseKey: 'phase1',
   description: 'W3: Nejvyšší objem fáze. Reps klesají na 6, váha roste. SQ 83 % 1RM, BP 79 %, DL 89 %. Pokud RPE > 8.5 → sniž váhu o 5% (Tuchscherer).',
   days: [
-    lowerDay([
-      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '4', targetReps: '6', targetWeight: '150 kg (83 % 1RM)', rpe: '7–8', note: 'Rovné série. Focus: hloubka, bracing, kontrolovaná excentrika.' },
-      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: '130 kg', rpe: '7–8', note: '2s pauza dole. Cílí slabinu (díra).' },
-      { id: 'hack-squat', name: 'Hack Squat (stroj)', nameShort: 'Hack Squat', category: 'accessory', targetSets: '3', targetReps: '8', targetWeight: 'Stroj — střední', rpe: '7–8', note: 'Fatigue mgmt (Israetel s. 134): quad objem bez axiálního zatížení.' },
-      { id: 'rdl', name: 'Romanian Deadlift (RDL)', nameShort: 'RDL', category: 'accessory', targetSets: '3', targetReps: '8', targetWeight: '107.5–125 kg', rpe: '7–8', note: 'Hip hinge, hamstringy. Straps OK.' },
-      { id: 'bulgarian', name: 'Bulgarian Split Squat', nameShort: 'BSS', category: 'accessory', targetSets: '3', targetReps: '8–10/noha', targetWeight: '45–55 kg (2×DB)', rpe: '7–8', note: 'Unilaterální quad práce.' },
-      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '8–10', note: 'BW–+10 kg. Superset A1.', isSuperset: true, supersetWith: 'Pallof Press' },
-      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '3', targetReps: '10/strana', note: 'Lehká. Superset A2.', isSuperset: true, supersetWith: 'GHD Raise' },
-    ]),
     upperDay([
       { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', targetSets: '4', targetReps: '6', targetWeight: '95 kg (79 % 1RM)', rpe: '7–8', note: 'Soutěžní setup: lopatky, arch, leg drive.' },
       { id: 'paused-bench', name: 'Paused Bench Press (2s)', nameShort: 'Paused Bench', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: '82.5–87.5 kg', rpe: '7–8', note: '2s pauza na hrudi. Eliminuje bounce. Cílí slabinu (start z prsu).' },
@@ -276,8 +267,19 @@ const w3: Week = {
       { id: 'bicep-curl', name: 'Bicep Curl', category: 'isolation', targetSets: '3', targetReps: '10–12', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'Face Pulls' },
       { id: 'ab-wheel', name: 'Ab Wheel / Hanging Leg Raise', nameShort: 'Core', category: 'core', targetSets: '3', targetReps: '10–12', note: 'BW. Core.' },
     ]),
+    tuesdayRest,
     wednesdayHiit(),
+    lowerDay([
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '4', targetReps: '6', targetWeight: '150 kg (83 % 1RM)', rpe: '7–8', note: 'Rovné série. Focus: hloubka, bracing, kontrolovaná excentrika.' },
+      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: '130 kg', rpe: '7–8', note: '2s pauza dole. Cílí slabinu (díra).' },
+      { id: 'hack-squat', name: 'Hack Squat (stroj)', nameShort: 'Hack Squat', category: 'accessory', targetSets: '3', targetReps: '8', targetWeight: 'Stroj — střední', rpe: '7–8', note: 'Fatigue mgmt (Israetel s. 134): quad objem bez axiálního zatížení.' },
+      { id: 'rdl', name: 'Romanian Deadlift (RDL)', nameShort: 'RDL', category: 'accessory', targetSets: '3', targetReps: '8', targetWeight: '107.5–125 kg', rpe: '7–8', note: 'Hip hinge, hamstringy. Straps OK.' },
+      { id: 'bulgarian', name: 'Bulgarian Split Squat', nameShort: 'BSS', category: 'accessory', targetSets: '3', targetReps: '8–10/noha', targetWeight: '45–55 kg (2×DB)', rpe: '7–8', note: 'Unilaterální quad práce.' },
+      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '8–10', note: 'BW–+10 kg. Superset A1.', isSuperset: true, supersetWith: 'Pallof Press' },
+      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '3', targetReps: '10/strana', note: 'Lehká. Superset A2.', isSuperset: true, supersetWith: 'GHD Raise' },
+    ]),
     fridayRun(3, 'Easy run', '25–35 min', 'Zóna 2 (<75% max TF). Nezvyšuj tempo.'),
+    saturdayHiit(),
     fullBodyDay([
       { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', targetSets: '3', targetReps: '5', targetWeight: '200 kg (89 % 1RM)', rpe: '7–8', note: 'Soutěžní setup. Důraz na techniku a bracing.' },
       { id: 'hack-squat-dl', name: 'Hack Dřep (stroj)', nameShort: 'Hack Dřep', category: 'accessory', targetSets: '3', targetReps: '8', targetWeight: 'Stroj — střední', rpe: '7–8', note: 'Quad variace bez axiálního zatížení.' },
@@ -288,8 +290,6 @@ const w3: Week = {
       { id: 'cop-adduction', name: 'Copenhagen Addukce', nameShort: 'Cop. Add.', category: 'prevention', targetSets: '2', targetReps: '8/strana', note: 'BW. Superset A2.', isSuperset: true, supersetWith: 'Nordic Curls' },
       { id: 'ab-wheel-dl', name: 'Ab Wheel / Hanging Leg Raise', nameShort: 'Core', category: 'core', targetSets: '3', targetReps: '10–12', note: 'BW. Core / břícho.' },
     ]),
-    saturdayHiit(),
-    tuesdayRest,
   ],
 };
 
@@ -298,20 +298,22 @@ const w4: Week = {
   phase: 'Fáze 1 – Deload', phaseKey: 'deload', isDeload: true,
   description: 'W4: DELOAD TÝDEN. Objem −40%, intenzita ~69% (Israetel). SQ 69 % 1RM, BP 69 %, DL 73 %. Regenerace CNS. Zatsiorského dvou-faktorový model: únava odezní, fitness zůstane.',
   days: [
-    lowerDay([
-      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '3', targetReps: '5', targetWeight: '125 kg (69 % 1RM)', rpe: '6–7', note: 'DELOAD: −40% objemu (Israetel).', setType: 'deload' },
-      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '2', targetReps: '5', targetWeight: '105 kg', rpe: '6', note: 'DELOAD: lehce.', setType: 'deload' },
-      { id: 'hack-squat', name: 'Hack Squat (stroj)', nameShort: 'Hack Squat', category: 'accessory', targetSets: '2', targetReps: '8', targetWeight: 'Stroj — lehká', rpe: '6', note: 'DELOAD: udržovací.', setType: 'deload' },
-      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '2', targetReps: '8', note: 'BW. DELOAD.', setType: 'deload' },
-    ]),
     upperDay([
       { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', targetSets: '3', targetReps: '5', targetWeight: '82.5 kg (69 % 1RM)', rpe: '6–7', note: 'DELOAD.', setType: 'deload' },
       { id: 'paused-bench', name: 'Paused Bench Press (2s)', nameShort: 'Paused Bench', category: 'accessory', targetSets: '2', targetReps: '5', targetWeight: '72.5 kg', rpe: '6', note: 'DELOAD: lehce.', setType: 'deload' },
       { id: 'pullup', name: 'Weighted Pull-up', nameShort: 'Pull-up', category: 'accessory', targetSets: '2', targetReps: '6', targetWeight: 'BW', rpe: '6', note: 'DELOAD.', setType: 'deload' },
       { id: 'face-pulls', name: 'Face Pulls', category: 'prevention', targetSets: '3', targetReps: '15', note: 'Lehká. Prehab (Horschig).', setType: 'deload' },
     ]),
+    tuesdayRest,
     wednesdayHiit(),
+    lowerDay([
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '3', targetReps: '5', targetWeight: '125 kg (69 % 1RM)', rpe: '6–7', note: 'DELOAD: −40% objemu (Israetel).', setType: 'deload' },
+      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '2', targetReps: '5', targetWeight: '105 kg', rpe: '6', note: 'DELOAD: lehce.', setType: 'deload' },
+      { id: 'hack-squat', name: 'Hack Squat (stroj)', nameShort: 'Hack Squat', category: 'accessory', targetSets: '2', targetReps: '8', targetWeight: 'Stroj — lehká', rpe: '6', note: 'DELOAD: udržovací.', setType: 'deload' },
+      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '2', targetReps: '8', note: 'BW. DELOAD.', setType: 'deload' },
+    ]),
     fridayRun(4, 'Recovery jog', '20 min', 'Zóna 1–2 (velmi lehce). DELOAD.'),
+    saturdayHiit(),
     fullBodyDay([
       { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', targetSets: '2', targetReps: '5', targetWeight: '165 kg (73 % 1RM)', rpe: '6–7', note: 'DELOAD.', setType: 'deload' },
       { id: 'hack-squat-dl', name: 'Hack Dřep (stroj)', nameShort: 'Hack Dřep', category: 'accessory', targetSets: '2', targetReps: '5', targetWeight: 'Stroj — lehká', rpe: '6', note: 'DELOAD.', setType: 'deload' },
@@ -319,8 +321,6 @@ const w4: Week = {
       { id: 'face-pulls', name: 'Face Pulls', category: 'prevention', targetSets: '3', targetReps: '15', note: 'Lehká. Prehab (Horschig).', setType: 'deload' },
       { id: 'ab-wheel-dl', name: 'Ab Wheel', nameShort: 'Core', category: 'core', targetSets: '2', targetReps: '10', note: 'BW. Břícho. DELOAD.', setType: 'deload' },
     ]),
-    saturdayHiit(),
-    tuesdayRest,
   ],
 };
 
@@ -336,16 +336,6 @@ const w5: Week = {
   phase: 'Fáze 2 – Rozvoj síly', phaseKey: 'phase2',
   description: 'W5: Vstup do silové fáze. NÁJEZDNÁ 1 → NÁJEZDNÁ 2 → TOP SET → 2×BACK-OFF (Tuchscherer + Israetel). SQ 85 % 1RM, BP 81 %, DL 88 %.',
   days: [
-    lowerDay([
-      { id: 'squat-ramp1', name: 'Back Squat – NÁJEZDNÁ 1', nameShort: 'Squat N1', category: 'main', targetSets: '1', targetReps: '7', targetWeight: '135 kg (75 %)', rpe: '7', note: 'Ramp. 75 % 1RM. Objem.', setType: 'ramp' },
-      { id: 'squat-ramp2', name: 'Back Squat – NÁJEZDNÁ 2', nameShort: 'Squat N2', category: 'main', targetSets: '1', targetReps: '6', targetWeight: '145 kg (81 %)', rpe: '7–8', note: 'Ramp. 81 % 1RM.', setType: 'ramp' },
-      { id: 'squat-top', name: 'Back Squat – TOP SET', nameShort: 'Squat TOP', category: 'main', targetSets: '1', targetReps: '5', targetWeight: '152.5 kg (85 %)', rpe: '8–9', note: 'VRCHOLNÁ SÉRIE. Autoreguluj! (Tuchscherer)', setType: 'topset' },
-      { id: 'squat-bo', name: 'Back Squat – BACK-OFF', nameShort: 'Squat BO', category: 'main', targetSets: '2', targetReps: '6', targetWeight: '142.5 kg (−7 %)', rpe: '7–8', note: 'Sestupné série. Dodej objem po top setu.', setType: 'backoff' },
-      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '130 kg', rpe: '8', note: '2s pauza dole. Cílí sticking point (díra).' },
-      { id: 'hack-squat', name: 'Hack Squat (stroj)', nameShort: 'Hack Squat', category: 'accessory', targetSets: '3', targetReps: '8', targetWeight: 'Stroj — střední', rpe: '7–8', note: 'Fatigue mgmt po těžkém squatu.' },
-      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '8–10', note: 'BW. Superset A1.', isSuperset: true, supersetWith: 'Pallof Press' },
-      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '2', targetReps: '10/strana', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'GHD Raise' },
-    ]),
     upperDay([
       { id: 'bench-ramp1', name: 'Bench Press – NÁJEZDNÁ 1', nameShort: 'Bench N1', category: 'main', targetSets: '1', targetReps: '7', targetWeight: '87.5 kg (73 %)', rpe: '7', note: 'Ramp. 73 % 1RM.', setType: 'ramp' },
       { id: 'bench-ramp2', name: 'Bench Press – NÁJEZDNÁ 2', nameShort: 'Bench N2', category: 'main', targetSets: '1', targetReps: '6', targetWeight: '92.5 kg (77 %)', rpe: '7–8', note: 'Ramp. 77 % 1RM.', setType: 'ramp' },
@@ -356,8 +346,20 @@ const w5: Week = {
       { id: 'dips', name: 'Weighted Dips', nameShort: 'Dips', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: '+5–10 kg', rpe: '7–8', note: 'Press hypertrofie. Superset A1.', isSuperset: true, supersetWith: 'Face Pulls' },
       { id: 'face-pulls', name: 'Face Pulls', category: 'prevention', targetSets: '3', targetReps: '15–20', note: 'Lehká. Prehab (Horschig). Superset A2.', isSuperset: true, supersetWith: 'Dips' },
     ]),
+    tuesdayRest,
     wednesdayHiit(),
+    lowerDay([
+      { id: 'squat-ramp1', name: 'Back Squat – NÁJEZDNÁ 1', nameShort: 'Squat N1', category: 'main', targetSets: '1', targetReps: '7', targetWeight: '135 kg (75 %)', rpe: '7', note: 'Ramp. 75 % 1RM. Objem.', setType: 'ramp' },
+      { id: 'squat-ramp2', name: 'Back Squat – NÁJEZDNÁ 2', nameShort: 'Squat N2', category: 'main', targetSets: '1', targetReps: '6', targetWeight: '145 kg (81 %)', rpe: '7–8', note: 'Ramp. 81 % 1RM.', setType: 'ramp' },
+      { id: 'squat-top', name: 'Back Squat – TOP SET', nameShort: 'Squat TOP', category: 'main', targetSets: '1', targetReps: '5', targetWeight: '152.5 kg (85 %)', rpe: '8–9', note: 'VRCHOLNÁ SÉRIE. Autoreguluj! (Tuchscherer)', setType: 'topset' },
+      { id: 'squat-bo', name: 'Back Squat – BACK-OFF', nameShort: 'Squat BO', category: 'main', targetSets: '2', targetReps: '6', targetWeight: '142.5 kg (−7 %)', rpe: '7–8', note: 'Sestupné série. Dodej objem po top setu.', setType: 'backoff' },
+      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '130 kg', rpe: '8', note: '2s pauza dole. Cílí sticking point (díra).' },
+      { id: 'hack-squat', name: 'Hack Squat (stroj)', nameShort: 'Hack Squat', category: 'accessory', targetSets: '3', targetReps: '8', targetWeight: 'Stroj — střední', rpe: '7–8', note: 'Fatigue mgmt po těžkém squatu.' },
+      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '8–10', note: 'BW. Superset A1.', isSuperset: true, supersetWith: 'Pallof Press' },
+      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '2', targetReps: '10/strana', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'GHD Raise' },
+    ]),
     fridayRun(5, 'Tempo run', '30 min', '10 min easy + 10 min tempo + 10 min easy. Zóna 2–3'),
+    saturdayHiit(),
     fullBodyDay([
       { id: 'deadlift-ramp1', name: 'Deadlift – NÁJEZDNÁ 1', nameShort: 'DL N1', category: 'main', targetSets: '1', targetReps: '7', targetWeight: '177.5 kg (79 %)', rpe: '7', note: 'Ramp. 79 % 1RM.', setType: 'ramp' },
       { id: 'deadlift-ramp2', name: 'Deadlift – NÁJEZDNÁ 2', nameShort: 'DL N2', category: 'main', targetSets: '1', targetReps: '6', targetWeight: '187.5 kg (83 %)', rpe: '7–8', note: 'Ramp. 83 % 1RM.', setType: 'ramp' },
@@ -369,8 +371,6 @@ const w5: Week = {
       { id: 'nordic-curls', name: 'Nordic Curls', category: 'prevention', targetSets: '3', targetReps: '5', note: 'BW. Prevence (Horschig). Superset A2.', isSuperset: true, supersetWith: 'Cable Row' },
       { id: 'ab-wheel-dl', name: 'Ab Wheel / Hanging Leg Raise', nameShort: 'Core', category: 'core', targetSets: '3', targetReps: '10–12', note: 'BW. Core / břícho.' },
     ]),
-    saturdayHiit(),
-    tuesdayRest,
   ],
 };
 
@@ -379,16 +379,6 @@ const w6: Week = {
   phase: 'Fáze 2 – Rozvoj síly', phaseKey: 'phase2',
   description: 'W6: Progrese +5 kg SQ, +2.5 BP, +5 DL. SQ 88 % 1RM, BP 83 %, DL 90 %. Reps klesá na 4 na top setu.',
   days: [
-    lowerDay([
-      { id: 'squat-ramp1', name: 'Back Squat – NÁJEZDNÁ 1', nameShort: 'Squat N1', category: 'main', targetSets: '1', targetReps: '6', targetWeight: '142.5 kg (79 %)', rpe: '7', note: 'Ramp. 79 % 1RM. Objem.', setType: 'ramp' },
-      { id: 'squat-ramp2', name: 'Back Squat – NÁJEZDNÁ 2', nameShort: 'Squat N2', category: 'main', targetSets: '1', targetReps: '5', targetWeight: '150 kg (83 %)', rpe: '7–8', note: 'Ramp. 83 % 1RM.', setType: 'ramp' },
-      { id: 'squat-top', name: 'Back Squat – TOP SET', nameShort: 'Squat TOP', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '157.5 kg (88 %)', rpe: '8–9', note: 'VRCHOLNÁ SÉRIE. Autoreguluj! (Tuchscherer)', setType: 'topset' },
-      { id: 'squat-bo', name: 'Back Squat – BACK-OFF', nameShort: 'Squat BO', category: 'main', targetSets: '2', targetReps: '5', targetWeight: '147.5 kg (−7 %)', rpe: '7–8', note: 'Sestupné série.', setType: 'backoff' },
-      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '3', targetReps: '4', targetWeight: '135 kg', rpe: '8', note: '2s pauza dole. Cílí sticking point (díra).' },
-      { id: 'hack-squat', name: 'Hack Squat (stroj)', nameShort: 'Hack Squat', category: 'accessory', targetSets: '3', targetReps: '7', targetWeight: 'Stroj — střední', rpe: '7–8', note: 'Fatigue mgmt po těžkém squatu.' },
-      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '8–10', note: 'BW. Superset A1.', isSuperset: true, supersetWith: 'Pallof Press' },
-      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '2', targetReps: '10/strana', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'GHD Raise' },
-    ]),
     upperDay([
       { id: 'bench-ramp1', name: 'Bench Press – NÁJEZDNÁ 1', nameShort: 'Bench N1', category: 'main', targetSets: '1', targetReps: '6', targetWeight: '90 kg (75 %)', rpe: '7', note: 'Ramp. 75 % 1RM.', setType: 'ramp' },
       { id: 'bench-ramp2', name: 'Bench Press – NÁJEZDNÁ 2', nameShort: 'Bench N2', category: 'main', targetSets: '1', targetReps: '5', targetWeight: '95 kg (79 %)', rpe: '7–8', note: 'Ramp. 79 % 1RM.', setType: 'ramp' },
@@ -399,8 +389,20 @@ const w6: Week = {
       { id: 'dips', name: 'Weighted Dips', nameShort: 'Dips', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', rpe: '7–8', note: 'Press hypertrofie. Superset A1.', isSuperset: true, supersetWith: 'Face Pulls' },
       { id: 'face-pulls', name: 'Face Pulls', category: 'prevention', targetSets: '3', targetReps: '15–20', note: 'Lehká. Prehab (Horschig). Superset A2.', isSuperset: true, supersetWith: 'Dips' },
     ]),
+    tuesdayRest,
     wednesdayHiit(),
+    lowerDay([
+      { id: 'squat-ramp1', name: 'Back Squat – NÁJEZDNÁ 1', nameShort: 'Squat N1', category: 'main', targetSets: '1', targetReps: '6', targetWeight: '142.5 kg (79 %)', rpe: '7', note: 'Ramp. 79 % 1RM. Objem.', setType: 'ramp' },
+      { id: 'squat-ramp2', name: 'Back Squat – NÁJEZDNÁ 2', nameShort: 'Squat N2', category: 'main', targetSets: '1', targetReps: '5', targetWeight: '150 kg (83 %)', rpe: '7–8', note: 'Ramp. 83 % 1RM.', setType: 'ramp' },
+      { id: 'squat-top', name: 'Back Squat – TOP SET', nameShort: 'Squat TOP', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '157.5 kg (88 %)', rpe: '8–9', note: 'VRCHOLNÁ SÉRIE. Autoreguluj! (Tuchscherer)', setType: 'topset' },
+      { id: 'squat-bo', name: 'Back Squat – BACK-OFF', nameShort: 'Squat BO', category: 'main', targetSets: '2', targetReps: '5', targetWeight: '147.5 kg (−7 %)', rpe: '7–8', note: 'Sestupné série.', setType: 'backoff' },
+      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '3', targetReps: '4', targetWeight: '135 kg', rpe: '8', note: '2s pauza dole. Cílí sticking point (díra).' },
+      { id: 'hack-squat', name: 'Hack Squat (stroj)', nameShort: 'Hack Squat', category: 'accessory', targetSets: '3', targetReps: '7', targetWeight: 'Stroj — střední', rpe: '7–8', note: 'Fatigue mgmt po těžkém squatu.' },
+      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '8–10', note: 'BW. Superset A1.', isSuperset: true, supersetWith: 'Pallof Press' },
+      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '2', targetReps: '10/strana', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'GHD Raise' },
+    ]),
     fridayRun(6, 'Tempo run', '32 min', '8 min easy + 15 min tempo + 9 min easy. Zóna 2–3'),
+    saturdayHiit(),
     fullBodyDay([
       { id: 'deadlift-ramp1', name: 'Deadlift – NÁJEZDNÁ 1', nameShort: 'DL N1', category: 'main', targetSets: '1', targetReps: '6', targetWeight: '182.5 kg (81 %)', rpe: '7', note: 'Ramp. 81 % 1RM.', setType: 'ramp' },
       { id: 'deadlift-ramp2', name: 'Deadlift – NÁJEZDNÁ 2', nameShort: 'DL N2', category: 'main', targetSets: '1', targetReps: '5', targetWeight: '192.5 kg (86 %)', rpe: '7–8', note: 'Ramp. 86 % 1RM.', setType: 'ramp' },
@@ -412,8 +414,6 @@ const w6: Week = {
       { id: 'nordic-curls', name: 'Nordic Curls', category: 'prevention', targetSets: '3', targetReps: '5', note: 'BW. Prevence (Horschig). Superset A2.', isSuperset: true, supersetWith: 'Cable Row' },
       { id: 'ab-wheel-dl', name: 'Ab Wheel / Hanging Leg Raise', nameShort: 'Core', category: 'core', targetSets: '3', targetReps: '10–12', note: 'BW. Core / břícho.' },
     ]),
-    saturdayHiit(),
-    tuesdayRest,
   ],
 };
 
@@ -422,16 +422,6 @@ const w7: Week = {
   phase: 'Fáze 2 – Rozvoj síly', phaseKey: 'phase2',
   description: 'W7: Nejvyšší intenzita fáze. Triplety na top setu. SQ 90 % 1RM, BP 88 %, DL 92 %. Volitelně: řetězy na nájezdných sériích squatu (Zatsiorsky).',
   days: [
-    lowerDay([
-      { id: 'squat-ramp1', name: 'Back Squat – NÁJEZDNÁ 1', nameShort: 'Squat N1', category: 'main', targetSets: '1', targetReps: '5', targetWeight: '147.5 kg (82 %)', rpe: '7', note: 'Ramp. 82 % 1RM. Objem.', setType: 'ramp' },
-      { id: 'squat-ramp2', name: 'Back Squat – NÁJEZDNÁ 2', nameShort: 'Squat N2', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '155 kg (86 %)', rpe: '7–8', note: 'Ramp. 86 % 1RM.', setType: 'ramp' },
-      { id: 'squat-top', name: 'Back Squat – TOP SET', nameShort: 'Squat TOP', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '162.5 kg (90 %)', rpe: '8–9', note: 'VRCHOLNÁ SÉRIE. Autoreguluj! (Tuchscherer)', setType: 'topset' },
-      { id: 'squat-bo', name: 'Back Squat – BACK-OFF', nameShort: 'Squat BO', category: 'main', targetSets: '2', targetReps: '4', targetWeight: '152.5 kg (−7 %)', rpe: '7–8', note: 'Sestupné série.', setType: 'backoff' },
-      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '3', targetReps: '3', targetWeight: '137.5 kg', rpe: '8', note: '2s pauza dole. Cílí sticking point (díra).' },
-      { id: 'hack-squat', name: 'Hack Squat (stroj)', nameShort: 'Hack Squat', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: 'Stroj — střední', rpe: '7–8', note: 'Fatigue mgmt po těžkém squatu.' },
-      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '8–10', note: 'BW. Superset A1.', isSuperset: true, supersetWith: 'Pallof Press' },
-      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '2', targetReps: '10/strana', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'GHD Raise' },
-    ]),
     upperDay([
       { id: 'bench-ramp1', name: 'Bench Press – NÁJEZDNÁ 1', nameShort: 'Bench N1', category: 'main', targetSets: '1', targetReps: '5', targetWeight: '95 kg (79 %)', rpe: '7', note: 'Ramp. 79 % 1RM.', setType: 'ramp' },
       { id: 'bench-ramp2', name: 'Bench Press – NÁJEZDNÁ 2', nameShort: 'Bench N2', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '100 kg (83 %)', rpe: '7–8', note: 'Ramp. 83 % 1RM.', setType: 'ramp' },
@@ -442,8 +432,20 @@ const w7: Week = {
       { id: 'dips', name: 'Weighted Dips', nameShort: 'Dips', category: 'accessory', targetSets: '3', targetReps: '4', targetWeight: '+5–10 kg', rpe: '7–8', note: 'Press hypertrofie. Superset A1.', isSuperset: true, supersetWith: 'Face Pulls' },
       { id: 'face-pulls', name: 'Face Pulls', category: 'prevention', targetSets: '3', targetReps: '15–20', note: 'Lehká. Prehab (Horschig). Superset A2.', isSuperset: true, supersetWith: 'Dips' },
     ]),
+    tuesdayRest,
     wednesdayHiit(),
+    lowerDay([
+      { id: 'squat-ramp1', name: 'Back Squat – NÁJEZDNÁ 1', nameShort: 'Squat N1', category: 'main', targetSets: '1', targetReps: '5', targetWeight: '147.5 kg (82 %)', rpe: '7', note: 'Ramp. 82 % 1RM. Objem.', setType: 'ramp' },
+      { id: 'squat-ramp2', name: 'Back Squat – NÁJEZDNÁ 2', nameShort: 'Squat N2', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '155 kg (86 %)', rpe: '7–8', note: 'Ramp. 86 % 1RM.', setType: 'ramp' },
+      { id: 'squat-top', name: 'Back Squat – TOP SET', nameShort: 'Squat TOP', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '162.5 kg (90 %)', rpe: '8–9', note: 'VRCHOLNÁ SÉRIE. Autoreguluj! (Tuchscherer)', setType: 'topset' },
+      { id: 'squat-bo', name: 'Back Squat – BACK-OFF', nameShort: 'Squat BO', category: 'main', targetSets: '2', targetReps: '4', targetWeight: '152.5 kg (−7 %)', rpe: '7–8', note: 'Sestupné série.', setType: 'backoff' },
+      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '3', targetReps: '3', targetWeight: '137.5 kg', rpe: '8', note: '2s pauza dole. Cílí sticking point (díra).' },
+      { id: 'hack-squat', name: 'Hack Squat (stroj)', nameShort: 'Hack Squat', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: 'Stroj — střední', rpe: '7–8', note: 'Fatigue mgmt po těžkém squatu.' },
+      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '8–10', note: 'BW. Superset A1.', isSuperset: true, supersetWith: 'Pallof Press' },
+      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '2', targetReps: '10/strana', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'GHD Raise' },
+    ]),
     fridayRun(7, 'Intervaly', '30 min', '10 min easy + 4×2 min hard/2 min easy + 6 min easy. Zóna 2–4'),
+    saturdayHiit(),
     fullBodyDay([
       { id: 'deadlift-ramp1', name: 'Deadlift – NÁJEZDNÁ 1', nameShort: 'DL N1', category: 'main', targetSets: '1', targetReps: '5', targetWeight: '187.5 kg (83 %)', rpe: '7', note: 'Ramp. 83 % 1RM.', setType: 'ramp' },
       { id: 'deadlift-ramp2', name: 'Deadlift – NÁJEZDNÁ 2', nameShort: 'DL N2', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '197.5 kg (88 %)', rpe: '7–8', note: 'Ramp. 88 % 1RM.', setType: 'ramp' },
@@ -455,8 +457,6 @@ const w7: Week = {
       { id: 'nordic-curls', name: 'Nordic Curls', category: 'prevention', targetSets: '3', targetReps: '5', note: 'BW. Prevence (Horschig). Superset A2.', isSuperset: true, supersetWith: 'Cable Row' },
       { id: 'ab-wheel-dl', name: 'Ab Wheel / Hanging Leg Raise', nameShort: 'Core', category: 'core', targetSets: '3', targetReps: '10–12', note: 'BW. Core / břícho.' },
     ]),
-    saturdayHiit(),
-    tuesdayRest,
   ],
 };
 
@@ -465,14 +465,6 @@ const w8: Week = {
   phase: 'Fáze 2 – Deload', phaseKey: 'deload', isDeload: true,
   description: 'W8: DELOAD TÝDEN. Objem −50%, váhy ~74–82 % (Israetel). SQ 82 % 1RM, BP 77 %, DL 81 %. Regenerace CNS před intenzifikací.',
   days: [
-    lowerDay([
-      { id: 'squat-ramp1', name: 'Back Squat – NÁJEZDNÁ 1', nameShort: 'Squat N1', category: 'main', targetSets: '1', targetReps: '5', targetWeight: '132.5 kg (74 %)', rpe: '7', note: 'DELOAD ramp. 74 % 1RM.', setType: 'ramp' },
-      { id: 'squat-ramp2', name: 'Back Squat – NÁJEZDNÁ 2', nameShort: 'Squat N2', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '140 kg (78 %)', rpe: '7–8', note: 'DELOAD ramp. 78 % 1RM.', setType: 'ramp' },
-      { id: 'squat-top', name: 'Back Squat – TOP SET', nameShort: 'Squat TOP', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '147.5 kg (82 %)', rpe: '8–9', note: 'DELOAD top set. Autoreguluj! (Tuchscherer)', setType: 'topset' },
-      { id: 'squat-bo', name: 'Back Squat', nameShort: 'Squat BO', category: 'main', targetSets: '3', targetReps: '3', targetWeight: '125 kg', rpe: '6–7', note: 'DELOAD: lehké triplety.', setType: 'deload' },
-      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '2', targetReps: '3', targetWeight: '110 kg', rpe: '6', note: 'DELOAD.', setType: 'deload' },
-      { id: 'hack-squat', name: 'Hack Squat (stroj)', nameShort: 'Hack Squat', category: 'accessory', targetSets: '2', targetReps: '8', targetWeight: 'Stroj — lehká', rpe: '6', note: 'DELOAD.', setType: 'deload' },
-    ]),
     upperDay([
       { id: 'bench-ramp1', name: 'Bench Press – NÁJEZDNÁ 1', nameShort: 'Bench N1', category: 'main', targetSets: '1', targetReps: '5', targetWeight: '82.5 kg (69 %)', rpe: '7', note: 'DELOAD ramp.', setType: 'ramp' },
       { id: 'bench-ramp2', name: 'Bench Press – NÁJEZDNÁ 2', nameShort: 'Bench N2', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '87.5 kg (73 %)', rpe: '7–8', note: 'DELOAD ramp.', setType: 'ramp' },
@@ -481,8 +473,18 @@ const w8: Week = {
       { id: 'spoto', name: 'Spoto Press (2–3 cm)', nameShort: 'Spoto Press', category: 'accessory', targetSets: '2', targetReps: '3', targetWeight: '72.5 kg', rpe: '6', note: 'DELOAD.', setType: 'deload' },
       { id: 'face-pulls', name: 'Face Pulls', category: 'prevention', targetSets: '3', targetReps: '15', note: 'Lehká. Prehab.', setType: 'deload' },
     ]),
+    tuesdayRest,
     wednesdayHiit(),
+    lowerDay([
+      { id: 'squat-ramp1', name: 'Back Squat – NÁJEZDNÁ 1', nameShort: 'Squat N1', category: 'main', targetSets: '1', targetReps: '5', targetWeight: '132.5 kg (74 %)', rpe: '7', note: 'DELOAD ramp. 74 % 1RM.', setType: 'ramp' },
+      { id: 'squat-ramp2', name: 'Back Squat – NÁJEZDNÁ 2', nameShort: 'Squat N2', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '140 kg (78 %)', rpe: '7–8', note: 'DELOAD ramp. 78 % 1RM.', setType: 'ramp' },
+      { id: 'squat-top', name: 'Back Squat – TOP SET', nameShort: 'Squat TOP', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '147.5 kg (82 %)', rpe: '8–9', note: 'DELOAD top set. Autoreguluj! (Tuchscherer)', setType: 'topset' },
+      { id: 'squat-bo', name: 'Back Squat', nameShort: 'Squat BO', category: 'main', targetSets: '3', targetReps: '3', targetWeight: '125 kg', rpe: '6–7', note: 'DELOAD: lehké triplety.', setType: 'deload' },
+      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '2', targetReps: '3', targetWeight: '110 kg', rpe: '6', note: 'DELOAD.', setType: 'deload' },
+      { id: 'hack-squat', name: 'Hack Squat (stroj)', nameShort: 'Hack Squat', category: 'accessory', targetSets: '2', targetReps: '8', targetWeight: 'Stroj — lehká', rpe: '6', note: 'DELOAD.', setType: 'deload' },
+    ]),
     fridayRun(8, 'Recovery jog', '20 min', 'Zóna 1–2 (lehce). DELOAD.'),
+    saturdayHiit(),
     fullBodyDay([
       { id: 'deadlift-ramp1', name: 'Deadlift – NÁJEZDNÁ 1', nameShort: 'DL N1', category: 'main', targetSets: '1', targetReps: '5', targetWeight: '165 kg (73 %)', rpe: '7', note: 'DELOAD ramp.', setType: 'ramp' },
       { id: 'deadlift-ramp2', name: 'Deadlift – NÁJEZDNÁ 2', nameShort: 'DL N2', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '172.5 kg (77 %)', rpe: '7–8', note: 'DELOAD ramp.', setType: 'ramp' },
@@ -491,8 +493,6 @@ const w8: Week = {
       { id: 'hack-squat-dl', name: 'Hack Dřep (stroj)', nameShort: 'Hack Dřep', category: 'accessory', targetSets: '2', targetReps: '4', targetWeight: 'Stroj — lehká', rpe: '6', note: 'DELOAD.', setType: 'deload' },
       { id: 'barbell-row', name: 'Barbell Row', nameShort: 'BB Row', category: 'accessory', targetSets: '2', targetReps: '8', targetWeight: '72.5 kg', rpe: '6', note: 'DELOAD.', setType: 'deload' },
     ]),
-    saturdayHiit(),
-    tuesdayRest,
   ],
 };
 
@@ -507,16 +507,6 @@ const w9: Week = {
   phase: 'Fáze 3 – Intenzifikace', phaseKey: 'phase3',
   description: 'W9: Vstup do intenzifikace. RAMP 1 → RAMP 2 → TOP SET → 2×BACK-OFF. SQ 90 % 1RM, BP 88 %, DL 92 %. Metoda max. úsílí (Zatsiorsky). Back-off −93 % top setu.',
   days: [
-    lowerDay([
-      { id: 'squat-ramp1', name: 'Back Squat – RAMP 1', nameShort: 'Squat R1', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '150 kg (83 %)', rpe: '7–8', note: 'Rampovací série.', setType: 'ramp' },
-      { id: 'squat-ramp2', name: 'Back Squat – RAMP 2', nameShort: 'Squat R2', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '157.5 kg (88 %)', rpe: '8', note: 'Rampovací série.', setType: 'ramp' },
-      { id: 'squat-top', name: 'Back Squat – TOP SET', nameShort: 'Squat TOP', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '162.5 kg (90 %)', rpe: '9', note: 'VRCHOLNÁ SÉRIE. RPE 9 (1 RIR).', setType: 'topset' },
-      { id: 'squat-bo', name: 'Back Squat – BACK-OFF', nameShort: 'Squat BO', category: 'main', targetSets: '2', targetReps: '3', targetWeight: '152.5 kg (85 %)', rpe: '8', note: 'Back-off ~93 % top setu.', setType: 'backoff' },
-      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '3', targetReps: '3', targetWeight: '142.5 kg', rpe: '8', note: 'Variace pro cílení slabin.' },
-      { id: 'leg-press', name: 'Leg Press (stroj)', nameShort: 'Leg Press', category: 'accessory', targetSets: '3', targetReps: '8–10', targetWeight: 'Stroj — těžká', rpe: '7–8', note: 'Fatigue mgmt (Israetel s. 92): quad objem po těžkém squatu.' },
-      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '6–8', note: 'BW+. Superset A1.', isSuperset: true, supersetWith: 'Pallof Press' },
-      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '2', targetReps: '10/strana', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'GHD Raise' },
-    ]),
     upperDay([
       { id: 'bench-ramp1', name: 'Bench Press – RAMP 1', nameShort: 'Bench R1', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '97.5 kg (81 %)', rpe: '7–8', note: 'Ramp.', setType: 'ramp' },
       { id: 'bench-ramp2', name: 'Bench Press – RAMP 2', nameShort: 'Bench R2', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '102.5 kg (85 %)', rpe: '8', note: 'Ramp.', setType: 'ramp' },
@@ -527,8 +517,20 @@ const w9: Week = {
       { id: 'tricep-pushdown', name: 'Tricep Pushdown', nameShort: 'Tricep', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: 'Střední', rpe: '7', note: 'Superset A1.', isSuperset: true, supersetWith: 'Face Pulls' },
       { id: 'face-pulls', name: 'Face Pulls', category: 'prevention', targetSets: '3', targetReps: '15–20', note: 'Lehká. Prehab. Superset A2.', isSuperset: true, supersetWith: 'Tricep Pushdown' },
     ]),
+    tuesdayRest,
     wednesdayHiit(),
+    lowerDay([
+      { id: 'squat-ramp1', name: 'Back Squat – RAMP 1', nameShort: 'Squat R1', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '150 kg (83 %)', rpe: '7–8', note: 'Rampovací série.', setType: 'ramp' },
+      { id: 'squat-ramp2', name: 'Back Squat – RAMP 2', nameShort: 'Squat R2', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '157.5 kg (88 %)', rpe: '8', note: 'Rampovací série.', setType: 'ramp' },
+      { id: 'squat-top', name: 'Back Squat – TOP SET', nameShort: 'Squat TOP', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '162.5 kg (90 %)', rpe: '9', note: 'VRCHOLNÁ SÉRIE. RPE 9 (1 RIR).', setType: 'topset' },
+      { id: 'squat-bo', name: 'Back Squat – BACK-OFF', nameShort: 'Squat BO', category: 'main', targetSets: '2', targetReps: '3', targetWeight: '152.5 kg (85 %)', rpe: '8', note: 'Back-off ~93 % top setu.', setType: 'backoff' },
+      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '3', targetReps: '3', targetWeight: '142.5 kg', rpe: '8', note: 'Variace pro cílení slabin.' },
+      { id: 'leg-press', name: 'Leg Press (stroj)', nameShort: 'Leg Press', category: 'accessory', targetSets: '3', targetReps: '8–10', targetWeight: 'Stroj — těžká', rpe: '7–8', note: 'Fatigue mgmt (Israetel s. 92): quad objem po těžkém squatu.' },
+      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '6–8', note: 'BW+. Superset A1.', isSuperset: true, supersetWith: 'Pallof Press' },
+      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '2', targetReps: '10/strana', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'GHD Raise' },
+    ]),
     fridayRun(9, 'Tempo run', '35 min', '8 min easy + 18 min tempo + 9 min easy. Zóna 2–3'),
+    saturdayHiit(),
     fullBodyDay([
       { id: 'deadlift-ramp1', name: 'Deadlift – RAMP 1', nameShort: 'DL R1', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '195 kg (87 %)', rpe: '7–8', note: 'Ramp.', setType: 'ramp' },
       { id: 'deadlift-ramp2', name: 'Deadlift – RAMP 2', nameShort: 'DL R2', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '202.5 kg (90 %)', rpe: '8', note: 'Ramp.', setType: 'ramp' },
@@ -539,8 +541,6 @@ const w9: Week = {
       { id: 'barbell-row', name: 'Barbell Row', nameShort: 'BB Row', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '90–107.5 kg', rpe: '7–8', note: 'Záda, lats.' },
       { id: 'ab-wheel-dl', name: 'Ab Wheel / Hanging Leg Raise', nameShort: 'Core', category: 'core', targetSets: '3', targetReps: '10–12', note: 'BW. Core / břícho.' },
     ]),
-    saturdayHiit(),
-    tuesdayRest,
   ],
 };
 
@@ -549,16 +549,6 @@ const w10: Week = {
   phase: 'Fáze 3 – Intenzifikace', phaseKey: 'phase3',
   description: 'W10: Progrese +5 kg SQ, +2.5 BP, +7.5 DL. SQ 93 % 1RM, BP 92 %, DL 96 %. Doubles na top setu. Back-off ~93 % top setu.',
   days: [
-    lowerDay([
-      { id: 'squat-ramp1', name: 'Back Squat – RAMP 1', nameShort: 'Squat R1', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '152.5 kg (85 %)', rpe: '7–8', note: 'Rampovací série.', setType: 'ramp' },
-      { id: 'squat-ramp2', name: 'Back Squat – RAMP 2', nameShort: 'Squat R2', category: 'main', targetSets: '1', targetReps: '2', targetWeight: '160 kg (89 %)', rpe: '8', note: 'Rampovací série.', setType: 'ramp' },
-      { id: 'squat-top', name: 'Back Squat – TOP SET', nameShort: 'Squat TOP', category: 'main', targetSets: '1', targetReps: '2', targetWeight: '165 kg (92 %)', rpe: '9', note: 'VRCHOLNÁ SÉRIE. RPE 9 (1 RIR).', setType: 'topset' },
-      { id: 'squat-bo', name: 'Back Squat – BACK-OFF', nameShort: 'Squat BO', category: 'main', targetSets: '2', targetReps: '2', targetWeight: '157.5 kg (88 %)', rpe: '8', note: 'Back-off ~93 % top setu.', setType: 'backoff' },
-      { id: 'close-stance-squat', name: 'Close Stance Squat', nameShort: 'Close Squat', category: 'accessory', targetSets: '3', targetReps: '2', targetWeight: '145 kg',rpe: '8', note: 'Variace pro cílení slabin.' },
-      { id: 'leg-press', name: 'Leg Press (stroj)', nameShort: 'Leg Press', category: 'accessory', targetSets: '3', targetReps: '8–10', targetWeight: 'Stroj — těžká', rpe: '7–8', note: 'Fatigue mgmt (Israetel s. 92): quad objem po těžkém squatu.' },
-      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '6–8', note: 'BW+. Superset A1.', isSuperset: true, supersetWith: 'Pallof Press' },
-      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '2', targetReps: '10/strana', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'GHD Raise' },
-    ]),
     upperDay([
       { id: 'bench-ramp1', name: 'Bench Press – RAMP 1', nameShort: 'Bench R1', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '100 kg (83 %)', rpe: '7–8', note: 'Ramp.', setType: 'ramp' },
       { id: 'bench-ramp2', name: 'Bench Press – RAMP 2', nameShort: 'Bench R2', category: 'main', targetSets: '1', targetReps: '2', targetWeight: '105 kg (88 %)', rpe: '8', note: 'Ramp.', setType: 'ramp' },
@@ -569,8 +559,20 @@ const w10: Week = {
       { id: 'tricep-pushdown', name: 'Tricep Pushdown', nameShort: 'Tricep', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: 'Střední', rpe: '7', note: 'Superset A1.', isSuperset: true, supersetWith: 'Face Pulls' },
       { id: 'face-pulls', name: 'Face Pulls', category: 'prevention', targetSets: '3', targetReps: '15–20', note: 'Lehká. Prehab. Superset A2.', isSuperset: true, supersetWith: 'Tricep Pushdown' },
     ]),
+    tuesdayRest,
     wednesdayHiit(),
+    lowerDay([
+      { id: 'squat-ramp1', name: 'Back Squat – RAMP 1', nameShort: 'Squat R1', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '152.5 kg (85 %)', rpe: '7–8', note: 'Rampovací série.', setType: 'ramp' },
+      { id: 'squat-ramp2', name: 'Back Squat – RAMP 2', nameShort: 'Squat R2', category: 'main', targetSets: '1', targetReps: '2', targetWeight: '160 kg (89 %)', rpe: '8', note: 'Rampovací série.', setType: 'ramp' },
+      { id: 'squat-top', name: 'Back Squat – TOP SET', nameShort: 'Squat TOP', category: 'main', targetSets: '1', targetReps: '2', targetWeight: '165 kg (92 %)', rpe: '9', note: 'VRCHOLNÁ SÉRIE. RPE 9 (1 RIR).', setType: 'topset' },
+      { id: 'squat-bo', name: 'Back Squat – BACK-OFF', nameShort: 'Squat BO', category: 'main', targetSets: '2', targetReps: '2', targetWeight: '157.5 kg (88 %)', rpe: '8', note: 'Back-off ~93 % top setu.', setType: 'backoff' },
+      { id: 'close-stance-squat', name: 'Close Stance Squat', nameShort: 'Close Squat', category: 'accessory', targetSets: '3', targetReps: '2', targetWeight: '145 kg',rpe: '8', note: 'Variace pro cílení slabin.' },
+      { id: 'leg-press', name: 'Leg Press (stroj)', nameShort: 'Leg Press', category: 'accessory', targetSets: '3', targetReps: '8–10', targetWeight: 'Stroj — těžká', rpe: '7–8', note: 'Fatigue mgmt (Israetel s. 92): quad objem po těžkém squatu.' },
+      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '6–8', note: 'BW+. Superset A1.', isSuperset: true, supersetWith: 'Pallof Press' },
+      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '2', targetReps: '10/strana', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'GHD Raise' },
+    ]),
     fridayRun(10, 'Intervaly', '32 min', '10 min easy + 5×2 min hard/90s easy + 6 min easy. Zóna 2–4'),
+    saturdayHiit(),
     fullBodyDay([
       { id: 'deadlift-ramp1', name: 'Deadlift – RAMP 1', nameShort: 'DL R1', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '197.5 kg (88 %)', rpe: '7–8', note: 'Ramp.', setType: 'ramp' },
       { id: 'deadlift-ramp2', name: 'Deadlift – RAMP 2', nameShort: 'DL R2', category: 'main', targetSets: '1', targetReps: '2', targetWeight: '205 kg (91 %)', rpe: '8', note: 'Ramp.', setType: 'ramp' },
@@ -581,8 +583,6 @@ const w10: Week = {
       { id: 'barbell-row', name: 'Barbell Row', nameShort: 'BB Row', category: 'accessory', targetSets: '3', targetReps: '4', targetWeight: '90–107.5 kg', rpe: '7–8', note: 'Záda, lats.' },
       { id: 'ab-wheel-dl', name: 'Ab Wheel / Hanging Leg Raise', nameShort: 'Core', category: 'core', targetSets: '3', targetReps: '10–12', note: 'BW. Core / břícho.' },
     ]),
-    saturdayHiit(),
-    tuesdayRest,
   ],
 };
 
@@ -591,16 +591,6 @@ const w11: Week = {
   phase: 'Fáze 3 – Intenzifikace', phaseKey: 'phase3',
   description: 'W11: DELOAD + mini-peak. SQ 86 % 1RM, BP 85 %, DL 88 %. Back-off ~93 % top setu. Regenerace před W12 peakingem.',
   days: [
-    lowerDay([
-      { id: 'squat-ramp1', name: 'Back Squat – RAMP 1', nameShort: 'Squat R1', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '155 kg (86 %)', rpe: '7–8', note: 'Rampovací série.', setType: 'ramp' },
-      { id: 'squat-ramp2', name: 'Back Squat – RAMP 2', nameShort: 'Squat R2', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '162.5 kg (90 %)', rpe: '8', note: 'Rampovací série.', setType: 'ramp' },
-      { id: 'squat-top', name: 'Back Squat – TOP SET', nameShort: 'Squat TOP', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '167.5 kg (93 %)', rpe: '9', note: 'VRCHOLNÁ SÉRIE. RPE 9 (1 RIR).', setType: 'topset' },
-      { id: 'squat-bo', name: 'Back Squat – BACK-OFF', nameShort: 'Squat BO', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '157.5 kg (88 %)', rpe: '8', note: 'Back-off ~93 % top setu.', setType: 'backoff' },
-      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '3', targetReps: '3', targetWeight: '135 kg', rpe: '8', note: 'Variace pro cílení slabin.' },
-      { id: 'leg-press', name: 'Leg Press (stroj)', nameShort: 'Leg Press', category: 'accessory', targetSets: '3', targetReps: '8–10', targetWeight: 'Stroj — těžká', rpe: '7–8', note: 'Fatigue mgmt (Israetel s. 92): quad objem po těžkém squatu.' },
-      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '6–8', note: 'BW+. Superset A1.', isSuperset: true, supersetWith: 'Pallof Press' },
-      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '2', targetReps: '10/strana', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'GHD Raise' },
-    ]),
     upperDay([
       { id: 'bench-ramp1', name: 'Bench Press – RAMP 1', nameShort: 'Bench R1', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '102.5 kg (85 %)', rpe: '7–8', note: 'Ramp.', setType: 'ramp' },
       { id: 'bench-ramp2', name: 'Bench Press – RAMP 2', nameShort: 'Bench R2', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '107.5 kg (90 %)', rpe: '8', note: 'Ramp.', setType: 'ramp' },
@@ -611,8 +601,20 @@ const w11: Week = {
       { id: 'tricep-pushdown', name: 'Tricep Pushdown', nameShort: 'Tricep', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: 'Střední', rpe: '7', note: 'Superset A1.', isSuperset: true, supersetWith: 'Face Pulls' },
       { id: 'face-pulls', name: 'Face Pulls', category: 'prevention', targetSets: '3', targetReps: '15–20', note: 'Lehká. Prehab. Superset A2.', isSuperset: true, supersetWith: 'Tricep Pushdown' },
     ]),
+    tuesdayRest,
     wednesdayHiit(),
+    lowerDay([
+      { id: 'squat-ramp1', name: 'Back Squat – RAMP 1', nameShort: 'Squat R1', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '155 kg (86 %)', rpe: '7–8', note: 'Rampovací série.', setType: 'ramp' },
+      { id: 'squat-ramp2', name: 'Back Squat – RAMP 2', nameShort: 'Squat R2', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '162.5 kg (90 %)', rpe: '8', note: 'Rampovací série.', setType: 'ramp' },
+      { id: 'squat-top', name: 'Back Squat – TOP SET', nameShort: 'Squat TOP', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '167.5 kg (93 %)', rpe: '9', note: 'VRCHOLNÁ SÉRIE. RPE 9 (1 RIR).', setType: 'topset' },
+      { id: 'squat-bo', name: 'Back Squat – BACK-OFF', nameShort: 'Squat BO', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '157.5 kg (88 %)', rpe: '8', note: 'Back-off ~93 % top setu.', setType: 'backoff' },
+      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '3', targetReps: '3', targetWeight: '135 kg', rpe: '8', note: 'Variace pro cílení slabin.' },
+      { id: 'leg-press', name: 'Leg Press (stroj)', nameShort: 'Leg Press', category: 'accessory', targetSets: '3', targetReps: '8–10', targetWeight: 'Stroj — těžká', rpe: '7–8', note: 'Fatigue mgmt (Israetel s. 92): quad objem po těžkém squatu.' },
+      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '6–8', note: 'BW+. Superset A1.', isSuperset: true, supersetWith: 'Pallof Press' },
+      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '2', targetReps: '10/strana', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'GHD Raise' },
+    ]),
     fridayRun(11, 'Tempo + intervaly', '35 min', '10 min easy + 10 min tempo + 3×1 min sprint/2 min + 5 min easy. Zóna 2–5'),
+    saturdayHiit(),
     fullBodyDay([
       { id: 'deadlift-ramp1', name: 'Deadlift – RAMP 1', nameShort: 'DL R1', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '202.5 kg (90 %)', rpe: '7–8', note: 'Ramp.', setType: 'ramp' },
       { id: 'deadlift-ramp2', name: 'Deadlift – RAMP 2', nameShort: 'DL R2', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '210 kg (93 %)', rpe: '8', note: 'Ramp.', setType: 'ramp' },
@@ -623,8 +625,6 @@ const w11: Week = {
       { id: 'barbell-row', name: 'Barbell Row', nameShort: 'BB Row', category: 'accessory', targetSets: '3', targetReps: '4', targetWeight: '90–107.5 kg', rpe: '7–8', note: 'Záda, lats.' },
       { id: 'ab-wheel-dl', name: 'Ab Wheel / Hanging Leg Raise', nameShort: 'Core', category: 'core', targetSets: '3', targetReps: '10–12', note: 'BW. Core / břícho.' },
     ]),
-    saturdayHiit(),
-    tuesdayRest,
   ],
 };
 
@@ -633,16 +633,6 @@ const w12: Week = {
   phase: 'Fáze 3 – Mini-deload', phaseKey: 'deload', isDeload: true,
   description: 'W12: MINI-DELOAD před peakingem. SQ 86 % 1RM, BP 85 %, DL 88 %. Back-off ~93 % top setu. Regenerace před finální fází.',
   days: [
-    lowerDay([
-      { id: 'squat-ramp1', name: 'Back Squat – RAMP 1', nameShort: 'Squat R1', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '155 kg (86 %)', rpe: '7–8', note: 'Rampovací série.', setType: 'ramp' },
-      { id: 'squat-ramp2', name: 'Back Squat – RAMP 2', nameShort: 'Squat R2', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '162.5 kg (90 %)', rpe: '8', note: 'Rampovací série.', setType: 'ramp' },
-      { id: 'squat-top', name: 'Back Squat – TOP SET', nameShort: 'Squat TOP', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '167.5 kg (93 %)', rpe: '9', note: 'VRCHOLNÁ SÉRIE. RPE 9 (1 RIR).', setType: 'topset' },
-      { id: 'squat-bo', name: 'Back Squat – BACK-OFF', nameShort: 'Squat BO', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '157.5 kg (88 %)', rpe: '8', note: 'Back-off ~93 % top setu.', setType: 'backoff' },
-      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '3', targetReps: '3', targetWeight: '135 kg', rpe: '8', note: 'Variace pro cílení slabin.' },
-      { id: 'leg-press', name: 'Leg Press (stroj)', nameShort: 'Leg Press', category: 'accessory', targetSets: '3', targetReps: '8–10', targetWeight: 'Stroj — těžká', rpe: '7–8', note: 'Fatigue mgmt (Israetel s. 92): quad objem po těžkém squatu.' },
-      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '6–8', note: 'BW+. Superset A1.', isSuperset: true, supersetWith: 'Pallof Press' },
-      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '2', targetReps: '10/strana', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'GHD Raise' },
-    ]),
     upperDay([
       { id: 'bench-ramp1', name: 'Bench Press – RAMP 1', nameShort: 'Bench R1', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '102.5 kg (85 %)', rpe: '7–8', note: 'Ramp.', setType: 'ramp' },
       { id: 'bench-ramp2', name: 'Bench Press – RAMP 2', nameShort: 'Bench R2', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '107.5 kg (90 %)', rpe: '8', note: 'Ramp.', setType: 'ramp' },
@@ -653,8 +643,20 @@ const w12: Week = {
       { id: 'tricep-pushdown', name: 'Tricep Pushdown', nameShort: 'Tricep', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: 'Střední', rpe: '7', note: 'Superset A1.', isSuperset: true, supersetWith: 'Face Pulls' },
       { id: 'face-pulls', name: 'Face Pulls', category: 'prevention', targetSets: '3', targetReps: '15–20', note: 'Lehká. Prehab. Superset A2.', isSuperset: true, supersetWith: 'Tricep Pushdown' },
     ]),
+    tuesdayRest,
     wednesdayHiit(),
+    lowerDay([
+      { id: 'squat-ramp1', name: 'Back Squat – RAMP 1', nameShort: 'Squat R1', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '155 kg (86 %)', rpe: '7–8', note: 'Rampovací série.', setType: 'ramp' },
+      { id: 'squat-ramp2', name: 'Back Squat – RAMP 2', nameShort: 'Squat R2', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '162.5 kg (90 %)', rpe: '8', note: 'Rampovací série.', setType: 'ramp' },
+      { id: 'squat-top', name: 'Back Squat – TOP SET', nameShort: 'Squat TOP', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '167.5 kg (93 %)', rpe: '9', note: 'VRCHOLNÁ SÉRIE. RPE 9 (1 RIR).', setType: 'topset' },
+      { id: 'squat-bo', name: 'Back Squat – BACK-OFF', nameShort: 'Squat BO', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '157.5 kg (88 %)', rpe: '8', note: 'Back-off ~93 % top setu.', setType: 'backoff' },
+      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '3', targetReps: '3', targetWeight: '135 kg', rpe: '8', note: 'Variace pro cílení slabin.' },
+      { id: 'leg-press', name: 'Leg Press (stroj)', nameShort: 'Leg Press', category: 'accessory', targetSets: '3', targetReps: '8–10', targetWeight: 'Stroj — těžká', rpe: '7–8', note: 'Fatigue mgmt (Israetel s. 92): quad objem po těžkém squatu.' },
+      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '6–8', note: 'BW+. Superset A1.', isSuperset: true, supersetWith: 'Pallof Press' },
+      { id: 'pallof', name: 'Pallof Press', category: 'core', targetSets: '2', targetReps: '10/strana', note: 'Střední. Superset A2.', isSuperset: true, supersetWith: 'GHD Raise' },
+    ]),
     fridayRun(12, 'Easy run', '25 min', 'Zóna 2 (mini-deload – lehce)'),
+    saturdayHiit(),
     fullBodyDay([
       { id: 'deadlift-ramp1', name: 'Deadlift – RAMP 1', nameShort: 'DL R1', category: 'main', targetSets: '1', targetReps: '4', targetWeight: '202.5 kg (90 %)', rpe: '7–8', note: 'Ramp.', setType: 'ramp' },
       { id: 'deadlift-ramp2', name: 'Deadlift – RAMP 2', nameShort: 'DL R2', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '210 kg (93 %)', rpe: '8', note: 'Ramp.', setType: 'ramp' },
@@ -665,8 +667,6 @@ const w12: Week = {
       { id: 'barbell-row', name: 'Barbell Row', nameShort: 'BB Row', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '90–107.5 kg', rpe: '7–8', note: 'Záda, lats.' },
       { id: 'ab-wheel-dl', name: 'Ab Wheel', nameShort: 'Core', category: 'core', targetSets: '2', targetReps: '10', note: 'BW. Břícho.' },
     ]),
-    saturdayHiit(),
-    tuesdayRest,
   ],
 };
 
@@ -681,14 +681,6 @@ const w13: Week = {
   phase: 'Fáze 4 – Peaking', phaseKey: 'phase4',
   description: 'W13: Vstup do peakingu. Singles na 87.5–94.5 % 1RM. SQ 157.5/165/170 kg, BP 105/110/112.5 kg, DL 200/207.5/212.5 kg. Minimální doplňkový objem.',
   days: [
-    lowerDay([
-      { id: 'squat-set1', name: 'Back Squat – SET 1', nameShort: 'Squat S1', category: 'main', targetSets: '1', targetReps: '2', targetWeight: '157.5 kg (87.5 %)', rpe: '7–8', note: 'Rozc vičení na těžké váhy.', setType: 'ramp' },
-      { id: 'squat-set2', name: 'Back Squat – SET 2', nameShort: 'Squat S2', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '165 kg (91.5 %)', rpe: '8', note: 'Těžký singl.', setType: 'topset' },
-      { id: 'squat-set3', name: 'Back Squat – SET 3', nameShort: 'Squat S3', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '170 kg (94.5 %)', rpe: '8–9', note: 'Finální singl. Stop zde.', setType: 'topset' },
-      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '3', targetReps: '3', targetWeight: '145 kg', rpe: '7–8', note: 'Technická práce.' },
-      { id: 'leg-press', name: 'Leg Press (stroj)', nameShort: 'Leg Press', category: 'accessory', targetSets: '3', targetReps: '10', targetWeight: 'Těžká', rpe: '7–8', note: 'Objemová pojistka.' },
-      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '8', note: 'BW. Hamstringy.' },
-    ]),
     upperDay([
       { id: 'bench-set1', name: 'Bench Press – SET 1', nameShort: 'Bench S1', category: 'main', targetSets: '1', targetReps: '2', targetWeight: '105 kg (87.5 %)', rpe: '7–8', note: 'Rozc vičení.', setType: 'ramp' },
       { id: 'bench-set2', name: 'Bench Press – SET 2', nameShort: 'Bench S2', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '110 kg (91.5 %)', rpe: '8', note: 'Těžký singl.', setType: 'topset' },
@@ -697,8 +689,18 @@ const w13: Week = {
       { id: 'lat-pulldown', name: 'Lat Pulldown (stroj)', nameShort: 'Lat Pulldown', category: 'accessory', targetSets: '3', targetReps: '8', targetWeight: 'Těžká', rpe: '7–8', note: 'Lats.' },
       { id: 'face-pulls', name: 'Face Pulls', category: 'prevention', targetSets: '3', targetReps: '15', note: 'Lehká. Prehab.' },
     ]),
+    tuesdayRest,
     wednesdayHiit(),
+    lowerDay([
+      { id: 'squat-set1', name: 'Back Squat – SET 1', nameShort: 'Squat S1', category: 'main', targetSets: '1', targetReps: '2', targetWeight: '157.5 kg (87.5 %)', rpe: '7–8', note: 'Rozc vičení na těžké váhy.', setType: 'ramp' },
+      { id: 'squat-set2', name: 'Back Squat – SET 2', nameShort: 'Squat S2', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '165 kg (91.5 %)', rpe: '8', note: 'Těžký singl.', setType: 'topset' },
+      { id: 'squat-set3', name: 'Back Squat – SET 3', nameShort: 'Squat S3', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '170 kg (94.5 %)', rpe: '8–9', note: 'Finální singl. Stop zde.', setType: 'topset' },
+      { id: 'pause-squat', name: 'Pause Squat (2s)', nameShort: 'Pause Squat', category: 'accessory', targetSets: '3', targetReps: '3', targetWeight: '145 kg', rpe: '7–8', note: 'Technická práce.' },
+      { id: 'leg-press', name: 'Leg Press (stroj)', nameShort: 'Leg Press', category: 'accessory', targetSets: '3', targetReps: '10', targetWeight: 'Těžká', rpe: '7–8', note: 'Objemová pojistka.' },
+      { id: 'ghd', name: 'GHD Raise', category: 'core', targetSets: '3', targetReps: '8', note: 'BW. Hamstringy.' },
+    ]),
     fridayRun(13, 'Easy run', '25 min', 'Zóna 2 (šetři energii)'),
+    saturdayHiit(),
     fullBodyDay([
       { id: 'deadlift-set1', name: 'Deadlift – SET 1', nameShort: 'DL S1', category: 'main', targetSets: '1', targetReps: '2', targetWeight: '200 kg (88.9 %)', rpe: '7–8', note: 'Rozc vičení.', setType: 'ramp' },
       { id: 'deadlift-set2', name: 'Deadlift – SET 2', nameShort: 'DL S2', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '207.5 kg (92.2 %)', rpe: '8', note: 'Těžký singl.', setType: 'topset' },
@@ -708,8 +710,6 @@ const w13: Week = {
       { id: 'nordic-curls', name: 'Nordic Curls', category: 'prevention', targetSets: '3', targetReps: '5', note: 'BW. Prehab.' },
       { id: 'ab-wheel-dl', name: 'Ab Wheel', nameShort: 'Core', category: 'core', targetSets: '3', targetReps: '10', note: 'BW. Břícho.' },
     ]),
-    saturdayHiit(),
-    tuesdayRest,
   ],
 };
 
@@ -718,6 +718,14 @@ const w14: Week = {
   phase: 'Fáze 4 – Peaking', phaseKey: 'phase4',
   description: 'W14: Near-max týden. SQ 177.5 kg (98.6 %), BP 117.5 kg (97.9 %), DL 222.5 kg (98.9 %). Progresivní singles. Metoda max. úsílí (Zatsiorsky s.81).',
   days: [
+    upperDay([
+      { id: 'bench-set1', name: 'Bench Press – SET 1', nameShort: 'Bench S1', category: 'main', targetSets: '1', targetReps: '2', targetWeight: '110 kg (91.7 %)', rpe: '7–8', note: 'Rozc vičení.', setType: 'ramp' },
+      { id: 'bench-set2', name: 'Bench Press – SET 2', nameShort: 'Bench S2', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '115 kg (95.8 %)', rpe: '8', note: 'Těžký singl.', setType: 'topset' },
+      { id: 'bench-set3', name: 'Bench Press – SET 3 / Near-max', nameShort: 'Bench NM', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '117.5 kg (97.9 %)', rpe: '8–9', note: 'Near-max singl. Plný setup!', setType: 'topset' },
+      { id: 'face-pulls', name: 'Face Pulls', category: 'prevention', targetSets: '3', targetReps: '15', note: 'Lehká. Prehab.' },
+    ]),
+    tuesdayRest,
+    wednesdayHiit(),
     lowerDay([
       { id: 'squat-set1', name: 'Back Squat – SET 1', nameShort: 'Squat S1', category: 'main', targetSets: '1', targetReps: '2', targetWeight: '157.5 kg (87.5 %)', rpe: '7–8', note: 'Rozc vičení na těžké váhy.', setType: 'ramp' },
       { id: 'squat-set2', name: 'Back Squat – SET 2', nameShort: 'Squat S2', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '170 kg (94.5 %)', rpe: '8', note: 'Těžký singl.', setType: 'topset' },
@@ -726,14 +734,8 @@ const w14: Week = {
       { id: 'leg-press', name: 'Leg Press (stroj)', nameShort: 'Leg Press', category: 'accessory', targetSets: '2', targetReps: '8', targetWeight: 'Střední–těžká', rpe: '7–8', note: 'Objemová pojišťka.' },
       { id: 'ab-wheel-dl', name: 'Ab Wheel', nameShort: 'Core', category: 'core', targetSets: '2', targetReps: '10', note: 'BW. Břícho.' },
     ]),
-    upperDay([
-      { id: 'bench-set1', name: 'Bench Press – SET 1', nameShort: 'Bench S1', category: 'main', targetSets: '1', targetReps: '2', targetWeight: '110 kg (91.7 %)', rpe: '7–8', note: 'Rozc vičení.', setType: 'ramp' },
-      { id: 'bench-set2', name: 'Bench Press – SET 2', nameShort: 'Bench S2', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '115 kg (95.8 %)', rpe: '8', note: 'Těžký singl.', setType: 'topset' },
-      { id: 'bench-set3', name: 'Bench Press – SET 3 / Near-max', nameShort: 'Bench NM', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '117.5 kg (97.9 %)', rpe: '8–9', note: 'Near-max singl. Plný setup!', setType: 'topset' },
-      { id: 'face-pulls', name: 'Face Pulls', category: 'prevention', targetSets: '3', targetReps: '15', note: 'Lehká. Prehab.' },
-    ]),
-    wednesdayHiit(),
     fridayRun(14, 'Easy run', '20 min', 'Zóna 1–2 (velmi lehce)'),
+    saturdayHiit(),
     fullBodyDay([
       { id: 'deadlift-set1', name: 'Deadlift – SET 1', nameShort: 'DL S1', category: 'main', targetSets: '1', targetReps: '2', targetWeight: '210 kg (93.3 %)', rpe: '7–8', note: 'Rozc vičení.', setType: 'ramp' },
       { id: 'deadlift-set2', name: 'Deadlift – SET 2', nameShort: 'DL S2', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '217.5 kg (96.7 %)', rpe: '8', note: 'Těžký singl.', setType: 'topset' },
@@ -742,8 +744,6 @@ const w14: Week = {
       { id: 'nordic-curls', name: 'Nordic Curls', category: 'prevention', targetSets: '2', targetReps: '5', note: 'BW. Prehab.' },
       { id: 'ab-wheel-dl', name: 'Ab Wheel', nameShort: 'Core', category: 'core', targetSets: '2', targetReps: '10', note: 'BW. Břícho.' },
     ]),
-    saturdayHiit(),
-    tuesdayRest,
   ],
 };
 
@@ -752,23 +752,19 @@ const w15: Week = {
   phase: 'Fáze 4 – Taper', phaseKey: 'phase4', isDeload: true,
   description: 'TAPER. Drastické snížení objemu – Zatsiorského dvou-faktorový model: únava odezní, fitness zůstane → supercompensace. Žádný běh (Viada). Spánek 8–9 h.',
   days: [
-    lowerDay([
-      { id: 'squat', name: 'Back Squat – RAMP', nameShort: 'Squat RAMP', category: 'main', targetSets: '2', targetReps: '3', targetWeight: '130 kg', rpe: '6', note: 'Lehká příprava.', setType: 'ramp' },
-      { id: 'squat-top', name: 'Back Squat – OPENER', nameShort: 'Squat OPENER', category: 'main', targetSets: '2', targetReps: '2', targetWeight: '147.5 kg', rpe: '6–7', note: 'Opener váha. Lehce, rychle.', setType: 'topset' },
-    ]),
     upperDay([
       { id: 'bench', name: 'Bench Press – RAMP', nameShort: 'Bench RAMP', category: 'main', targetSets: '2', targetReps: '3', targetWeight: '87.5 kg', rpe: '6', note: 'Lehká příprava.', setType: 'ramp' },
       { id: 'bench-top', name: 'Bench Press – OPENER', nameShort: 'Bench OPENER', category: 'main', targetSets: '2', targetReps: '2', targetWeight: '97.5 kg', rpe: '6–7', note: 'Opener váha.', setType: 'topset' },
       { id: 'face-pulls', name: 'Face Pulls', category: 'prevention', targetSets: '2', targetReps: '15', note: 'Lehká. Prehab.' },
     ]),
+    tuesdayRest,
     wednesdayHiit(),
     { key: 'thursday', label: 'Čtvrtek', labelShort: 'Čt', type: 'rest', description: 'VOLNO – Žádný běh (Viada). Energie do peakingu.', exercises: [] },
+    saturdayHiit(),
     fullBodyDay([
       { id: 'deadlift', name: 'Deadlift – RAMP', nameShort: 'DL RAMP', category: 'main', targetSets: '2', targetReps: '2', targetWeight: '157.5 kg', rpe: '6', note: 'Lehká příprava.', setType: 'ramp' },
       { id: 'deadlift-top', name: 'Deadlift – OPENER', nameShort: 'DL OPENER', category: 'main', targetSets: '2', targetReps: '1', targetWeight: '185 kg', rpe: '6–7', note: 'Opener váha.', setType: 'topset' },
     ]),
-    saturdayHiit(),
-    tuesdayRest,
   ],
 };
 
@@ -777,17 +773,7 @@ const w16: Week = {
   phase: 'Fáze 4 – Test maxim', phaseKey: 'phase4',
   description: 'TESTOVACÍ TÝDEN. Po: Squat max (cíl 190 kg). St: Bench max (cíl 130 kg). Pá: Deadlift max (cíl 235 kg). Warm-up dle Zatsiorského: tyč→30%→50%→65%→78%→87%→opener→second→MAX. Min. 3 min pauza mezi pokusy.',
   days: [
-    lowerDay([
-      { id: 'squat', name: 'Back Squat – WARM-UP 1', nameShort: 'Squat WU1', category: 'main', targetSets: '1', targetReps: '8', targetWeight: '55 kg', rpe: '–', note: '~30% – Rozehřátí.', setType: 'ramp' },
-      { id: 'squat-wu2', name: 'Back Squat – WARM-UP 2', nameShort: 'Squat WU2', category: 'main', targetSets: '1', targetReps: '5', targetWeight: '90 kg', rpe: '–', note: '~50% – Aktivace.', setType: 'ramp' },
-      { id: 'squat-wu3', name: 'Back Squat – WARM-UP 3', nameShort: 'Squat WU3', category: 'main', targetSets: '1', targetReps: '3', targetWeight: '117.5 kg', rpe: '–', note: '~65% – Groove.', setType: 'ramp' },
-      { id: 'squat-wu4', name: 'Back Squat – WARM-UP 4', nameShort: 'Squat WU4', category: 'main', targetSets: '1', targetReps: '2', targetWeight: '140 kg', rpe: '–', note: '~78% – CNS ready.', setType: 'ramp' },
-      { id: 'squat-wu5', name: 'Back Squat – WARM-UP 5', nameShort: 'Squat WU5', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '157.5 kg', rpe: '–', note: '~87% – Poslední single.', setType: 'ramp' },
-      { id: 'squat-top', name: 'Back Squat – OPENER', nameShort: 'Squat OPENER', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '162.5 kg', rpe: '~7', note: 'Jistota. ~90%.', setType: 'topset' },
-      { id: 'squat-2nd', name: 'Back Squat – 2. POKUS', nameShort: 'Squat 2nd', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '175 kg', rpe: '~8.5', note: 'Solidní single. ~95%. Pokud letí → max.', setType: 'topset' },
-      { id: 'squat-max', name: 'Back Squat – MAX', nameShort: 'Squat MAX', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '190 kg', rpe: 'MAX', note: '🎯 CÍL: 190 kg! Pokud 2. pokus RPE 9.5+ → 187.5 kg.', setType: 'topset' },
-    ]),
-    { key: 'tuesday', label: 'Úterý', labelShort: 'Út', type: 'rest', description: 'VOLNO – Regenerace. Lehká procházka, pěnový válec, kvalitní jídlo, spánek.', exercises: [] },
+    tuesdayRest,
     {
       key: 'wednesday', label: 'Středa', labelShort: 'St', type: 'upper',
       description: 'BENCH PRESS MAX TEST – Horschig aktivace → progresivní série dle Zatsiorského.',
@@ -820,7 +806,6 @@ const w16: Week = {
       ],
     },
     saturdayHiit(),
-    tuesdayRest,
   ],
 };
 
