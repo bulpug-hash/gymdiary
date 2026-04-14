@@ -331,6 +331,15 @@ function WarmupSeriesBlock({ dayType, weekNumber }: { dayType: string; weekNumbe
       ];
 
   const formatWeight = (w: number) => w === 20 ? 'Tyč (20 kg)' : `${w} kg`;
+  const extractPct = (note?: string) => {
+    if (!note) return '–';
+    const m = note.match(/(~?\d+%)/);
+    return m ? m[1] : '–';
+  };
+  const extractNote = (note?: string) => {
+    if (!note) return '–';
+    return note.replace(/~?\d+%/, '').replace(/^\s*[–-]\s*/, '').trim() || '–';
+  };
 
   return (
     <div style={{ marginBottom: 12, borderRadius: 8, border: '1px solid rgba(94,207,177,0.2)', background: 'rgba(94,207,177,0.03)', overflow: 'hidden' }}>
@@ -352,17 +361,19 @@ function WarmupSeriesBlock({ dayType, weekNumber }: { dayType: string; weekNumbe
             <div key={lift.key} style={{ marginTop: 10 }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: '#5ECFB1', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>{lift.icon} {lift.label}</div>
               {lift.series && lift.series.length > 0 ? (
-                <div style={{ display: 'grid', gridTemplateColumns: '55px 110px 55px 1fr', gap: '4px 8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '50px 100px 40px 50px 1fr', gap: '4px 8px' }}>
                   <div style={{ fontSize: 9, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>SÉRIE</div>
                   <div style={{ fontSize: 9, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>VÁHA</div>
                   <div style={{ fontSize: 9, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>REPS</div>
+                  <div style={{ fontSize: 9, color: '#f0a500', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>% 1RM</div>
                   <div style={{ fontSize: 9, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>POZNÁMKA</div>
                   {lift.series.map((row: WarmupSet, i: number) => (
                     <>
                       <div key={`s${i}`} style={{ fontSize: 11, color: '#aaa', padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>1×{row.reps}</div>
                       <div key={`w${i}`} style={{ fontSize: 11, color: '#d0d0d0', fontWeight: 600, padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>{formatWeight(row.weight)}</div>
                       <div key={`r${i}`} style={{ fontSize: 11, color: '#5ECFB1', padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>{row.reps}</div>
-                      <div key={`n${i}`} style={{ fontSize: 10, color: '#666', padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)', lineHeight: 1.4 }}>{row.note || '–'}</div>
+                      <div key={`p${i}`} style={{ fontSize: 11, color: '#f0a500', fontWeight: 600, padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>{extractPct(row.note)}</div>
+                      <div key={`n${i}`} style={{ fontSize: 10, color: '#666', padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)', lineHeight: 1.4 }}>{extractNote(row.note) !== '–' ? extractNote(row.note) : (row.weight === 20 ? 'Pohybový vzorec' : '–')}</div>
                     </>
                   ))}
                 </div>

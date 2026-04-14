@@ -1,7 +1,8 @@
 // Overview – Přehled tab
 // Gold Performance Design
 // Shows: today's workout, week strip, goals progress, recent PRs
-import { PHASE3_WEEKS, getTodayDayKey, getCurrentWeek, getCategoryColor, GOALS, CURRENT_MAXES } from '@/lib/data';
+import { PHASE3_WEEKS, getTodayDayKey, getCurrentWeek, getCategoryColor, GOALS, CURRENT_MAXES, WARMUP_SERIES_BY_WEEK } from '@/lib/data';
+import type { WarmupSet } from '@/lib/data';
 import type { Week } from '@/lib/data';
 import type { WorkoutDataHook, Tab } from '@/lib/types';
 
@@ -141,6 +142,40 @@ export default function Overview({ workoutData, onNavigate }: Props) {
           </div>
         )}
       </div>
+
+      {/* Today's warm-up series */}
+      {todayDay && (todayDay.type === 'lower' || todayDay.type === 'upper' || todayDay.type === 'fullbody') && (() => {
+        const weekData = WARMUP_SERIES_BY_WEEK[currentWeekNum];
+        const liftKey = todayDay.type === 'lower' ? 'squat' : todayDay.type === 'upper' ? 'bench' : 'deadlift';
+        const liftLabel = todayDay.type === 'lower' ? '🦵 SQUAT' : todayDay.type === 'upper' ? '💪 BENCH PRESS' : '🏋️ DEADLIFT';
+        const series = weekData?.[liftKey];
+        if (!series || series.length === 0) return null;
+        const formatW = (w: number) => w === 20 ? 'Tyč' : `${w} kg`;
+        const extractPct = (note?: string) => { if (!note) return ''; const m = note.match(/(~?\d+%)/); return m ? m[1] : ''; };
+        return (
+          <div style={{ padding: '14px 20px', borderBottom: '1px solid #1c1c1c' }}>
+            <div style={{ color: '#444', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 10 }}>DNEŠNÍ ROZEHŘÍVACÍ SÉRIE</div>
+            <div style={{ background: 'rgba(94,207,177,0.04)', border: '1px solid rgba(94,207,177,0.15)', borderRadius: 12, padding: '12px 14px' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#5ECFB1', letterSpacing: '0.1em', marginBottom: 8 }}>{liftLabel} – W{currentWeekNum} (Zatsiorsky)</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '45px 80px 35px 45px', gap: '3px 8px' }}>
+                <div style={{ fontSize: 8, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>SÉRIE</div>
+                <div style={{ fontSize: 8, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>VÁHA</div>
+                <div style={{ fontSize: 8, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>REPS</div>
+                <div style={{ fontSize: 8, color: '#f0a500', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>% 1RM</div>
+                {series.map((row: WarmupSet, i: number) => (
+                  <>
+                    <div key={`s${i}`} style={{ fontSize: 11, color: '#aaa', padding: '2px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>1×{row.reps}</div>
+                    <div key={`w${i}`} style={{ fontSize: 11, color: '#d0d0d0', fontWeight: 600, padding: '2px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>{formatW(row.weight)}</div>
+                    <div key={`r${i}`} style={{ fontSize: 11, color: '#5ECFB1', padding: '2px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>{row.reps}</div>
+                    <div key={`p${i}`} style={{ fontSize: 11, color: '#f0a500', fontWeight: 600, padding: '2px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>{extractPct(row.note) || '–'}</div>
+                  </>
+                ))}
+              </div>
+              <div style={{ marginTop: 8, fontSize: 10, color: '#444' }}>Zapisují se jen pracovní série · Více v záložce Plán</div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Goals progress */}
       <div style={{ padding: '14px 20px', borderBottom: '1px solid #1c1c1c' }}>
