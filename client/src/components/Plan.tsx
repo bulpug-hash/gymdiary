@@ -2,7 +2,8 @@
 // Gold Performance Design
 // Shows: 16-week progressive plan v2.0, exercise details per day with dropset badges
 import { useState } from 'react';
-import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel, WARMUP_PROTOCOL } from '@/lib/data';
+import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel, WARMUP_PROTOCOL, WARMUP_SERIES_BY_WEEK } from '@/lib/data';
+import type { WarmupSet } from '@/lib/data';
 import { getExerciseInfo, CATEGORY_COLORS } from '@/lib/exerciseDescriptions';
 import type { WorkoutDataHook } from '@/lib/types';
 import type { WorkoutDay, Exercise } from '@/lib/data';
@@ -172,6 +173,7 @@ export default function Plan({ workoutData }: Props) {
             isExpanded={expandedDay === day.key}
             onToggle={() => setExpandedDay(expandedDay === day.key ? null : day.key)}
             workoutData={workoutData}
+            weekNumber={week.number}
           />
         ))}
       </div>
@@ -314,42 +316,21 @@ function ExerciseRow({ ex, idx, total, latest }: {
   );
 }
 
-// Warm-up series per main lift – přesně dle dokumentu v4 (Zatsiorsky protokol)
-const WARMUP_SERIES = {
-  squat: [
-    { sets: '1×10', weight: 'Tyč (20 kg)', pct: '–', note: 'Pohybový vzorec, aktivace' },
-    { sets: '1×6', weight: '80 kg', pct: '~44 %', note: 'Rozehřátí' },
-    { sets: '1×4', weight: '100 kg', pct: '~56 %', note: 'Aktivace CNS' },
-    { sets: '1×2', weight: '120 kg', pct: '~67 %', note: 'Groove' },
-    { sets: '1×1', weight: '135 kg', pct: '~75 %', note: 'Poslední single před pracovní váhou' },
-  ],
-  bench: [
-    { sets: '1×10', weight: 'Tyč (20 kg)', pct: '–', note: 'Aktivace ramen a lopatek' },
-    { sets: '1×6', weight: '60 kg', pct: '~50 %', note: 'Rozehřátí' },
-    { sets: '1×4', weight: '80 kg', pct: '~67 %', note: 'Setup drill' },
-    { sets: '1×2', weight: '95 kg', pct: '~79 %', note: 'CNS' },
-    { sets: '1×1', weight: '105 kg', pct: '~88 %', note: 'Poslední single před pracovní váhou' },
-  ],
-  deadlift: [
-    { sets: '1×8', weight: '60 kg', pct: '~27 %', note: 'Pohybový vzorec, bederní aktivace' },
-    { sets: '1×5', weight: '100 kg', pct: '~44 %', note: 'Rozehřátí' },
-    { sets: '1×3', weight: '135 kg', pct: '~60 %', note: 'Groove' },
-    { sets: '1×2', weight: '160 kg', pct: '~71 %', note: 'CNS' },
-    { sets: '1×1', weight: '180 kg', pct: '~80 %', note: 'Poslední single před pracovní váhou' },
-  ],
-};
-
-function WarmupSeriesBlock({ dayType }: { dayType: string }) {
+// Dynamic warm-up series block – uses WARMUP_SERIES_BY_WEEK from data.ts
+function WarmupSeriesBlock({ dayType, weekNumber }: { dayType: string; weekNumber: number }) {
   const [open, setOpen] = useState(false);
 
+  const weekData = WARMUP_SERIES_BY_WEEK[weekNumber];
+
   const lifts = dayType === 'lower'
-    ? [{ key: 'squat' as const, label: 'SQUAT – Rozehřívací série', icon: '🦵' }]
+    ? [{ key: 'squat' as const, label: 'SQUAT – Rozehřívací série', icon: '🦵', series: weekData?.squat }]
     : dayType === 'upper'
-    ? [{ key: 'bench' as const, label: 'BENCH PRESS – Rozehřívací série', icon: '💪' }]
+    ? [{ key: 'bench' as const, label: 'BENCH PRESS – Rozehřívací série', icon: '💪', series: weekData?.bench }]
     : [
-        { key: 'deadlift' as const, label: 'DEADLIFT – Rozehřívací série', icon: '🏋️' },
-        { key: 'bench' as const, label: 'BENCH (variace) – Rozehřívací série', icon: '💪' },
+        { key: 'deadlift' as const, label: 'DEADLIFT – Rozehřívací série', icon: '🏋️', series: weekData?.deadlift },
       ];
+
+  const formatWeight = (w: number) => w === 20 ? 'Tyč (20 kg)' : `${w} kg`;
 
   return (
     <div style={{ marginBottom: 12, borderRadius: 8, border: '1px solid rgba(94,207,177,0.2)', background: 'rgba(94,207,177,0.03)', overflow: 'hidden' }}>
@@ -359,7 +340,7 @@ function WarmupSeriesBlock({ dayType }: { dayType: string }) {
       >
         <div style={{ fontSize: 14 }}>🔥</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#5ECFB1', letterSpacing: '0.08em' }}>ROZEHŘÍVACÍ SÉRIE (Zatsiorsky)</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#5ECFB1', letterSpacing: '0.08em' }}>ROZEHŘÍVACÍ SÉRIE (Zatsiorsky) – W{weekNumber}</div>
           <div style={{ fontSize: 10, color: '#555', marginTop: 1 }}>Klikněte pro zobrazení · Zapisují se jen pracovní série</div>
         </div>
         <div style={{ color: '#444', fontSize: 11, transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }}>▼</div>
@@ -370,25 +351,29 @@ function WarmupSeriesBlock({ dayType }: { dayType: string }) {
           {lifts.map(lift => (
             <div key={lift.key} style={{ marginTop: 10 }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: '#5ECFB1', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>{lift.icon} {lift.label}</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '60px 110px 50px 1fr', gap: '4px 8px' }}>
-                <div style={{ fontSize: 9, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>SÉRIE</div>
-                <div style={{ fontSize: 9, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>VÁHA</div>
-                <div style={{ fontSize: 9, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>% 1RM</div>
-                <div style={{ fontSize: 9, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>POZNÁMKA</div>
-                {WARMUP_SERIES[lift.key].map((row, i) => (
-                  <>
-                    <div key={`s${i}`} style={{ fontSize: 11, color: '#aaa', padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>{row.sets}</div>
-                    <div key={`w${i}`} style={{ fontSize: 11, color: '#d0d0d0', fontWeight: 600, padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>{row.weight}</div>
-                    <div key={`p${i}`} style={{ fontSize: 11, color: '#5ECFB1', padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>{row.pct}</div>
-                    <div key={`n${i}`} style={{ fontSize: 10, color: '#666', padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)', lineHeight: 1.4 }}>{row.note}</div>
-                  </>
-                ))}
-              </div>
+              {lift.series && lift.series.length > 0 ? (
+                <div style={{ display: 'grid', gridTemplateColumns: '55px 110px 55px 1fr', gap: '4px 8px' }}>
+                  <div style={{ fontSize: 9, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>SÉRIE</div>
+                  <div style={{ fontSize: 9, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>VÁHA</div>
+                  <div style={{ fontSize: 9, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>REPS</div>
+                  <div style={{ fontSize: 9, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>POZNÁMKA</div>
+                  {lift.series.map((row: WarmupSet, i: number) => (
+                    <>
+                      <div key={`s${i}`} style={{ fontSize: 11, color: '#aaa', padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>1×{row.reps}</div>
+                      <div key={`w${i}`} style={{ fontSize: 11, color: '#d0d0d0', fontWeight: 600, padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>{formatWeight(row.weight)}</div>
+                      <div key={`r${i}`} style={{ fontSize: 11, color: '#5ECFB1', padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>{row.reps}</div>
+                      <div key={`n${i}`} style={{ fontSize: 10, color: '#666', padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)', lineHeight: 1.4 }}>{row.note || '–'}</div>
+                    </>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ fontSize: 11, color: '#555' }}>Data pro tento týden nejsou k dispozici.</div>
+              )}
             </div>
           ))}
           <div style={{ marginTop: 10, padding: '7px 10px', background: 'rgba(0,0,0,0.2)', borderRadius: 6, borderLeft: '2px solid rgba(94,207,177,0.4)' }}>
             <div style={{ fontSize: 10, color: '#5ECFB1', fontWeight: 700, marginBottom: 2 }}>⚠️ DO DENÍKU SE ZAPISUJÍ JEN PRACOVNÍ SÉRIE</div>
-            <div style={{ fontSize: 10, color: '#555', lineHeight: 1.5 }}>Rozehřívací série slouží jen jako příprava CNS a pohybového vzorce. Nepocituj je jako objem.</div>
+            <div style={{ fontSize: 10, color: '#555', lineHeight: 1.5 }}>Rozehřívací série slouží jen jako příprava CNS a pohybového vzorce. Nepočítej je jako objem.</div>
           </div>
         </div>
       )}
@@ -396,11 +381,12 @@ function WarmupSeriesBlock({ dayType }: { dayType: string }) {
   );
 }
 
-function DayCard({ day, isExpanded, onToggle, workoutData }: {
+function DayCard({ day, isExpanded, onToggle, workoutData, weekNumber }: {
   day: WorkoutDay;
   isExpanded: boolean;
   onToggle: () => void;
   workoutData: WorkoutDataHook;
+  weekNumber: number;
 }) {
   const color = TYPE_COLORS[day.type] || '#666';
   const isRest = day.type === 'rest';
@@ -445,7 +431,7 @@ function DayCard({ day, isExpanded, onToggle, workoutData }: {
           <div style={{ color: '#666', fontSize: 11, marginBottom: 10, paddingTop: 6 }}>{day.description}</div>
           {/* Warm-up series for strength days */}
           {(day.type === 'lower' || day.type === 'upper' || day.type === 'fullbody') && (
-            <WarmupSeriesBlock dayType={day.type} />
+            <WarmupSeriesBlock dayType={day.type} weekNumber={weekNumber} />
           )}
           {day.exercises.map((ex, idx) => {
             const latest = workoutData.getLatestRecord(ex.id);

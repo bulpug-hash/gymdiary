@@ -48,6 +48,7 @@ export interface Week {
   isDeload?: boolean;
   description: string;
   days: WorkoutDay[];
+  warmupSeries?: WarmupSeries;
 }
 
 export interface TrainingRecord {
@@ -96,6 +97,21 @@ export interface HIITRecord {
 
 export const HIIT_LOG_KEY = '__hiit_log__';
 export type HIITRecordsStore = HIITRecord[];
+
+// ============================================================
+// WARM-UP SERIES TYPE
+// ============================================================
+export interface WarmupSet {
+  weight: number;  // kg (20 = tyč)
+  reps: number;
+  note?: string;
+}
+
+export interface WarmupSeries {
+  squat: WarmupSet[];
+  bench: WarmupSet[];
+  deadlift: WarmupSet[];
+}
 
 // ============================================================
 // GOALS & MAXES
@@ -1036,3 +1052,92 @@ export function estimate1RM(weight: number, reps: number): number {
   if (reps === 1) return weight;
   return Math.round(weight * (1 + reps / 30));
 }
+
+// ============================================================
+// WARM-UP SERIES BY WEEK (Zatsiorsky protocol, s. 94)
+// Přesně rozpočítáno z dokumentu v4 pro každý týden a každý hlavní lift
+// Struktura: tyč (20 kg)×8 → ~40% → ~60% → ~75% → pracovní váha
+// DO DENÍKU SE ZAPISUJÍ JEN PRACOVNÍ SÉRIE
+// ============================================================
+export const WARMUP_SERIES_BY_WEEK: Record<number, WarmupSeries> = {
+  1: {
+    squat:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 55, reps: 5, note: '~39%' }, { weight: 85, reps: 3, note: '~59%' }, { weight: 105, reps: 2, note: '~73%' }],
+    bench:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 35, reps: 5, note: '~39%' }, { weight: 55, reps: 3, note: '~61%' }, { weight: 67.5, reps: 2, note: '~75%' }],
+    deadlift: [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 75, reps: 5, note: '~40%' }, { weight: 115, reps: 3, note: '~61%' }, { weight: 142.5, reps: 2, note: '~75%' }],
+  },
+  2: {
+    squat:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 57.5, reps: 5, note: '~40%' }, { weight: 87.5, reps: 3, note: '~60%' }, { weight: 110, reps: 2, note: '~76%' }],
+    bench:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 37.5, reps: 5, note: '~41%' }, { weight: 57.5, reps: 3, note: '~62%' }, { weight: 70, reps: 2, note: '~76%' }],
+    deadlift: [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 77.5, reps: 5, note: '~40%' }, { weight: 117.5, reps: 3, note: '~60%' }, { weight: 145, reps: 2, note: '~74%' }],
+  },
+  3: {
+    squat:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 60, reps: 5, note: '~40%' }, { weight: 90, reps: 3, note: '~60%' }, { weight: 112.5, reps: 2, note: '~75%' }],
+    bench:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 37.5, reps: 5, note: '~39%' }, { weight: 57.5, reps: 3, note: '~61%' }, { weight: 70, reps: 2, note: '~74%' }],
+    deadlift: [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 80, reps: 5, note: '~40%' }, { weight: 120, reps: 3, note: '~60%' }, { weight: 150, reps: 2, note: '~75%' }],
+  },
+  4: {
+    squat:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 50, reps: 5, note: '~40%' }, { weight: 75, reps: 3, note: '~60%' }, { weight: 95, reps: 2, note: '~76%' }],
+    bench:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 32.5, reps: 5, note: '~39%' }, { weight: 50, reps: 3, note: '~61%' }, { weight: 62.5, reps: 2, note: '~76%' }],
+    deadlift: [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 65, reps: 5, note: '~39%' }, { weight: 100, reps: 3, note: '~61%' }, { weight: 125, reps: 2, note: '~76%' }],
+  },
+  5: {
+    squat:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 60, reps: 5, note: '~39%' }, { weight: 92.5, reps: 3, note: '~61%' }, { weight: 115, reps: 2, note: '~75%' }],
+    bench:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 40, reps: 5, note: '~41%' }, { weight: 57.5, reps: 3, note: '~59%' }, { weight: 72.5, reps: 2, note: '~74%' }],
+    deadlift: [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 80, reps: 5, note: '~40%' }, { weight: 117.5, reps: 3, note: '~59%' }, { weight: 147.5, reps: 2, note: '~75%' }],
+  },
+  6: {
+    squat:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 62.5, reps: 5, note: '~40%' }, { weight: 95, reps: 3, note: '~60%' }, { weight: 117.5, reps: 2, note: '~75%' }],
+    bench:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 40, reps: 5, note: '~40%' }, { weight: 60, reps: 3, note: '~60%' }, { weight: 75, reps: 2, note: '~75%' }],
+    deadlift: [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 80, reps: 5, note: '~40%' }, { weight: 122.5, reps: 3, note: '~61%' }, { weight: 152.5, reps: 2, note: '~75%' }],
+  },
+  7: {
+    squat:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 65, reps: 5, note: '~40%' }, { weight: 97.5, reps: 3, note: '~60%' }, { weight: 122.5, reps: 2, note: '~75%' }],
+    bench:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 42.5, reps: 5, note: '~40%' }, { weight: 62.5, reps: 3, note: '~60%' }, { weight: 80, reps: 2, note: '~76%' }],
+    deadlift: [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 82.5, reps: 5, note: '~40%' }, { weight: 125, reps: 3, note: '~60%' }, { weight: 155, reps: 2, note: '~75%' }],
+  },
+  8: {
+    squat:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 60, reps: 5, note: '~41%' }, { weight: 87.5, reps: 3, note: '~59%' }, { weight: 110, reps: 2, note: '~75%' }],
+    bench:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 37.5, reps: 5, note: '~41%' }, { weight: 55, reps: 3, note: '~59%' }, { weight: 70, reps: 2, note: '~76%' }],
+    deadlift: [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 72.5, reps: 5, note: '~40%' }, { weight: 110, reps: 3, note: '~60%' }, { weight: 137.5, reps: 2, note: '~75%' }],
+  },
+  9: {
+    squat:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 65, reps: 5, note: '~40%' }, { weight: 97.5, reps: 3, note: '~60%' }, { weight: 122.5, reps: 2, note: '~75%' }],
+    bench:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 42.5, reps: 5, note: '~40%' }, { weight: 62.5, reps: 3, note: '~60%' }, { weight: 80, reps: 2, note: '~76%' }],
+    deadlift: [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 82.5, reps: 5, note: '~40%' }, { weight: 125, reps: 3, note: '~60%' }, { weight: 155, reps: 2, note: '~75%' }],
+  },
+  10: {
+    squat:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 65, reps: 5, note: '~40%' }, { weight: 100, reps: 3, note: '~61%' }, { weight: 125, reps: 2, note: '~76%' }],
+    bench:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 42.5, reps: 5, note: '~40%' }, { weight: 65, reps: 3, note: '~61%' }, { weight: 80, reps: 2, note: '~74%' }],
+    deadlift: [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 85, reps: 5, note: '~40%' }, { weight: 125, reps: 3, note: '~60%' }, { weight: 157.5, reps: 2, note: '~75%' }],
+  },
+  11: {
+    squat:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 67.5, reps: 5, note: '~40%' }, { weight: 100, reps: 3, note: '~60%' }, { weight: 125, reps: 2, note: '~75%' }],
+    bench:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 45, reps: 5, note: '~41%' }, { weight: 65, reps: 3, note: '~59%' }, { weight: 82.5, reps: 2, note: '~75%' }],
+    deadlift: [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 85, reps: 5, note: '~40%' }, { weight: 130, reps: 3, note: '~60%' }, { weight: 160, reps: 2, note: '~74%' }],
+  },
+  12: {
+    squat:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 62.5, reps: 5, note: '~40%' }, { weight: 92.5, reps: 3, note: '~60%' }, { weight: 115, reps: 2, note: '~74%' }],
+    bench:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 40, reps: 5, note: '~39%' }, { weight: 62.5, reps: 3, note: '~61%' }, { weight: 77.5, reps: 2, note: '~76%' }],
+    deadlift: [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 80, reps: 5, note: '~40%' }, { weight: 117.5, reps: 3, note: '~59%' }, { weight: 147.5, reps: 2, note: '~75%' }],
+  },
+  13: {
+    squat:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 67.5, reps: 5, note: '~40%' }, { weight: 102.5, reps: 3, note: '~60%' }, { weight: 127.5, reps: 2, note: '~75%' }],
+    bench:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 45, reps: 5, note: '~40%' }, { weight: 67.5, reps: 3, note: '~60%' }, { weight: 85, reps: 2, note: '~76%' }],
+    deadlift: [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 85, reps: 5, note: '~40%' }, { weight: 127.5, reps: 3, note: '~60%' }, { weight: 160, reps: 2, note: '~75%' }],
+  },
+  14: {
+    squat:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 70, reps: 5, note: '~39%' }, { weight: 107.5, reps: 3, note: '~61%' }, { weight: 132.5, reps: 2, note: '~75%' }],
+    bench:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 47.5, reps: 5, note: '~40%' }, { weight: 70, reps: 3, note: '~59%' }, { weight: 87.5, reps: 2, note: '~74%' }],
+    deadlift: [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 90, reps: 5, note: '~40%' }, { weight: 132.5, reps: 3, note: '~60%' }, { weight: 167.5, reps: 2, note: '~75%' }],
+  },
+  15: {
+    squat:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 60, reps: 5, note: '~41%' }, { weight: 87.5, reps: 3, note: '~59%' }, { weight: 110, reps: 2, note: '~75%' }],
+    bench:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 40, reps: 5, note: '~41%' }, { weight: 57.5, reps: 3, note: '~59%' }, { weight: 72.5, reps: 2, note: '~74%' }],
+    deadlift: [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 75, reps: 5, note: '~41%' }, { weight: 110, reps: 3, note: '~59%' }, { weight: 140, reps: 2, note: '~76%' }],
+  },
+  16: {
+    squat:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 75, reps: 5, note: '~39%' }, { weight: 115, reps: 3, note: '~61%' }, { weight: 142.5, reps: 2, note: '~75%' }],
+    bench:    [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 52.5, reps: 5, note: '~40%' }, { weight: 77.5, reps: 3, note: '~60%' }, { weight: 97.5, reps: 2, note: '~75%' }],
+    deadlift: [{ weight: 20, reps: 8, note: 'Tyč – pohybový vzorec' }, { weight: 95, reps: 5, note: '~40%' }, { weight: 140, reps: 3, note: '~60%' }, { weight: 175, reps: 2, note: '~74%' }],
+  },
+};
