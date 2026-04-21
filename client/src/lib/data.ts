@@ -119,7 +119,7 @@ export interface WarmupSeries {
 export const GOALS = { bench: 130, squat: 190, deadlift: 235 };
 export const STARTING_MAXES = { bench: 120, squat: 180, deadlift: 225 };
 export const CURRENT_MAXES = { bench: 120, squat: 180, deadlift: 225 };
-export const PLAN_START_DATE = '2026-04-14'; // W1 starts Monday April 14
+export const PLAN_START_DATE = '2026-04-20'; // W1 starts Sunday April 20
 
 // ============================================================
 // WARM-UP PROTOCOL (shared across all strength days)
@@ -190,7 +190,7 @@ function fullBodyDay(exercises: Exercise[]): WorkoutDay {
 // ============================================================
 
 const w1: Week = {
-  number: 1, label: 'W1 – Akumulace', dateFrom: '2026-04-14', dateTo: '2026-04-20',
+  number: 1, label: 'W1 – Akumulace', dateFrom: '2026-04-20', dateTo: '2026-04-26',
   phase: 'Fáze 1 – Akumulace', phaseKey: 'phase1',
   description: 'W1: Startovní váhy odpovídají RPE 7–8 (Tuchscherer). SQ 78 % 1RM, BP 75 %, DL 84 %. Double progression: nejprve přidej rep, pak váhu.',
   days: [
@@ -230,7 +230,7 @@ const w1: Week = {
 };
 
 const w2: Week = {
-  number: 2, label: 'W2 – Akumulace', dateFrom: '2026-04-21', dateTo: '2026-04-27',
+  number: 2, label: 'W2 – Akumulace', dateFrom: '2026-04-27', dateTo: '2026-05-03',
   phase: 'Fáze 1 – Akumulace', phaseKey: 'phase1',
   description: 'W2: Progrese +5 kg SQ, +2.5 BP. DL: reps klesají na 6 (váha roste na 195 kg = 87 % 1RM). Pokud RPE>9 → sniž o 5 % (Tuchscherer).',
   days: [
@@ -270,7 +270,7 @@ const w2: Week = {
 };
 
 const w3: Week = {
-  number: 3, label: 'W3 – Akumulace', dateFrom: '2026-04-28', dateTo: '2026-05-04',
+  number: 3, label: 'W3 – Akumulace', dateFrom: '2026-05-04', dateTo: '2026-05-10',
   phase: 'Fáze 1 – Akumulace', phaseKey: 'phase1',
   description: 'W3: Nejvyšší objem fáze. Reps klesají na 6, váha roste. SQ 83 % 1RM, BP 79 %, DL 89 %. Pokud RPE > 8.5 → sniž váhu o 5% (Tuchscherer).',
   days: [
@@ -310,7 +310,7 @@ const w3: Week = {
 };
 
 const w4: Week = {
-  number: 4, label: 'W4 – DELOAD', dateFrom: '2026-05-05', dateTo: '2026-05-11',
+  number: 4, label: 'W4 – DELOAD', dateFrom: '2026-05-11', dateTo: '2026-05-17',
   phase: 'Fáze 1 – Deload', phaseKey: 'deload', isDeload: true,
   description: 'W4: DELOAD TÝDEN. Objem −40%, intenzita ~69% (Israetel). SQ 69 % 1RM, BP 69 %, DL 73 %. Regenerace CNS. Zatsiorského dvou-faktorový model: únava odezní, fitness zůstane.',
   days: [
@@ -348,7 +348,7 @@ const w4: Week = {
 // ============================================================
 
 const w5: Week = {
-  number: 5, label: 'W5 – Síla', dateFrom: '2026-05-12', dateTo: '2026-05-18',
+  number: 5, label: 'W5 – Síla', dateFrom: '2026-05-18', dateTo: '2026-05-24',
   phase: 'Fáze 2 – Rozvoj síly', phaseKey: 'phase2',
   description: 'W5: Vstup do silové fáze. NÁJEZDNÁ 1 → NÁJEZDNÁ 2 → TOP SET → 2×BACK-OFF (Tuchscherer + Israetel). SQ 85 % 1RM, BP 81 %, DL 88 %.',
   days: [
@@ -391,7 +391,7 @@ const w5: Week = {
 };
 
 const w6: Week = {
-  number: 6, label: 'W6 – Síla', dateFrom: '2026-05-19', dateTo: '2026-05-25',
+  number: 6, label: 'W6 – Síla', dateFrom: '2026-05-25', dateTo: '2026-05-31',
   phase: 'Fáze 2 – Rozvoj síly', phaseKey: 'phase2',
   description: 'W6: Progrese +5 kg SQ, +2.5 BP, +5 DL. SQ 88 % 1RM, BP 83 %, DL 90 %. Reps klesá na 4 na top setu.',
   days: [
@@ -434,7 +434,7 @@ const w6: Week = {
 };
 
 const w7: Week = {
-  number: 7, label: 'W7 – Síla', dateFrom: '2026-05-26', dateTo: '2026-06-01',
+  number: 7, label: 'W7 – Síla', dateFrom: '2026-06-01', dateTo: '2026-06-07',
   phase: 'Fáze 2 – Rozvoj síly', phaseKey: 'phase2',
   description: 'W7: Nejvyšší intenzita fáze. Triplety na top setu. SQ 90 % 1RM, BP 88 %, DL 92 %. Volitelně: řetězy na nájezdných sériích squatu (Zatsiorsky).',
   days: [
@@ -477,7 +477,7 @@ const w7: Week = {
 };
 
 const w8: Week = {
-  number: 8, label: 'W8 – DELOAD', dateFrom: '2026-06-02', dateTo: '2026-06-08',
+  number: 8, label: 'W8 – DELOAD', dateFrom: '2026-06-08', dateTo: '2026-06-14',
   phase: 'Fáze 2 – Deload', phaseKey: 'deload', isDeload: true,
   description: 'W8: DELOAD TÝDEN. Objem −50%, váhy ~74–82 % (Israetel). SQ 82 % 1RM, BP 77 %, DL 81 %. Regenerace CNS před intenzifikací.',
   days: [
@@ -519,7 +519,7 @@ const w8: Week = {
 // ============================================================
 
 const w9: Week = {
-  number: 9, label: 'W9 – Intenzifikace', dateFrom: '2026-06-09', dateTo: '2026-06-15',
+  number: 9, label: 'W9 – Intenzifikace', dateFrom: '2026-06-15', dateTo: '2026-06-21',
   phase: 'Fáze 3 – Intenzifikace', phaseKey: 'phase3',
   description: 'W9: Vstup do intenzifikace. RAMP 1 → RAMP 2 → TOP SET → 2×BACK-OFF. SQ 90 % 1RM, BP 88 %, DL 92 %. Metoda max. úsílí (Zatsiorsky). Back-off −93 % top setu.',
   days: [
@@ -561,7 +561,7 @@ const w9: Week = {
 };
 
 const w10: Week = {
-  number: 10, label: 'W10 – Intenzifikace', dateFrom: '2026-06-16', dateTo: '2026-06-22',
+  number: 10, label: 'W10 – Intenzifikace', dateFrom: '2026-06-22', dateTo: '2026-06-28',
   phase: 'Fáze 3 – Intenzifikace', phaseKey: 'phase3',
   description: 'W10: Progrese +5 kg SQ, +2.5 BP, +7.5 DL. SQ 93 % 1RM, BP 92 %, DL 96 %. Doubles na top setu. Back-off ~93 % top setu.',
   days: [
@@ -603,7 +603,7 @@ const w10: Week = {
 };
 
 const w11: Week = {
-  number: 11, label: 'W11 – Intenzifikace', dateFrom: '2026-06-23', dateTo: '2026-06-29',
+  number: 11, label: 'W11 – Intenzifikace', dateFrom: '2026-06-29', dateTo: '2026-07-05',
   phase: 'Fáze 3 – Intenzifikace', phaseKey: 'phase3',
   description: 'W11: DELOAD + mini-peak. SQ 86 % 1RM, BP 85 %, DL 88 %. Back-off ~93 % top setu. Regenerace před W12 peakingem.',
   days: [
@@ -645,7 +645,7 @@ const w11: Week = {
 };
 
 const w12: Week = {
-  number: 12, label: 'W12 – Mini-deload', dateFrom: '2026-06-30', dateTo: '2026-07-06',
+  number: 12, label: 'W12 – Mini-deload', dateFrom: '2026-07-06', dateTo: '2026-07-12',
   phase: 'Fáze 3 – Mini-deload', phaseKey: 'deload', isDeload: true,
   description: 'W12: MINI-DELOAD před peakingem. SQ 86 % 1RM, BP 85 %, DL 88 %. Back-off ~93 % top setu. Regenerace před finální fází.',
   days: [
@@ -693,7 +693,7 @@ const w12: Week = {
 // ============================================================
 
 const w13: Week = {
-  number: 13, label: 'W13 – Peaking', dateFrom: '2026-07-07', dateTo: '2026-07-13',
+  number: 13, label: 'W13 – Peaking', dateFrom: '2026-07-13', dateTo: '2026-07-19',
   phase: 'Fáze 4 – Peaking', phaseKey: 'phase4',
   description: 'W13: Vstup do peakingu. Singles na 87.5–94.5 % 1RM. SQ 157.5/165/170 kg, BP 105/110/112.5 kg, DL 200/207.5/212.5 kg. Minimální doplňkový objem.',
   days: [
@@ -730,7 +730,7 @@ const w13: Week = {
 };
 
 const w14: Week = {
-  number: 14, label: 'W14 – Peaking', dateFrom: '2026-07-14', dateTo: '2026-07-20',
+  number: 14, label: 'W14 – Peaking', dateFrom: '2026-07-20', dateTo: '2026-07-26',
   phase: 'Fáze 4 – Peaking', phaseKey: 'phase4',
   description: 'W14: Near-max týden. SQ 177.5 kg (98.6 %), BP 117.5 kg (97.9 %), DL 222.5 kg (98.9 %). Progresivní singles. Metoda max. úsílí (Zatsiorsky s.81).',
   days: [
@@ -764,7 +764,7 @@ const w14: Week = {
 };
 
 const w15: Week = {
-  number: 15, label: 'W15 – TAPER', dateFrom: '2026-07-21', dateTo: '2026-07-27',
+  number: 15, label: 'W15 – TAPER', dateFrom: '2026-07-27', dateTo: '2026-08-02',
   phase: 'Fáze 4 – Taper', phaseKey: 'phase4', isDeload: true,
   description: 'TAPER. Drastické snížení objemu – Zatsiorského dvou-faktorový model: únava odezní, fitness zůstane → supercompensace. Žádný běh (Viada). Spánek 8–9 h.',
   days: [
@@ -785,7 +785,7 @@ const w15: Week = {
 };
 
 const w16: Week = {
-  number: 16, label: 'W16 – TEST MAXIM', dateFrom: '2026-07-28', dateTo: '2026-08-03',
+  number: 16, label: 'W16 – TEST MAXIM', dateFrom: '2026-08-03', dateTo: '2026-08-09',
   phase: 'Fáze 4 – Test maxim', phaseKey: 'phase4',
   description: 'TESTOVACÍ TÝDEN. Po: Squat max (cíl 190 kg). St: Bench max (cíl 130 kg). Pá: Deadlift max (cíl 235 kg). Warm-up dle Zatsiorského: tyč→30%→50%→65%→78%→87%→opener→second→MAX. Min. 3 min pauza mezi pokusy.',
   days: [
@@ -878,108 +878,108 @@ export const RUNNING_PROGRAM = [
 // ============================================================
 export const DEFAULT_RECORDS: RecordsMap = {
   'bench': [
-    { id: nanoid(), date: '2026-01-26', sets: '4', weight: '95', reps: '8', note: 'Fáze 1 start' },
-    { id: nanoid(), date: '2026-02-02', sets: '4', weight: '97.5', reps: '8', note: '' },
-    { id: nanoid(), date: '2026-02-09', sets: '4', weight: '100', reps: '8', note: '' },
-    { id: nanoid(), date: '2026-02-16', sets: '4', weight: '100', reps: '8', note: '' },
-    { id: nanoid(), date: '2026-02-23', sets: '4', weight: '102.5', reps: '8', note: '' },
-    { id: nanoid(), date: '2026-03-02', sets: '4', weight: '105', reps: '8', note: '' },
-    { id: nanoid(), date: '2026-03-09', sets: '4', weight: '105', reps: '8', note: '' },
-    { id: nanoid(), date: '2026-03-17', sets: '4', weight: '105', reps: '8', note: 'Poslední záznam Fáze 2' },
+    { id: nanoid(), date: '2026-02-01', sets: '4', weight: '95', reps: '8', note: 'Fáze 1 start' },
+    { id: nanoid(), date: '2026-02-08', sets: '4', weight: '97.5', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-02-15', sets: '4', weight: '100', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-02-22', sets: '4', weight: '100', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-03-01', sets: '4', weight: '102.5', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-03-08', sets: '4', weight: '105', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-03-15', sets: '4', weight: '105', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-03-23', sets: '4', weight: '105', reps: '8', note: 'Poslední záznam Fáze 2' },
   ],
   'squat': [
-    { id: nanoid(), date: '2026-01-26', sets: '4', weight: '140', reps: '5', note: 'Fáze 1 start' },
-    { id: nanoid(), date: '2026-02-02', sets: '4', weight: '145', reps: '5', note: '' },
-    { id: nanoid(), date: '2026-02-09', sets: '4', weight: '150', reps: '5', note: '' },
-    { id: nanoid(), date: '2026-02-16', sets: '4', weight: '150', reps: '5', note: '' },
-    { id: nanoid(), date: '2026-02-23', sets: '4', weight: '155', reps: '5', note: '' },
-    { id: nanoid(), date: '2026-03-02', sets: '4', weight: '160', reps: '1', note: 'Nové max!' },
-    { id: nanoid(), date: '2026-03-09', sets: '4', weight: '157.5', reps: '3', note: '' },
-    { id: nanoid(), date: '2026-03-17', sets: '4', weight: '160', reps: '3', note: 'Poslední záznam Fáze 2' },
+    { id: nanoid(), date: '2026-02-01', sets: '4', weight: '140', reps: '5', note: 'Fáze 1 start' },
+    { id: nanoid(), date: '2026-02-08', sets: '4', weight: '145', reps: '5', note: '' },
+    { id: nanoid(), date: '2026-02-15', sets: '4', weight: '150', reps: '5', note: '' },
+    { id: nanoid(), date: '2026-02-22', sets: '4', weight: '150', reps: '5', note: '' },
+    { id: nanoid(), date: '2026-03-01', sets: '4', weight: '155', reps: '5', note: '' },
+    { id: nanoid(), date: '2026-03-08', sets: '4', weight: '160', reps: '1', note: 'Nové max!' },
+    { id: nanoid(), date: '2026-03-15', sets: '4', weight: '157.5', reps: '3', note: '' },
+    { id: nanoid(), date: '2026-03-23', sets: '4', weight: '160', reps: '3', note: 'Poslední záznam Fáze 2' },
   ],
   'deadlift': [
-    { id: nanoid(), date: '2026-01-26', sets: '3', weight: '185', reps: '5', note: 'Fáze 1 start' },
-    { id: nanoid(), date: '2026-02-02', sets: '3', weight: '190', reps: '5', note: '' },
-    { id: nanoid(), date: '2026-02-09', sets: '3', weight: '195', reps: '5', note: '' },
-    { id: nanoid(), date: '2026-02-16', sets: '3', weight: '200', reps: '5', note: '' },
-    { id: nanoid(), date: '2026-02-23', sets: '3', weight: '205', reps: '3', note: '' },
-    { id: nanoid(), date: '2026-03-02', sets: '3', weight: '220', reps: '2', note: 'Nové max!' },
-    { id: nanoid(), date: '2026-03-09', sets: '3', weight: '215', reps: '3', note: '' },
-    { id: nanoid(), date: '2026-03-17', sets: '3', weight: '230', reps: '2', note: 'Poslední záznam Fáze 2' },
+    { id: nanoid(), date: '2026-02-01', sets: '3', weight: '185', reps: '5', note: 'Fáze 1 start' },
+    { id: nanoid(), date: '2026-02-08', sets: '3', weight: '190', reps: '5', note: '' },
+    { id: nanoid(), date: '2026-02-15', sets: '3', weight: '195', reps: '5', note: '' },
+    { id: nanoid(), date: '2026-02-22', sets: '3', weight: '200', reps: '5', note: '' },
+    { id: nanoid(), date: '2026-03-01', sets: '3', weight: '205', reps: '3', note: '' },
+    { id: nanoid(), date: '2026-03-08', sets: '3', weight: '220', reps: '2', note: 'Nové max!' },
+    { id: nanoid(), date: '2026-03-15', sets: '3', weight: '215', reps: '3', note: '' },
+    { id: nanoid(), date: '2026-03-23', sets: '3', weight: '230', reps: '2', note: 'Poslední záznam Fáze 2' },
   ],
   'rdl': [
-    { id: nanoid(), date: '2026-01-26', sets: '3', weight: '60', reps: '12', note: '' },
-    { id: nanoid(), date: '2026-02-09', sets: '3', weight: '65', reps: '12', note: '' },
-    { id: nanoid(), date: '2026-02-23', sets: '3', weight: '70', reps: '12', note: '' },
-    { id: nanoid(), date: '2026-03-02', sets: '3', weight: '70', reps: '12', note: '' },
-    { id: nanoid(), date: '2026-03-17', sets: '3', weight: '70', reps: '12', note: '' },
+    { id: nanoid(), date: '2026-02-01', sets: '3', weight: '60', reps: '12', note: '' },
+    { id: nanoid(), date: '2026-02-15', sets: '3', weight: '65', reps: '12', note: '' },
+    { id: nanoid(), date: '2026-03-01', sets: '3', weight: '70', reps: '12', note: '' },
+    { id: nanoid(), date: '2026-03-08', sets: '3', weight: '70', reps: '12', note: '' },
+    { id: nanoid(), date: '2026-03-23', sets: '3', weight: '70', reps: '12', note: '' },
   ],
   'leg-press': [
-    { id: nanoid(), date: '2026-01-26', sets: '3', weight: '180', reps: '12', note: '' },
-    { id: nanoid(), date: '2026-02-09', sets: '3', weight: '200', reps: '12', note: '' },
-    { id: nanoid(), date: '2026-02-23', sets: '3', weight: '210', reps: '12', note: '' },
-    { id: nanoid(), date: '2026-03-02', sets: '3', weight: '220', reps: '12', note: '' },
-    { id: nanoid(), date: '2026-03-17', sets: '3', weight: '220', reps: '12', note: '' },
+    { id: nanoid(), date: '2026-02-01', sets: '3', weight: '180', reps: '12', note: '' },
+    { id: nanoid(), date: '2026-02-15', sets: '3', weight: '200', reps: '12', note: '' },
+    { id: nanoid(), date: '2026-03-01', sets: '3', weight: '210', reps: '12', note: '' },
+    { id: nanoid(), date: '2026-03-08', sets: '3', weight: '220', reps: '12', note: '' },
+    { id: nanoid(), date: '2026-03-23', sets: '3', weight: '220', reps: '12', note: '' },
   ],
   'pullup': [
-    { id: nanoid(), date: '2026-01-26', sets: '3', weight: '0', reps: '8', note: 'BW' },
-    { id: nanoid(), date: '2026-02-09', sets: '3', weight: '5', reps: '6', note: '+5 kg' },
-    { id: nanoid(), date: '2026-02-23', sets: '3', weight: '5', reps: '8', note: '' },
-    { id: nanoid(), date: '2026-03-09', sets: '3', weight: '10', reps: '6', note: '+10 kg' },
-    { id: nanoid(), date: '2026-03-17', sets: '3', weight: '10', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-02-01', sets: '3', weight: '0', reps: '8', note: 'BW' },
+    { id: nanoid(), date: '2026-02-15', sets: '3', weight: '5', reps: '6', note: '+5 kg' },
+    { id: nanoid(), date: '2026-03-01', sets: '3', weight: '5', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-03-15', sets: '3', weight: '10', reps: '6', note: '+10 kg' },
+    { id: nanoid(), date: '2026-03-23', sets: '3', weight: '10', reps: '8', note: '' },
   ],
   'front-squat': [
-    { id: nanoid(), date: '2026-01-26', sets: '3', weight: '90', reps: '8', note: '' },
-    { id: nanoid(), date: '2026-02-09', sets: '3', weight: '95', reps: '8', note: '' },
-    { id: nanoid(), date: '2026-02-16', sets: '3', weight: '100', reps: '8', note: '' },
-    { id: nanoid(), date: '2026-02-23', sets: '3', weight: '105', reps: '8', note: '' },
-    { id: nanoid(), date: '2026-03-02', sets: '3', weight: '105', reps: '8', note: '' },
-    { id: nanoid(), date: '2026-03-17', sets: '3', weight: '105', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-02-01', sets: '3', weight: '90', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-02-15', sets: '3', weight: '95', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-02-22', sets: '3', weight: '100', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-03-01', sets: '3', weight: '105', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-03-08', sets: '3', weight: '105', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-03-23', sets: '3', weight: '105', reps: '8', note: '' },
   ],
   'pause-squat': [
-    { id: nanoid(), date: '2026-02-09', sets: '3', weight: '100', reps: '5', note: '2s pauza' },
-    { id: nanoid(), date: '2026-02-23', sets: '3', weight: '105', reps: '5', note: '' },
-    { id: nanoid(), date: '2026-03-09', sets: '3', weight: '107.5', reps: '5', note: '' },
-    { id: nanoid(), date: '2026-03-17', sets: '3', weight: '110', reps: '5', note: '' },
+    { id: nanoid(), date: '2026-02-15', sets: '3', weight: '100', reps: '5', note: '2s pauza' },
+    { id: nanoid(), date: '2026-03-01', sets: '3', weight: '105', reps: '5', note: '' },
+    { id: nanoid(), date: '2026-03-15', sets: '3', weight: '107.5', reps: '5', note: '' },
+    { id: nanoid(), date: '2026-03-23', sets: '3', weight: '110', reps: '5', note: '' },
   ],
   'spoto': [
-    { id: nanoid(), date: '2026-02-09', sets: '3', weight: '75', reps: '8', note: '2-3 cm nad hrudníkem' },
-    { id: nanoid(), date: '2026-02-23', sets: '3', weight: '80', reps: '8', note: '' },
-    { id: nanoid(), date: '2026-03-09', sets: '3', weight: '82.5', reps: '8', note: '' },
-    { id: nanoid(), date: '2026-03-17', sets: '3', weight: '85', reps: '6', note: '' },
+    { id: nanoid(), date: '2026-02-15', sets: '3', weight: '75', reps: '8', note: '2-3 cm nad hrudníkem' },
+    { id: nanoid(), date: '2026-03-01', sets: '3', weight: '80', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-03-15', sets: '3', weight: '82.5', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-03-23', sets: '3', weight: '85', reps: '6', note: '' },
   ],
   'barbell-row': [
-    { id: nanoid(), date: '2026-01-26', sets: '3', weight: '70', reps: '10', note: '' },
-    { id: nanoid(), date: '2026-02-09', sets: '3', weight: '75', reps: '10', note: '' },
-    { id: nanoid(), date: '2026-02-23', sets: '3', weight: '80', reps: '10', note: '' },
-    { id: nanoid(), date: '2026-03-09', sets: '3', weight: '85', reps: '8', note: '' },
-    { id: nanoid(), date: '2026-03-17', sets: '3', weight: '87.5', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-02-01', sets: '3', weight: '70', reps: '10', note: '' },
+    { id: nanoid(), date: '2026-02-15', sets: '3', weight: '75', reps: '10', note: '' },
+    { id: nanoid(), date: '2026-03-01', sets: '3', weight: '80', reps: '10', note: '' },
+    { id: nanoid(), date: '2026-03-15', sets: '3', weight: '85', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-03-23', sets: '3', weight: '87.5', reps: '8', note: '' },
   ],
   'dips': [
-    { id: nanoid(), date: '2026-01-26', sets: '3', weight: '0', reps: '10', note: 'BW' },
-    { id: nanoid(), date: '2026-02-09', sets: '3', weight: '5', reps: '10', note: '+5 kg' },
-    { id: nanoid(), date: '2026-02-23', sets: '3', weight: '10', reps: '8', note: '' },
-    { id: nanoid(), date: '2026-03-09', sets: '3', weight: '10', reps: '10', note: '' },
-    { id: nanoid(), date: '2026-03-17', sets: '3', weight: '15', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-02-01', sets: '3', weight: '0', reps: '10', note: 'BW' },
+    { id: nanoid(), date: '2026-02-15', sets: '3', weight: '5', reps: '10', note: '+5 kg' },
+    { id: nanoid(), date: '2026-03-01', sets: '3', weight: '10', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-03-15', sets: '3', weight: '10', reps: '10', note: '' },
+    { id: nanoid(), date: '2026-03-23', sets: '3', weight: '15', reps: '8', note: '' },
   ],
   'bulgarian': [
-    { id: nanoid(), date: '2026-02-02', sets: '3', weight: '30', reps: '10', note: '2×DB' },
-    { id: nanoid(), date: '2026-02-16', sets: '3', weight: '35', reps: '10', note: '' },
-    { id: nanoid(), date: '2026-03-02', sets: '3', weight: '40', reps: '10', note: '' },
-    { id: nanoid(), date: '2026-03-17', sets: '3', weight: '40', reps: '10', note: '' },
+    { id: nanoid(), date: '2026-02-08', sets: '3', weight: '30', reps: '10', note: '2×DB' },
+    { id: nanoid(), date: '2026-02-22', sets: '3', weight: '35', reps: '10', note: '' },
+    { id: nanoid(), date: '2026-03-08', sets: '3', weight: '40', reps: '10', note: '' },
+    { id: nanoid(), date: '2026-03-23', sets: '3', weight: '40', reps: '10', note: '' },
   ],
   'larsen': [
-    { id: nanoid(), date: '2026-02-02', sets: '3', weight: '70', reps: '10', note: 'Nohy nahoře' },
-    { id: nanoid(), date: '2026-02-16', sets: '3', weight: '75', reps: '8', note: '' },
-    { id: nanoid(), date: '2026-03-02', sets: '3', weight: '77.5', reps: '8', note: '' },
-    { id: nanoid(), date: '2026-03-17', sets: '3', weight: '80', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-02-08', sets: '3', weight: '70', reps: '10', note: 'Nohy nahoře' },
+    { id: nanoid(), date: '2026-02-22', sets: '3', weight: '75', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-03-08', sets: '3', weight: '77.5', reps: '8', note: '' },
+    { id: nanoid(), date: '2026-03-23', sets: '3', weight: '80', reps: '8', note: '' },
   ],
   'run-thu': [
-    { id: nanoid(), date: '2026-02-05', sets: '1', weight: '0', reps: '20 min', note: 'Easy run Z2' },
-    { id: nanoid(), date: '2026-02-12', sets: '1', weight: '0', reps: '25 min', note: 'Easy run Z2' },
-    { id: nanoid(), date: '2026-02-19', sets: '1', weight: '0', reps: '25 min', note: 'Easy run Z2' },
-    { id: nanoid(), date: '2026-03-05', sets: '1', weight: '0', reps: '30 min', note: 'Easy run Z2' },
-    { id: nanoid(), date: '2026-03-19', sets: '1', weight: '0', reps: '30 min', note: 'Easy run Z2' },
+    { id: nanoid(), date: '2026-02-11', sets: '1', weight: '0', reps: '20 min', note: 'Easy run Z2' },
+    { id: nanoid(), date: '2026-02-18', sets: '1', weight: '0', reps: '25 min', note: 'Easy run Z2' },
+    { id: nanoid(), date: '2026-02-25', sets: '1', weight: '0', reps: '25 min', note: 'Easy run Z2' },
+    { id: nanoid(), date: '2026-03-11', sets: '1', weight: '0', reps: '30 min', note: 'Easy run Z2' },
+    { id: nanoid(), date: '2026-03-25', sets: '1', weight: '0', reps: '30 min', note: 'Easy run Z2' },
   ],
   'ghd': [],
   'pallof': [],
