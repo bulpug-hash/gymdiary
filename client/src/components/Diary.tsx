@@ -1,8 +1,10 @@
 // Gold Performance Design – Diary Tab
+// GymDiary visual system: preserve the dark, compact, yellow-accented training diary layout.
 // BUG FIX: editace záznamu správně předává date, sets, weight, reps, note
 // NOVÉ: cviky rozděleny podle tréninkových dnů (Po/Út/Čt/Pá/So)
 import { useState, useEffect } from 'react';
 import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel, formatDate, formatDateFull, getTodayISO, RUN_LOG_KEY, HIIT_LOG_KEY } from '@/lib/data';
+import { RECOVERED_HIIT_RECORDS, RECOVERED_RUN_RECORDS } from '@/lib/recoveryData';
 import type { WorkoutDataHook } from '@/lib/types';
 import type { Exercise, TrainingRecord, WorkoutDay, RunRecord, HIITRecord } from '@/lib/data';
 import { nanoid } from 'nanoid';
@@ -536,10 +538,19 @@ const ZONE_COLORS: Record<string, string> = {
   'Zóna 5 (sprint/VO2max)': '#F87171',
 };
 
+function loadRunRecords(): RunRecord[] {
+  try {
+    const raw = localStorage.getItem(RUN_LOG_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as RunRecord[];
+      if (parsed.length > 0) return parsed;
+    }
+  } catch { /* ignore */ }
+  return RECOVERED_RUN_RECORDS;
+}
+
 function RunLog() {
-  const [runs, setRuns] = useState<RunRecord[]>(() => {
-    try { return JSON.parse(localStorage.getItem(RUN_LOG_KEY) || '[]'); } catch { return []; }
-  });
+  const [runs, setRuns] = useState<RunRecord[]>(loadRunRecords);
   const [showForm, setShowForm] = useState(false);
   const [editingRun, setEditingRun] = useState<RunRecord | null>(null);
 
@@ -789,9 +800,12 @@ function RunRow({ run, isLatest, onEdit, onDelete }: {
 function loadHIITRecords(): HIITRecord[] {
   try {
     const raw = localStorage.getItem(HIIT_LOG_KEY);
-    if (raw) return JSON.parse(raw) as HIITRecord[];
+    if (raw) {
+      const parsed = JSON.parse(raw) as HIITRecord[];
+      if (parsed.length > 0) return parsed;
+    }
   } catch { /* ignore */ }
-  return [];
+  return RECOVERED_HIIT_RECORDS;
 }
 
 function saveHIITRecords(records: HIITRecord[]) {

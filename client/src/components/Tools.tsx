@@ -1,10 +1,12 @@
 // Tools Tab – Gold Performance Design
+// GymDiary visual system: preserve the dark, compact, yellow-accented training diary layout.
 // Features: RPE kalkulačka, tělesná váha tracker, odpočinkový timer, export XLSX, zdrojové dokumenty
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTheme } from '@/contexts/ThemeContext';
 import { toast } from 'sonner';
 import { nanoid, formatDate, PHASE3_WEEKS } from '@/lib/data';
+import { RECOVERED_HIIT_RECORDS, RECOVERED_RUN_RECORDS } from '@/lib/recoveryData';
 import type { WorkoutDataHook } from '@/lib/types';
 import * as XLSX from 'xlsx';
 
@@ -666,6 +668,62 @@ function RestTimer() {
 // Export Data – XLSX multi-sheet export (identický se starým deníkem)
 // ============================================================
 function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
+  const backupInputRef = useRef<HTMLInputElement>(null);
+
+  const getStoredArray = <T,>(key: string, fallback: T[]): T[] => {
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const parsed = JSON.parse(raw) as T[];
+        if (parsed.length > 0) return parsed;
+      }
+    } catch { /* ignore */ }
+    return fallback;
+  };
+
+  const exportBackup = () => {
+    const today = new Date().toISOString().split('T')[0];
+    const backup = {
+      format: 'gymdiary-backup',
+      version: 1,
+      createdAt: new Date().toISOString(),
+      workoutRecords: workoutData.records,
+      runRecords: getStoredArray('__run_log__', RECOVERED_RUN_RECORDS),
+      hiitRecords: getStoredArray('__hiit_log__', RECOVERED_HIIT_RECORDS),
+      bodyWeightRecords: loadBodyWeights(),
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `gymdiary-zaloha-${today}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success('JSON záloha stažena ✓');
+  };
+
+  const importBackup = (event: any) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const backup = JSON.parse(String(reader.result));
+        if (backup?.format !== 'gymdiary-backup' || !backup?.workoutRecords) throw new Error('Neplatný soubor');
+        if (!window.confirm('Import nahradí současné záznamy v tomto prohlížeči. Pokračovat?')) return;
+        localStorage.setItem('gymdiary_records_v3', JSON.stringify(backup.workoutRecords));
+        localStorage.setItem('__run_log__', JSON.stringify(backup.runRecords ?? []));
+        localStorage.setItem('__hiit_log__', JSON.stringify(backup.hiitRecords ?? []));
+        localStorage.setItem(BW_STORAGE_KEY, JSON.stringify(backup.bodyWeightRecords ?? []));
+        toast.success('Záloha načtena ✓ Aplikace se obnoví.');
+        window.setTimeout(() => window.location.reload(), 700);
+      } catch {
+        toast.error('Soubor není platná záloha GymDiary');
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  };
 
   // Helper: find exercise name and day/week info from plan
   const getExerciseInfo = (exId: string) => {
@@ -932,6 +990,30 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
             <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>{bwCount} záznamů · 1 list</div>
           </div>
           <div style={{ color: '#6EE7B7', fontSize: 16 }}>↓</div>
+        </button>
+
+        <button
+          onClick={exportBackup}
+          style={{ background: 'rgba(147,197,253,0.06)', border: '1px solid rgba(147,197,253,0.18)', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', textAlign: 'left', width: '100%' }}
+        >
+          <span style={{ fontSize: 24 }}>💾</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 700, color: '#93C5FD' }}>Kompletní záloha (JSON)</div>
+            <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>Cviky, běhy, HIIT i tělesná váha · soubor lze později načíst zpět</div>
+          </div>
+          <div style={{ color: '#93C5FD', fontSize: 16 }}>↓</div>
+        </button>
+
+        <input ref={backupInputRef} type="file" accept="application/json,.json" onChange={importBackup} style={{ display: 'none' }} />
+        <button
+          onClick={() => backupInputRef.current?.click()}
+          style={{ background: 'transparent', border: '1px dashed rgba(147,197,253,0.28)', borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', textAlign: 'left', width: '100%' }}
+        >
+          <span style={{ fontSize: 20 }}>↑</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 15, fontWeight: 700, color: '#93C5FD' }}>Načíst zálohu (JSON)</div>
+            <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>Obnoví data do tohoto prohlížeče a aplikace se znovu načte</div>
+          </div>
         </button>
       </div>
 

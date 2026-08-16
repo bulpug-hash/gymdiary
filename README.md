@@ -19,12 +19,19 @@ Projekt používá **React 19**, **TypeScript**, **Vite**, **Tailwind CSS 4** a 
 | Oblast | Umístění | Poznámka |
 |---|---|---|
 | Tréninkový plán a výchozí historie | `client/src/lib/data.ts` | Obsahuje 16 týdnů, váhy, cviky, rozehřívací série a historické výchozí záznamy. |
-| Zápisy cviků | `client/src/hooks/useWorkoutData.ts` | Ukládají se do `localStorage` pod klíčem `gymdiary_records_v3`. |
-| Běhy a HIIT | `client/src/components/Diary.tsx` | Ukládají se do `localStorage` samostatně. |
+| Obnovená data 2026 | `client/src/lib/recoveryData.ts` | W1–W14 jsou rekonstruovány dle potvrzeného plánu; zahrnuje potvrzené W16 výkony a přepisy viditelných Strava záznamů. |
+| Zápisy cviků | `client/src/hooks/useWorkoutData.ts` | Ukládají se do `localStorage` pod klíčem `gymdiary_records_v3`; k původním záznamům se bezpečně připojí obnovovací data. |
+| Běhy a HIIT | `client/src/components/Diary.tsx` | Ukládají se do `localStorage` samostatně a mají obnovovací výchozí hodnoty. |
 | Přehled, plán, deník, progres a nástroje | `client/src/components/` | Zachovávejte existující strukturu záložek. |
 | Sdílený vzhled | `client/src/index.css` | Jde o tmavý, sportovní design se žlutým akcentem. |
 
-> **Omezení současné verze:** Záznamy uživatele nejsou v databázi. Vymazání dat prohlížeče, změna prohlížeče nebo použití nového zařízení může data odstranit. Než se přidá databáze nebo export/import, nepovažujte localStorage za zálohu.
+> **Omezení současné verze:** Záznamy uživatele nejsou v databázi. Vymazání dat prohlížeče, změna prohlížeče nebo použití nového zařízení může data odstranit. V záložce **Nástroje → Export dat** proto vždy stáhněte **Kompletní zálohu (JSON)**; tento soubor lze později načíst zpět jedním krokem.
+
+## Obnova a záloha dat
+
+V aplikaci jsou obnovena data po ztrátě logu: všechny silové cviky W1–W14 jsou označeny jako splněné dle schváleného plánu, W15 zůstává prázdný a W16 obsahuje pouze potvrzené výkony **Back Squat 170 kg × 1**, **Bench Press 125 kg × 1** a **Deadlift 220 kg × 4 × 1 série**. Běhy a HIIT obsahují pouze položky čitelné z dodaných screenshotů.
+
+Pro samostatné vytvoření exportů spusťte `pnpm exec tsx scripts/generate-recovery-exports.mjs`. Vznikne JSON pro opětovný import do aplikace a XLSX pro archivaci nebo předání dalšímu AI.
 
 ## Jak zadat úkol jiné AI
 

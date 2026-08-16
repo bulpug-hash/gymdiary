@@ -20,8 +20,9 @@ GymDiary je statická mobilně orientovaná aplikace v češtině pro jednoho po
 | Potřeba | Primární soubor | Poznámka |
 |---|---|---|
 | Týdny plánu, cviky, váhy, cíle, rozehřívací série | `client/src/lib/data.ts` | Změny musí zachovat pořadí dní: Po Upper, Út Rest, St HIIT, Čt Lower, Pá Run, So HIIT, Ne Full Body. |
-| Zápis a historie silových tréninků | `client/src/components/Diary.tsx`, `client/src/hooks/useWorkoutData.ts` | Současné záznamy cviků jsou v `localStorage`. |
-| Běhy a HIIT | `client/src/components/Diary.tsx` | Používají vlastní localStorage klíče. |
+| Obnovené záznamy 2026 | `client/src/lib/recoveryData.ts` | Neměňte bez výslovného souhlasu uživatele: W1–W14 podle plánu, W15 prázdný, W16 pouze tři potvrzené výkony. |
+| Zápis a historie silových tréninků | `client/src/components/Diary.tsx`, `client/src/hooks/useWorkoutData.ts` | Současné záznamy cviků jsou v `localStorage`; hook obnovu slučuje podle stabilních ID. |
+| Běhy a HIIT | `client/src/components/Diary.tsx` | Používají vlastní localStorage klíče a obnovovací data ze screenshotů. |
 | Domovská obrazovka | `client/src/components/Overview.tsx` | Zobrazuje dnešní plán a rozehřívací série. |
 | Celý plán | `client/src/components/Plan.tsx` | Neprovádějte plošné přeuspořádání karet bez žádosti uživatele. |
 | Statistiky | `client/src/components/Progress.tsx` | Pracuje s existujícími záznamy z hooku. |
@@ -32,7 +33,9 @@ GymDiary je statická mobilně orientovaná aplikace v češtině pro jednoho po
 
 > Historické záznamy v `DEFAULT_RECORDS` jsou výchozí ukázkové/historické hodnoty v aplikaci. Nikdy nevytvářejte smyšlené recenze, hodnocení, svědectví ani sportovní výkony.
 
-Tréninkové zápisy jsou nyní uložené pouze lokálně v prohlížeči. Při požadavku na bezpečné ukládání dat navrhněte nejprve export/import zálohy nebo přechod na databázi. Neprohlašujte, že lze ztracená localStorage data obnovit, pokud neexistuje export, záloha prohlížeče nebo původní zařízení.
+Tréninkové zápisy jsou nyní uložené pouze lokálně v prohlížeči. Aplikace má JSON export/import v **Nástroje → Export dat**, proto nejdřív vždy vytvořte kompletní JSON zálohu. Neprohlašujte, že lze ztracená localStorage data obnovit, pokud neexistuje tento export, záloha prohlížeče nebo původní zařízení.
+
+Obnova z 16. srpna 2026 vznikla jen z uživatelových výslovných instrukcí, existujícího plánu a čitelných údajů ze screenshotů. Nikdy automaticky nedoplňujte nečitelný tep, vzdálenost, kalorie nebo přesné hodnoty z plánovaných rozsahů.
 
 ## Povinný postup pro změnu
 

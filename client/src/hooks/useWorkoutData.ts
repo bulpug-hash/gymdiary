@@ -4,25 +4,38 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { DEFAULT_RECORDS, nanoid, type TrainingRecord, type RecordsMap } from '@/lib/data';
+import { RECOVERED_WORKOUT_RECORDS } from '@/lib/recoveryData';
 
 const STORAGE_KEY = 'gymdiary_records_v3';
 
+function mergeUniqueRecords(base: RecordsMap, additions: RecordsMap): RecordsMap {
+  const merged: RecordsMap = { ...base };
+  for (const [exerciseId, recovered] of Object.entries(additions)) {
+    const existing = merged[exerciseId] ?? [];
+    const existingIds = new Set(existing.map((record) => record.id));
+    merged[exerciseId] = [
+      ...existing,
+      ...recovered.filter((record) => !existingIds.has(record.id)),
+    ].sort((a, b) => a.date.localeCompare(b.date));
+  }
+  return merged;
+}
+
 function loadRecords(): RecordsMap {
+  let merged: RecordsMap = { ...DEFAULT_RECORDS };
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as RecordsMap;
       // Merge with defaults – add any new exercise keys that may have been added
-      const merged: RecordsMap = { ...DEFAULT_RECORDS };
       for (const key of Object.keys(parsed)) {
         merged[key] = parsed[key];
       }
-      return merged;
     }
   } catch {
     // ignore
   }
-  return { ...DEFAULT_RECORDS };
+  return mergeUniqueRecords(merged, RECOVERED_WORKOUT_RECORDS);
 }
 
 function saveRecords(records: RecordsMap) {
