@@ -489,7 +489,7 @@ function RecordRow({ record, isLatest, isPR, onEdit, onDelete }: {
                 POSLEDNÍ
               </span>
             )}
-            {isPR && (
+            {isPR && !record.planned && (
               <span style={{ fontSize: 9, background: 'rgba(255,215,0,0.2)', color: '#FFD700', padding: '2px 6px', borderRadius: 4, fontWeight: 800, border: '1px solid rgba(255,215,0,0.4)' }}>
                 🏆 ALL-TIME PR
               </span>
