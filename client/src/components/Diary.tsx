@@ -479,7 +479,12 @@ function RecordRow({ record, isLatest, isPR, onEdit, onDelete }: {
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ fontSize: 12, color: '#666' }}>{formatDateFull(record.date)}</span>
-            {isLatest && (
+            {record.planned && (
+              <span style={{ fontSize: 9, background: 'rgba(120,170,255,0.15)', color: '#7EA6FF', padding: '2px 6px', borderRadius: 4, fontWeight: 700, border: '1px solid rgba(120,170,255,0.3)' }}>
+                📋 PLÁN
+              </span>
+            )}
+            {isLatest && !record.planned && (
               <span style={{ fontSize: 9, background: 'rgba(245,200,66,0.15)', color: '#F5C842', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>
                 POSLEDNÍ
               </span>

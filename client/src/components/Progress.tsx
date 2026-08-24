@@ -41,7 +41,7 @@ export default function Progress({ workoutData }: Props) {
   const [selectedLift, setSelectedLift] = useState<LiftKey>('bench');
   const lift = LIFTS.find(l => l.key === selectedLift)!;
 
-  const records = workoutData.getRecords(lift.exerciseId);
+  const records = workoutData.getRecords(lift.exerciseId).filter(r => !r.planned);
   const chartData = records.map(r => ({
     date: formatDate(r.date),
     weight: parseFloat(r.weight) || 0,
