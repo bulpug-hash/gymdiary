@@ -3,7 +3,7 @@
 // run and HIIT records are transcribed only from visible supplied screenshots.
 
 import {
-  PHASE3_WEEKS,
+  LEGACY_PLAN_WEEKS,
   type HIITRecord,
   type RecordsMap,
   type RunRecord,
@@ -39,7 +39,7 @@ function firstRepTarget(value: string) {
 export const RECOVERED_WORKOUT_RECORDS: RecordsMap = (() => {
   const records: RecordsMap = {};
 
-  for (const week of PHASE3_WEEKS.filter((item) => item.number <= 14)) {
+  for (const week of LEGACY_PLAN_WEEKS.filter((item) => item.number <= 14)) {
     for (const day of week.days) {
       if (!['upper', 'lower', 'fullbody'].includes(day.type)) continue;
       const date = isoForDay(week.dateFrom, day.key);
