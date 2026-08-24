@@ -36,7 +36,7 @@ export default function Overview({ workoutData, onNavigate }: Props) {
       {/* Header */}
       <div style={{ padding: '20px 20px 0', borderBottom: '1px solid #1c1c1c', paddingBottom: 16 }}>
         <div style={{ color: '#F5C842', fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>
-          TRÉNINKOVÝ DENÍK · 16T. PLÁN 2026
+          TRÉNINKOVÝ DENÍK · PODZIM 2026
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <div>
@@ -45,7 +45,7 @@ export default function Overview({ workoutData, onNavigate }: Props) {
               fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em',
               lineHeight: 1.1, margin: 0, color: '#f0f0f0',
             }}>
-              Vědecky podložený<br />plán 2026 v2.0
+              Tréninkový plán<br />Podzim 2026 v5.2
             </h1>
           </div>
           <div style={{ textAlign: 'right' }}>
@@ -218,7 +218,7 @@ export default function Overview({ workoutData, onNavigate }: Props) {
             {currentWeek.description}
           </div>
           <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
-            {[['W1–4', 'Akumulace'], ['W5–8', 'Síla'], ['W9–12', 'Intenzifikace'], ['W13–16', 'Peaking']].map(([weeks, label]) => (
+            {[['W1–4', 'Akumulace'], ['W5–8', 'Síla'], ['W9–11', 'Intenzif.'], ['W12–13', 'Taper/Test']].map(([weeks, label]) => (
               <div key={weeks} style={{ flex: 1, background: 'rgba(245,200,66,0.06)', borderRadius: 8, padding: '6px 4px', textAlign: 'center', border: '1px solid rgba(245,200,66,0.12)' }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#F5C842' }}>{weeks}</div>
                 <div style={{ fontSize: 10, color: '#666', marginTop: 2 }}>{label}</div>

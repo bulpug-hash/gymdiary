@@ -1,6 +1,6 @@
 // Plan – Plán tab
 // Gold Performance Design
-// Shows: 16-week progressive plan v2.0, exercise details per day with dropset badges
+// Shows: 13-week peaking plan v5.2, exercise details per day with dropset badges
 import { useState } from 'react';
 import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel, WARMUP_PROTOCOL, WARMUP_SERIES_BY_WEEK } from '@/lib/data';
 import type { WarmupSet } from '@/lib/data';
@@ -55,10 +55,10 @@ export default function Plan({ workoutData }: Props) {
           TRÉNINKOVÝ PLÁN
         </div>
         <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: '#f0f0f0' }}>
-          Vědecky podložený plán 2026 v2.0
+          Tréninkový plán Podzim 2026 v5.2
         </h2>
         <p style={{ color: '#666', fontSize: 12, marginTop: 6, lineHeight: 1.5 }}>
-          16týdenní silově-hypertrofický program · W1–4 Akumulace · W5–8 Síla · W9–12 Intenzifikace · W13–16 Peaking
+          13týdenní peaking program · W1–4 Akumulace · W5–8 Síla · W9–11 Intenzifikace · W12 Taper · W13 Test
         </p>
       </div>
 
