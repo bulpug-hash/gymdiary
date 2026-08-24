@@ -3,7 +3,7 @@
 // Data jsou persistována v localStorage, výchozí data z data.ts
 
 import { useState, useEffect, useCallback } from 'react';
-import { DEFAULT_RECORDS, nanoid, type TrainingRecord, type RecordsMap } from '@/lib/data';
+import { DEFAULT_RECORDS, PLANNED_RECORDS, nanoid, type TrainingRecord, type RecordsMap } from '@/lib/data';
 import { RECOVERED_WORKOUT_RECORDS } from '@/lib/recoveryData';
 
 const STORAGE_KEY = 'gymdiary_records_v3';
@@ -35,7 +35,9 @@ function loadRecords(): RecordsMap {
   } catch {
     // ignore
   }
-  return mergeUniqueRecords(merged, RECOVERED_WORKOUT_RECORDS);
+  merged = mergeUniqueRecords(merged, RECOVERED_WORKOUT_RECORDS);
+  // Předvyplněný plán – přidá se jen to, co uživatel ještě nemá (podle id)
+  return mergeUniqueRecords(merged, PLANNED_RECORDS);
 }
 
 function saveRecords(records: RecordsMap) {
@@ -91,7 +93,7 @@ export function useWorkoutData() {
       const list = prev[exerciseId] ?? [];
       const updated = list.map(r =>
         r.id === recordId
-          ? { ...r, date, sets, weight, reps, note }
+          ? { ...r, date, sets, weight, reps, note, planned: false }
           : r
       );
       // Re-sort by date after update so list stays chronological
@@ -116,13 +118,13 @@ export function useWorkoutData() {
 
   // Get latest record for an exercise
   const getLatestRecord = useCallback((exerciseId: string): TrainingRecord | null => {
-    const list = getRecords(exerciseId);
+    const list = getRecords(exerciseId).filter(r => !r.planned);
     return list.length > 0 ? list[list.length - 1] : null;
   }, [getRecords]);
 
   // Get all-time PR (max weight) for an exercise
   const getAllTimePR = useCallback((exerciseId: string): number => {
-    const list = getRecords(exerciseId);
+    const list = getRecords(exerciseId).filter(r => !r.planned);
     if (list.length === 0) return 0;
     return Math.max(...list.map(r => parseFloat(r.weight) || 0));
   }, [getRecords]);
