@@ -27,14 +27,13 @@ function getCurrentWeekIndex(): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const idx = PHASE3_WEEKS.findIndex(w => {
-    const from = new Date(w.dateFrom);
-    const to = new Date(w.dateTo);
-    to.setHours(23, 59, 59, 999);
+    const from = new Date(w.dateFrom + 'T00:00:00');
+    const to = new Date(w.dateTo + 'T23:59:59');
     return today >= from && today <= to;
   });
   // If before plan start → show W1; if after plan end → show last week
   if (idx === -1) {
-    const planStart = new Date(PHASE3_WEEKS[0].dateFrom);
+    const planStart = new Date(PHASE3_WEEKS[0].dateFrom + 'T00:00:00');
     return today < planStart ? 0 : PHASE3_WEEKS.length - 1;
   }
   return idx;
@@ -291,6 +290,8 @@ function ExerciseRow({ ex, idx, total, latest }: {
           )}
         </div>
 
+      </div>
+
       {/* Přehledný rozpis pracovních sérií */}
       {ex.setPlan && ex.setPlan.length > 0 && (
         <div style={{ margin: '2px 0 8px 15px', border: '1px solid rgba(245,200,66,0.14)', borderRadius: 8, overflow: 'hidden' }}>
@@ -319,7 +320,6 @@ function ExerciseRow({ ex, idx, total, latest }: {
           })}
         </div>
       )}
-      </div>
 
       {/* Expandable description */}
       {expanded && info && (
