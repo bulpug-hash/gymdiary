@@ -265,11 +265,17 @@ function ExerciseRow({ ex, idx, total, latest }: {
               <span style={{ fontSize: 9, color: catColor, background: `${catColor}15`, border: `1px solid ${catColor}30`, borderRadius: 4, padding: '1px 5px', letterSpacing: '0.05em' }}>{info.category}</span>
             )}
           </div>
-          <div style={{ fontSize: 11, color: '#555', marginTop: 1 }}>
-            {ex.targetSets}×{ex.targetReps}
-            {ex.targetWeight ? ` · ${ex.targetWeight}` : ''}
-            {ex.note ? ` · ${ex.note}` : ''}
-          </div>
+          {ex.setPlan && ex.setPlan.length > 0 ? (
+            <div style={{ fontSize: 11, color: '#666', marginTop: 1 }}>
+              {ex.setPlan.length} pracovních sérií · klikni pro detail
+            </div>
+          ) : (
+            <div style={{ fontSize: 11, color: '#555', marginTop: 1 }}>
+              {ex.targetSets}×{ex.targetReps}
+              {ex.targetWeight ? ` · ${ex.targetWeight}` : ''}
+              {ex.note ? ` · ${ex.note}` : ''}
+            </div>
+          )}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
           {latest && (
@@ -284,6 +290,35 @@ function ExerciseRow({ ex, idx, total, latest }: {
             <div style={{ color: '#444', fontSize: 12, transition: 'transform 0.2s', transform: expanded ? 'rotate(180deg)' : 'none', flexShrink: 0 }}>ⓘ</div>
           )}
         </div>
+
+      {/* Přehledný rozpis pracovních sérií */}
+      {ex.setPlan && ex.setPlan.length > 0 && (
+        <div style={{ margin: '2px 0 8px 15px', border: '1px solid rgba(245,200,66,0.14)', borderRadius: 8, overflow: 'hidden' }}>
+          <div style={{ display: 'flex', background: 'rgba(245,200,66,0.07)', padding: '4px 8px', fontSize: 9, letterSpacing: '0.08em', color: '#8a7a4a', fontWeight: 700 }}>
+            <div style={{ width: 26 }}>#</div>
+            <div style={{ width: 74 }}>VÁHA</div>
+            <div style={{ width: 52 }}>OPAK.</div>
+            <div style={{ width: 42 }}>RPE</div>
+            <div style={{ flex: 1 }}>TYP</div>
+          </div>
+          {ex.setPlan.map((sp, i) => {
+            const hot = /OVERLOAD|TOP|CÍL|PR/.test(sp.label);
+            return (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', padding: '5px 8px', fontSize: 12,
+                background: hot ? 'rgba(245,200,66,0.10)' : (i % 2 ? 'rgba(255,255,255,0.02)' : 'transparent'),
+                borderTop: '1px solid rgba(255,255,255,0.04)',
+              }}>
+                <div style={{ width: 26, color: '#666', fontSize: 11 }}>{i + 1}.</div>
+                <div style={{ width: 74, fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 800, fontSize: 15, color: hot ? '#F5C842' : '#e8e8e8' }}>{sp.weight} kg</div>
+                <div style={{ width: 52, fontWeight: 700, color: '#d0d0d0' }}>× {sp.reps}</div>
+                <div style={{ width: 42, color: '#777', fontSize: 11 }}>{sp.rpe || '–'}</div>
+                <div style={{ flex: 1, fontSize: 10, color: hot ? '#F5C842' : '#777', fontWeight: hot ? 700 : 400 }}>{sp.label}</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
       </div>
 
       {/* Expandable description */}
