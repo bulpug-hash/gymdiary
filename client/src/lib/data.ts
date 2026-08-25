@@ -25,6 +25,8 @@ export interface Exercise {
   isSuperset?: boolean;
   supersetWith?: string;
   setType?: 'ramp' | 'topset' | 'backoff' | 'normal' | 'deload';
+  /** Rozpis jednotlivých pracovních sérií (přehledná tabulka v Plánu) */
+  setPlan?: { label: string; weight: string; reps: string; rpe?: string }[];
   description?: string;
   execution?: string;
   whyInPlan?: string;
@@ -844,14 +846,14 @@ const np1: Week = {
   description: 'Reacklimatizace, znovunastavení vah po restartu. Objem 8/6 op., jedna těžká overload expozice.',
   days: [
     npStrength(NP_MON, [
-      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '4', targetReps: '8/3/6/6', targetWeight: '145/162.5/152.5/152.5 kg', rpe: '7-8', note: 'Vlna (zapiš top/overload sérii): Objemová 145×8 → OVERLOAD 162.5×3 → Back-off 152.5×6 → Back-off 152.5×6' },
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'Objemová', weight: '145', reps: '8', rpe: '7-8' }, { label: 'OVERLOAD', weight: '162.5', reps: '3', rpe: '8' }, { label: 'Back-off', weight: '152.5', reps: '6', rpe: '7-8' }, { label: 'Back-off', weight: '152.5', reps: '6', rpe: '7-8' }], targetSets: '4', targetReps: '8/3/6/6', targetWeight: '145/162.5/152.5/152.5 kg', rpe: '7-8', note: 'Vlna (zapiš top/overload sérii): Objemová 145×8 → OVERLOAD 162.5×3 → Back-off 152.5×6 → Back-off 152.5×6' },
       { id: 'pause-squat', name: 'Pauzový dřep (2 s) — variace (na díru (2 s pauza dole))', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '132.5', note: 'Tvá 5.–7. „hlavní“ série na dřep. Sticking point.' },
       { id: 'bulgarian', name: 'Bulharský dřep (činky)', category: 'accessory', targetSets: '3', targetReps: '8–10/nohu', targetWeight: '2× činka střední', note: 'unilaterální quad + hýždě. Rotuje po blocích. Nízký–střední objem – nohy šetříme; když je readiness nízký, tenhle slot ubereš první.' },
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
     npStrength(NP_TUE, [
-      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', targetSets: '4', targetReps: '8/3/6/6', targetWeight: '100/112.5/105/105 kg', rpe: '7-8', note: 'Vlna (zapiš top/overload sérii): Objemová 100×8 → OVERLOAD 112.5×3 → Back-off 105×6 → Back-off 105×6' },
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Objemová', weight: '100', reps: '8', rpe: '7-8' }, { label: 'OVERLOAD', weight: '112.5', reps: '3', rpe: '8' }, { label: 'Back-off', weight: '105', reps: '6', rpe: '7-8' }, { label: 'Back-off', weight: '105', reps: '6', rpe: '7-8' }], targetSets: '4', targetReps: '8/3/6/6', targetWeight: '100/112.5/105/105 kg', rpe: '7-8', note: 'Vlna (zapiš top/overload sérii): Objemová 100×8 → OVERLOAD 112.5×3 → Back-off 105×6 → Back-off 105×6' },
       { id: 'spoto', name: 'Spoto press (2–3 cm nad hrudí) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: '100', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-pushdown', name: 'Triceps pushdown (kladka)', category: 'isolation', targetSets: '3', targetReps: '10–12', targetWeight: 'střední', note: 'Náhrada dipů – loketní izolace, šetří ramena. Rotuje po blocích.' },
       { id: 'pullup', name: 'Weighted pull-up (podhmat úzko – BICEPS)', category: 'accessory', targetSets: '3', targetReps: '8', note: 'Tvůj pull-up #1 – biceps varianta. Každý push den. Úchop rotuje.' },
@@ -862,7 +864,7 @@ const np1: Week = {
     npWedHiit(),
     npThuRest(),
     npStrength(NP_FRI, [
-      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', targetSets: '3', targetReps: '8/3/6', targetWeight: '180/202.5/190 kg', rpe: '7-8', note: 'Vlna (zapiš top/overload sérii): Objemová 180×8 → OVERLOAD 202.5×3 → Back-off 190×6' },
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Objemová', weight: '180', reps: '8', rpe: '7-8' }, { label: 'OVERLOAD', weight: '202.5', reps: '3', rpe: '8' }, { label: 'Back-off', weight: '190', reps: '6', rpe: '7-8' }], targetSets: '3', targetReps: '8/3/6', targetWeight: '180/202.5/190 kg', rpe: '7-8', note: 'Vlna (zapiš top/overload sérii): Objemová 180×8 → OVERLOAD 202.5×3 → Back-off 190×6' },
       { id: 'barbell-row', name: 'Barbell row (v předklonu) — silná záda = silný tah', category: 'accessory', targetSets: '3', targetReps: '8–10', targetWeight: '82.5', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '8', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
       { id: 'bicep-curl-2', name: 'Bicepsový zdvih (kladívkový (hammer)) — 2. expozice', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Biceps podruhé v týdnu. Varianta rotuje.' },
@@ -879,14 +881,14 @@ const np2: Week = {
   description: 'Double progression – přidat opakování/váhu. Overload dvojka.',
   days: [
     npStrength(NP_MON, [
-      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '4', targetReps: '8/2/6/5', targetWeight: '147.5/167.5/152.5/152.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Objemová 147.5×8 → OVERLOAD 167.5×2 → Back-off 152.5×6 → Back-off 152.5×5' },
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'Objemová', weight: '147.5', reps: '8', rpe: '8' }, { label: 'OVERLOAD', weight: '167.5', reps: '2', rpe: '8' }, { label: 'Back-off', weight: '152.5', reps: '6', rpe: '8' }, { label: 'Back-off', weight: '152.5', reps: '5', rpe: '8' }], targetSets: '4', targetReps: '8/2/6/5', targetWeight: '147.5/167.5/152.5/152.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Objemová 147.5×8 → OVERLOAD 167.5×2 → Back-off 152.5×6 → Back-off 152.5×5' },
       { id: 'pause-squat', name: 'Pauzový dřep (2 s) — variace (na díru (2 s pauza dole))', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '132.5', note: 'Tvá 5.–7. „hlavní“ série na dřep. Sticking point.' },
       { id: 'bulgarian', name: 'Bulharský dřep (činky)', category: 'accessory', targetSets: '3', targetReps: '8–10/nohu', targetWeight: '2× činka střední', note: 'unilaterální quad + hýždě. Rotuje po blocích. Nízký–střední objem – nohy šetříme; když je readiness nízký, tenhle slot ubereš první.' },
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
     npStrength(NP_TUE, [
-      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', targetSets: '4', targetReps: '8/2/6/5', targetWeight: '102.5/115/107.5/107.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Objemová 102.5×8 → OVERLOAD 115×2 → Back-off 107.5×6 → Back-off 107.5×5' },
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Objemová', weight: '102.5', reps: '8', rpe: '8' }, { label: 'OVERLOAD', weight: '115', reps: '2', rpe: '8' }, { label: 'Back-off', weight: '107.5', reps: '6', rpe: '8' }, { label: 'Back-off', weight: '107.5', reps: '5', rpe: '8' }], targetSets: '4', targetReps: '8/2/6/5', targetWeight: '102.5/115/107.5/107.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Objemová 102.5×8 → OVERLOAD 115×2 → Back-off 107.5×6 → Back-off 107.5×5' },
       { id: 'spoto', name: 'Spoto press (2–3 cm nad hrudí) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: '100', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-pushdown', name: 'Triceps pushdown (kladka)', category: 'isolation', targetSets: '3', targetReps: '10–12', targetWeight: 'střední', note: 'Náhrada dipů – loketní izolace, šetří ramena. Rotuje po blocích.' },
       { id: 'pullup', name: 'Weighted pull-up (podhmat úzko – BICEPS)', category: 'accessory', targetSets: '3', targetReps: '8', note: 'Tvůj pull-up #1 – biceps varianta. Každý push den. Úchop rotuje.' },
@@ -897,7 +899,7 @@ const np2: Week = {
     npWedHiit(),
     npThuRest(),
     npStrength(NP_FRI, [
-      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', targetSets: '3', targetReps: '8/2/6', targetWeight: '185/207.5/195 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Objemová 185×8 → OVERLOAD 207.5×2 → Back-off 195×6' },
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Objemová', weight: '185', reps: '8', rpe: '8' }, { label: 'OVERLOAD', weight: '207.5', reps: '2', rpe: '8' }, { label: 'Back-off', weight: '195', reps: '6', rpe: '8' }], targetSets: '3', targetReps: '8/2/6', targetWeight: '185/207.5/195 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Objemová 185×8 → OVERLOAD 207.5×2 → Back-off 195×6' },
       { id: 'barbell-row', name: 'Barbell row (v předklonu) — silná záda = silný tah', category: 'accessory', targetSets: '3', targetReps: '8–10', targetWeight: '82.5', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '8', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
       { id: 'bicep-curl-2', name: 'Bicepsový zdvih (kladívkový (hammer)) — 2. expozice', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Biceps podruhé v týdnu. Varianta rotuje.' },
@@ -914,14 +916,14 @@ const np3: Week = {
   description: 'Vrchol akumulace (tvůj oblíbený „týden 3“ styl). Nejvyšší objem bloku.',
   days: [
     npStrength(NP_MON, [
-      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '4', targetReps: '6/2/6/5', targetWeight: '152.5/170/155/155 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Objemová 152.5×6 → OVERLOAD 170×2 → Back-off 155×6 → Back-off 155×5' },
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'Objemová', weight: '152.5', reps: '6', rpe: '8' }, { label: 'OVERLOAD', weight: '170', reps: '2', rpe: '8-9' }, { label: 'Back-off', weight: '155', reps: '6', rpe: '8' }, { label: 'Back-off', weight: '155', reps: '5', rpe: '8' }], targetSets: '4', targetReps: '6/2/6/5', targetWeight: '152.5/170/155/155 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Objemová 152.5×6 → OVERLOAD 170×2 → Back-off 155×6 → Back-off 155×5' },
       { id: 'pause-squat', name: 'Pauzový dřep (2 s) — variace (na díru (2 s pauza dole))', category: 'accessory', targetSets: '3', targetReps: '3', targetWeight: '145', note: 'Tvá 5.–7. „hlavní“ série na dřep. Sticking point.' },
       { id: 'bulgarian', name: 'Bulharský dřep (činky)', category: 'accessory', targetSets: '3', targetReps: '6/nohu', targetWeight: '2× činka střední', note: 'unilaterální quad + hýždě. Rotuje po blocích. Nízký–střední objem – nohy šetříme; když je readiness nízký, tenhle slot ubereš první.' },
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
     npStrength(NP_TUE, [
-      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', targetSets: '4', targetReps: '6/2/6/5', targetWeight: '105/117.5/110/110 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Objemová 105×6 → OVERLOAD 117.5×2 → Back-off 110×6 → Back-off 110×5' },
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Objemová', weight: '105', reps: '6', rpe: '8' }, { label: 'OVERLOAD', weight: '117.5', reps: '2', rpe: '8-9' }, { label: 'Back-off', weight: '110', reps: '6', rpe: '8' }, { label: 'Back-off', weight: '110', reps: '5', rpe: '8' }], targetSets: '4', targetReps: '6/2/6/5', targetWeight: '105/117.5/110/110 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Objemová 105×6 → OVERLOAD 117.5×2 → Back-off 110×6 → Back-off 110×5' },
       { id: 'paused-bench', name: 'Pauzový bench (2 s) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '4', targetWeight: '105', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-pushdown', name: 'Triceps pushdown (kladka)', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Náhrada dipů – loketní izolace, šetří ramena. Rotuje po blocích.' },
       { id: 'pullup', name: 'Weighted pull-up (podhmat úzko – BICEPS)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Tvůj pull-up #1 – biceps varianta. Každý push den. Úchop rotuje.' },
@@ -931,7 +933,7 @@ const np3: Week = {
     npWedHiit(),
     npThuRest(),
     npStrength(NP_FRI, [
-      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', targetSets: '3', targetReps: '6/2/6', targetWeight: '187.5/212.5/197.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Objemová 187.5×6 → OVERLOAD 212.5×2 → Back-off 197.5×6' },
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Objemová', weight: '187.5', reps: '6', rpe: '8' }, { label: 'OVERLOAD', weight: '212.5', reps: '2', rpe: '8-9' }, { label: 'Back-off', weight: '197.5', reps: '6', rpe: '8' }], targetSets: '3', targetReps: '6/2/6', targetWeight: '187.5/212.5/197.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Objemová 187.5×6 → OVERLOAD 212.5×2 → Back-off 197.5×6' },
       { id: 'barbell-row', name: 'Barbell row (v předklonu) — silná záda = silný tah', category: 'accessory', targetSets: '4', targetReps: '5', targetWeight: '97.5', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
       { id: 'bicep-curl-2', name: 'Bicepsový zdvih (kladívkový (hammer)) — 2. expozice', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Biceps podruhé v týdnu. Varianta rotuje.' },
@@ -949,12 +951,12 @@ const np4: Week = {
   description: 'Deload −40 % objemu. Aktivní regenerace, technika. HRV/readiness zpět nahoru.',
   days: [
     npStrength(NP_MON, [
-      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '3', targetReps: '5/5/5', targetWeight: '130/130/132.5 kg', rpe: '6', note: 'Vlna (zapiš top/overload sérii): Deload 130×5 → Deload 130×5 → Deload 132.5×5' },
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'Deload', weight: '130', reps: '5', rpe: '6' }, { label: 'Deload', weight: '130', reps: '5', rpe: '6' }, { label: 'Deload', weight: '132.5', reps: '5', rpe: '6-7' }], targetSets: '3', targetReps: '5/5/5', targetWeight: '130/130/132.5 kg', rpe: '6', note: 'Vlna (zapiš top/overload sérii): Deload 130×5 → Deload 130×5 → Deload 132.5×5' },
       { id: 'pause-squat', name: 'Pauzový dřep (2 s)', category: 'accessory', targetSets: '2', targetReps: '5', targetWeight: '115', note: 'Lehce, technika v díře.' },
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '2', targetReps: '10', note: 'Břicho – každý trénink.' },
     ]),
     npStrength(NP_TUE, [
-      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', targetSets: '3', targetReps: '5/5/5', targetWeight: '90/90/92.5 kg', rpe: '6', note: 'Vlna (zapiš top/overload sérii): Deload 90×5 → Deload 90×5 → Deload 92.5×5' },
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Deload', weight: '90', reps: '5', rpe: '6' }, { label: 'Deload', weight: '90', reps: '5', rpe: '6' }, { label: 'Deload', weight: '92.5', reps: '5', rpe: '6-7' }], targetSets: '3', targetReps: '5/5/5', targetWeight: '90/90/92.5 kg', rpe: '6', note: 'Vlna (zapiš top/overload sérii): Deload 90×5 → Deload 90×5 → Deload 92.5×5' },
       { id: 'pullup', name: 'Weighted pull-up (podhmat úzko – biceps)', category: 'accessory', targetSets: '2', targetReps: '6', note: 'Lehce.' },
       { id: 'face-pulls', name: 'Face pulls', category: 'prevention', targetSets: '3', targetReps: '15', targetWeight: 'lehká', note: 'Prehab ramen.' },
       { id: 'ab-wheel', name: 'Ab wheel', category: 'core', targetSets: '2', targetReps: '10', note: 'Břicho.' },
@@ -962,7 +964,7 @@ const np4: Week = {
     npWedHiit(),
     npThuRest(),
     npStrength(NP_FRI, [
-      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', targetSets: '3', targetReps: '5/5/5', targetWeight: '160/160/165 kg', rpe: '6', note: 'Vlna (zapiš top/overload sérii): Deload 160×5 → Deload 160×5 → Deload 165×5' },
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Deload', weight: '160', reps: '5', rpe: '6' }, { label: 'Deload', weight: '160', reps: '5', rpe: '6' }, { label: 'Deload', weight: '165', reps: '5', rpe: '6-7' }], targetSets: '3', targetReps: '5/5/5', targetWeight: '160/160/165 kg', rpe: '6', note: 'Vlna (zapiš top/overload sérii): Deload 160×5 → Deload 160×5 → Deload 165×5' },
       { id: 'barbell-row', name: 'Barbell row (v předklonu)', category: 'accessory', targetSets: '2', targetReps: '8', targetWeight: '72.5', note: 'Lehce, záda.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – záda)', category: 'accessory', targetSets: '2', targetReps: '6', note: 'Lehce.' },
       { id: 'ab-wheel-dl', name: 'Ab wheel', category: 'core', targetSets: '2', targetReps: '10', note: 'Břicho.' },
@@ -978,14 +980,14 @@ const np5: Week = {
   description: 'Vstup do síly. Zavádíme pětky/trojky. Ramp → top → overload → back-off.',
   days: [
     npStrength(NP_MON, [
-      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '4', targetReps: '5/3/5/5', targetWeight: '157.5/165/152.5/152.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): TOP 157.5×5 → OVERLOAD 165×3 → Back-off 152.5×5 → Back-off 152.5×5' },
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'TOP', weight: '157.5', reps: '5', rpe: '8' }, { label: 'OVERLOAD', weight: '165', reps: '3', rpe: '8-9' }, { label: 'Back-off', weight: '152.5', reps: '5', rpe: '8' }, { label: 'Back-off', weight: '152.5', reps: '5', rpe: '8' }], targetSets: '4', targetReps: '5/3/5/5', targetWeight: '157.5/165/152.5/152.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): TOP 157.5×5 → OVERLOAD 165×3 → Back-off 152.5×5 → Back-off 152.5×5' },
       { id: 'pin-squat', name: 'Pin dřep (z kolíků) — variace (z mrtvého bodu)', category: 'accessory', targetSets: '3', targetReps: '3', targetWeight: '145', note: 'Tvá 5.–7. „hlavní“ série na dřep. Sticking point.' },
       { id: 'walking-lunges', name: 'Chodící výpady (činky)', category: 'accessory', targetSets: '3', targetReps: '8/nohu', targetWeight: '2× činka lehká–stř.', note: 'unilaterální, quad + hýždě, mobilita kyčle. Rotuje po blocích. Nízký–střední objem – nohy šetříme; když je readiness nízký, tenhle slot ubereš první.' },
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
     npStrength(NP_TUE, [
-      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', targetSets: '4', targetReps: '5/3/5/5', targetWeight: '107.5/112.5/105/105 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): TOP 107.5×5 → OVERLOAD 112.5×3 → Back-off 105×5 → Back-off 105×5' },
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'TOP', weight: '107.5', reps: '5', rpe: '8' }, { label: 'OVERLOAD', weight: '112.5', reps: '3', rpe: '8-9' }, { label: 'Back-off', weight: '105', reps: '5', rpe: '8' }, { label: 'Back-off', weight: '105', reps: '5', rpe: '8' }], targetSets: '4', targetReps: '5/3/5/5', targetWeight: '107.5/112.5/105/105 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): TOP 107.5×5 → OVERLOAD 112.5×3 → Back-off 105×5 → Back-off 105×5' },
       { id: 'long-pause-bench', name: 'Dlouhý pauzový bench (3 s) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '4', targetWeight: '102.5', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-overhead', name: 'Overhead extension s lanem', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Náhrada dipů – protažený triceps, šetří ramena. Rotuje po blocích.' },
       { id: 'pullup', name: 'Weighted pull-up (neutrální úchop – BICEPS)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Tvůj pull-up #1 – biceps varianta. Každý push den. Úchop rotuje.' },
@@ -995,7 +997,7 @@ const np5: Week = {
     npWedHiit(),
     npThuRest(),
     npStrength(NP_FRI, [
-      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', targetSets: '3', targetReps: '5/3/5', targetWeight: '195/205/187.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): TOP 195×5 → OVERLOAD 205×3 → Back-off 187.5×5' },
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'TOP', weight: '195', reps: '5', rpe: '8' }, { label: 'OVERLOAD', weight: '205', reps: '3', rpe: '8-9' }, { label: 'Back-off', weight: '187.5', reps: '5', rpe: '8' }], targetSets: '3', targetReps: '5/3/5', targetWeight: '195/205/187.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): TOP 195×5 → OVERLOAD 205×3 → Back-off 187.5×5' },
       { id: 'chest-supported-row', name: 'Chest-supported row (na lavici/stroji) — silná záda = silný tah', category: 'accessory', targetSets: '4', targetReps: '5', targetWeight: 'stroj těžká', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat střední – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
       { id: 'bicep-curl-2', name: 'Bicepsový zdvih (jednoručky) — 2. expozice', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Biceps podruhé v týdnu. Varianta rotuje.' },
@@ -1013,14 +1015,14 @@ const np6: Week = {
   description: 'Progrese, čtyřky na top setu. Objem doplňků nahoru (objemový týden).',
   days: [
     npStrength(NP_MON, [
-      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '4', targetReps: '4/2/5/4', targetWeight: '160/167.5/155/155 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): TOP 160×4 → OVERLOAD 167.5×2 → Back-off 155×5 → Back-off 155×4' },
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'TOP', weight: '160', reps: '4', rpe: '8' }, { label: 'OVERLOAD', weight: '167.5', reps: '2', rpe: '9' }, { label: 'Back-off', weight: '155', reps: '5', rpe: '8' }, { label: 'Back-off', weight: '155', reps: '4', rpe: '8' }], targetSets: '4', targetReps: '4/2/5/4', targetWeight: '160/167.5/155/155 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): TOP 160×4 → OVERLOAD 167.5×2 → Back-off 155×5 → Back-off 155×4' },
       { id: 'pin-squat', name: 'Pin dřep (z kolíků) — variace (z mrtvého bodu)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '132.5', note: 'Tvá 5.–7. „hlavní“ série na dřep. Sticking point.' },
       { id: 'walking-lunges', name: 'Chodící výpady (činky)', category: 'accessory', targetSets: '3', targetReps: '10/nohu', targetWeight: '2× činka lehká–stř.', note: 'unilaterální, quad + hýždě, mobilita kyčle. Rotuje po blocích. Nízký–střední objem – nohy šetříme; když je readiness nízký, tenhle slot ubereš první.' },
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
     npStrength(NP_TUE, [
-      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', targetSets: '4', targetReps: '4/2/5/4', targetWeight: '110/115/107.5/107.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): TOP 110×4 → OVERLOAD 115×2 → Back-off 107.5×5 → Back-off 107.5×4' },
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'TOP', weight: '110', reps: '4', rpe: '8' }, { label: 'OVERLOAD', weight: '115', reps: '2', rpe: '9' }, { label: 'Back-off', weight: '107.5', reps: '5', rpe: '8' }, { label: 'Back-off', weight: '107.5', reps: '4', rpe: '8' }], targetSets: '4', targetReps: '4/2/5/4', targetWeight: '110/115/107.5/107.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): TOP 110×4 → OVERLOAD 115×2 → Back-off 107.5×5 → Back-off 107.5×4' },
       { id: 'spoto', name: 'Spoto press (2–3 cm nad hrudí) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: '100', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-overhead', name: 'Overhead extension s lanem', category: 'isolation', targetSets: '3', targetReps: '10–12', targetWeight: 'střední', note: 'Náhrada dipů – protažený triceps, šetří ramena. Rotuje po blocích.' },
       { id: 'pullup', name: 'Weighted pull-up (neutrální úchop – BICEPS)', category: 'accessory', targetSets: '3', targetReps: '8', note: 'Tvůj pull-up #1 – biceps varianta. Každý push den. Úchop rotuje.' },
@@ -1031,7 +1033,7 @@ const np6: Week = {
     npWedHiit(),
     npThuRest(),
     npStrength(NP_FRI, [
-      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', targetSets: '3', targetReps: '4/2/5', targetWeight: '200/210/192.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): TOP 200×4 → OVERLOAD 210×2 → Back-off 192.5×5' },
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'TOP', weight: '200', reps: '4', rpe: '8' }, { label: 'OVERLOAD', weight: '210', reps: '2', rpe: '9' }, { label: 'Back-off', weight: '192.5', reps: '5', rpe: '8' }], targetSets: '3', targetReps: '4/2/5', targetWeight: '200/210/192.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): TOP 200×4 → OVERLOAD 210×2 → Back-off 192.5×5' },
       { id: 'chest-supported-row', name: 'Chest-supported row (na lavici/stroji) — silná záda = silný tah', category: 'accessory', targetSets: '3', targetReps: '8–10', targetWeight: 'stroj střední', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat střední – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '8', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
       { id: 'bicep-curl-2', name: 'Bicepsový zdvih (jednoručky) — 2. expozice', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Biceps podruhé v týdnu. Varianta rotuje.' },
@@ -1048,14 +1050,14 @@ const np7: Week = {
   description: 'Nejvyšší intenzita bloku B – trojky/dvojky. Silové doplňky.',
   days: [
     npStrength(NP_MON, [
-      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '4', targetReps: '3/2/4/4', targetWeight: '167.5/172.5/157.5/157.5 kg', rpe: '8-9', note: 'Vlna (zapiš top/overload sérii): TOP 167.5×3 → OVERLOAD 172.5×2 → Back-off 157.5×4 → Back-off 157.5×4' },
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'TOP', weight: '167.5', reps: '3', rpe: '8-9' }, { label: 'OVERLOAD', weight: '172.5', reps: '2', rpe: '9' }, { label: 'Back-off', weight: '157.5', reps: '4', rpe: '8' }, { label: 'Back-off', weight: '157.5', reps: '4', rpe: '8' }], targetSets: '4', targetReps: '3/2/4/4', targetWeight: '167.5/172.5/157.5/157.5 kg', rpe: '8-9', note: 'Vlna (zapiš top/overload sérii): TOP 167.5×3 → OVERLOAD 172.5×2 → Back-off 157.5×4 → Back-off 157.5×4' },
       { id: 'pin-squat', name: 'Pin dřep (z kolíků) — variace (z mrtvého bodu)', category: 'accessory', targetSets: '3', targetReps: '3', targetWeight: '145', note: 'Tvá 5.–7. „hlavní“ série na dřep. Sticking point.' },
       { id: 'walking-lunges', name: 'Chodící výpady (činky)', category: 'accessory', targetSets: '3', targetReps: '8/nohu', targetWeight: '2× činka lehká–stř.', note: 'unilaterální, quad + hýždě, mobilita kyčle. Rotuje po blocích. Nízký–střední objem – nohy šetříme; když je readiness nízký, tenhle slot ubereš první.' },
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
     npStrength(NP_TUE, [
-      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', targetSets: '4', targetReps: '3/2/4/4', targetWeight: '115/117.5/107.5/107.5 kg', rpe: '8-9', note: 'Vlna (zapiš top/overload sérii): TOP 115×3 → OVERLOAD 117.5×2 → Back-off 107.5×4 → Back-off 107.5×4' },
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'TOP', weight: '115', reps: '3', rpe: '8-9' }, { label: 'OVERLOAD', weight: '117.5', reps: '2', rpe: '9' }, { label: 'Back-off', weight: '107.5', reps: '4', rpe: '8' }, { label: 'Back-off', weight: '107.5', reps: '4', rpe: '8' }], targetSets: '4', targetReps: '3/2/4/4', targetWeight: '115/117.5/107.5/107.5 kg', rpe: '8-9', note: 'Vlna (zapiš top/overload sérii): TOP 115×3 → OVERLOAD 117.5×2 → Back-off 107.5×4 → Back-off 107.5×4' },
       { id: 'long-pause-bench', name: 'Dlouhý pauzový bench (3 s) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '4', targetWeight: '102.5', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-overhead', name: 'Overhead extension s lanem', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Náhrada dipů – protažený triceps, šetří ramena. Rotuje po blocích.' },
       { id: 'pullup', name: 'Weighted pull-up (neutrální úchop – BICEPS)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Tvůj pull-up #1 – biceps varianta. Každý push den. Úchop rotuje.' },
@@ -1065,7 +1067,7 @@ const np7: Week = {
     npWedHiit(),
     npThuRest(),
     npStrength(NP_FRI, [
-      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', targetSets: '3', targetReps: '3/2/4', targetWeight: '207.5/215/195 kg', rpe: '8-9', note: 'Vlna (zapiš top/overload sérii): TOP 207.5×3 → OVERLOAD 215×2 → Back-off 195×4' },
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'TOP', weight: '207.5', reps: '3', rpe: '8-9' }, { label: 'OVERLOAD', weight: '215', reps: '2', rpe: '9' }, { label: 'Back-off', weight: '195', reps: '4', rpe: '8' }], targetSets: '3', targetReps: '3/2/4', targetWeight: '207.5/215/195 kg', rpe: '8-9', note: 'Vlna (zapiš top/overload sérii): TOP 207.5×3 → OVERLOAD 215×2 → Back-off 195×4' },
       { id: 'chest-supported-row', name: 'Chest-supported row (na lavici/stroji) — silná záda = silný tah', category: 'accessory', targetSets: '4', targetReps: '5', targetWeight: 'stroj těžká', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat střední – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
       { id: 'bicep-curl-2', name: 'Bicepsový zdvih (jednoručky) — 2. expozice', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Biceps podruhé v týdnu. Varianta rotuje.' },
@@ -1083,12 +1085,12 @@ const np8: Week = {
   description: 'Deload −50 %. Před intenzifikací plně zregenerovat.',
   days: [
     npStrength(NP_MON, [
-      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '3', targetReps: '3/3/3', targetWeight: '140/140/142.5 kg', rpe: '6-7', note: 'Vlna (zapiš top/overload sérii): Deload 140×3 → Deload 140×3 → Deload 142.5×3' },
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'Deload', weight: '140', reps: '3', rpe: '6-7' }, { label: 'Deload', weight: '140', reps: '3', rpe: '6-7' }, { label: 'Deload', weight: '142.5', reps: '3', rpe: '7' }], targetSets: '3', targetReps: '3/3/3', targetWeight: '140/140/142.5 kg', rpe: '6-7', note: 'Vlna (zapiš top/overload sérii): Deload 140×3 → Deload 140×3 → Deload 142.5×3' },
       { id: 'pause-squat', name: 'Pauzový dřep (2 s)', category: 'accessory', targetSets: '2', targetReps: '3', targetWeight: '125', note: 'Lehce, technika v díře.' },
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '2', targetReps: '10', note: 'Břicho – každý trénink.' },
     ]),
     npStrength(NP_TUE, [
-      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', targetSets: '3', targetReps: '3/3/3', targetWeight: '95/95/97.5 kg', rpe: '6-7', note: 'Vlna (zapiš top/overload sérii): Deload 95×3 → Deload 95×3 → Deload 97.5×3' },
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Deload', weight: '95', reps: '3', rpe: '6-7' }, { label: 'Deload', weight: '95', reps: '3', rpe: '6-7' }, { label: 'Deload', weight: '97.5', reps: '3', rpe: '7' }], targetSets: '3', targetReps: '3/3/3', targetWeight: '95/95/97.5 kg', rpe: '6-7', note: 'Vlna (zapiš top/overload sérii): Deload 95×3 → Deload 95×3 → Deload 97.5×3' },
       { id: 'pullup', name: 'Weighted pull-up (neutrální úchop – biceps)', category: 'accessory', targetSets: '2', targetReps: '6', note: 'Lehce.' },
       { id: 'face-pulls', name: 'Face pulls', category: 'prevention', targetSets: '3', targetReps: '15', targetWeight: 'lehká', note: 'Prehab ramen.' },
       { id: 'ab-wheel', name: 'Ab wheel', category: 'core', targetSets: '2', targetReps: '10', note: 'Břicho.' },
@@ -1096,7 +1098,7 @@ const np8: Week = {
     npWedHiit(),
     npThuRest(),
     npStrength(NP_FRI, [
-      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', targetSets: '3', targetReps: '3/3/3', targetWeight: '172.5/172.5/177.5 kg', rpe: '6-7', note: 'Vlna (zapiš top/overload sérii): Deload 172.5×3 → Deload 172.5×3 → Deload 177.5×3' },
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Deload', weight: '172.5', reps: '3', rpe: '6-7' }, { label: 'Deload', weight: '172.5', reps: '3', rpe: '6-7' }, { label: 'Deload', weight: '177.5', reps: '3', rpe: '7' }], targetSets: '3', targetReps: '3/3/3', targetWeight: '172.5/172.5/177.5 kg', rpe: '6-7', note: 'Vlna (zapiš top/overload sérii): Deload 172.5×3 → Deload 172.5×3 → Deload 177.5×3' },
       { id: 'chest-supported-row', name: 'Chest-supported row (na lavici/stroji)', category: 'accessory', targetSets: '2', targetReps: '8', targetWeight: 'stroj lehká', note: 'Lehce, záda.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat střední – záda)', category: 'accessory', targetSets: '2', targetReps: '6', note: 'Lehce.' },
       { id: 'ab-wheel-dl', name: 'Ab wheel', category: 'core', targetSets: '2', targetReps: '10', note: 'Břicho.' },
@@ -1112,14 +1114,14 @@ const np9: Week = {
   description: 'Vstup do intenzifikace – tvůj „pozdní“ vlnový systém: dvojka na top, pak objemové back-offy. 120 na benchi má být LEHKÝCH.',
   days: [
     npStrength(NP_MON, [
-      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '4', targetReps: '3/2/5/5', targetWeight: '162.5/172.5/157.5/157.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Nájezd 162.5×3 → TOP 172.5×2 → Back-off 157.5×5 → Back-off 157.5×5' },
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'Nájezd', weight: '162.5', reps: '3', rpe: '8' }, { label: 'TOP', weight: '172.5', reps: '2', rpe: '9' }, { label: 'Back-off', weight: '157.5', reps: '5', rpe: '8' }, { label: 'Back-off', weight: '157.5', reps: '5', rpe: '8' }], targetSets: '4', targetReps: '3/2/5/5', targetWeight: '162.5/172.5/157.5/157.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Nájezd 162.5×3 → TOP 172.5×2 → Back-off 157.5×5 → Back-off 157.5×5' },
       { id: 'pause-squat', name: 'Pauzový dřep (2 s) — variace (na díru — ostří techniku k testu)', category: 'accessory', targetSets: '3', targetReps: '3', targetWeight: '147.5', note: 'Tvá 5.–7. „hlavní“ série na dřep. Sticking point.' },
       { id: 'leg-press', name: 'Leg press (stroj)', category: 'accessory', targetSets: '4', targetReps: '6–8', targetWeight: 'stroj střední–těžká, RPE 8', note: 'quad bez axiálního zatížení — fatigue mgmt (Israetel s. 93). Rotuje po blocích. Nízký–střední objem – nohy šetříme; když je readiness nízký, tenhle slot ubereš první.' },
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
     npStrength(NP_TUE, [
-      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', targetSets: '4', targetReps: '3/2/5/5', targetWeight: '112.5/117.5/107.5/107.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Nájezd 112.5×3 → TOP 117.5×2 → Back-off 107.5×5 → Back-off 107.5×5' },
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Nájezd', weight: '112.5', reps: '3', rpe: '8' }, { label: 'TOP', weight: '117.5', reps: '2', rpe: '9' }, { label: 'Back-off', weight: '107.5', reps: '5', rpe: '8' }, { label: 'Back-off', weight: '107.5', reps: '5', rpe: '8' }], targetSets: '4', targetReps: '3/2/5/5', targetWeight: '112.5/117.5/107.5/107.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Nájezd 112.5×3 → TOP 117.5×2 → Back-off 107.5×5 → Back-off 107.5×5' },
       { id: 'pin-press', name: 'Pin press (z kolíků z prsu) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '4', targetWeight: '107.5', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-skull', name: 'Skull crusher / JM press', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Náhrada dipů – triceps na lockout, šetří ramena. Rotuje po blocích.' },
       { id: 'pullup', name: 'Weighted pull-up (podhmat úzko – BICEPS)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Tvůj pull-up #1 – biceps varianta. Každý push den. Úchop rotuje.' },
@@ -1129,7 +1131,7 @@ const np9: Week = {
     npWedHiit(),
     npThuRest(),
     npStrength(NP_FRI, [
-      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', targetSets: '3', targetReps: '3/2/5', targetWeight: '202.5/215/195 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Nájezd 202.5×3 → TOP 215×2 → Back-off 195×5' },
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Nájezd', weight: '202.5', reps: '3', rpe: '8' }, { label: 'TOP', weight: '215', reps: '2', rpe: '9' }, { label: 'Back-off', weight: '195', reps: '5', rpe: '8' }], targetSets: '3', targetReps: '3/2/5', targetWeight: '202.5/215/195 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Nájezd 202.5×3 → TOP 215×2 → Back-off 195×5' },
       { id: 'pendlay-row', name: 'Pendlay row (z podlahy) — silná záda = silný tah', category: 'accessory', targetSets: '4', targetReps: '5', targetWeight: '97.5', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
       { id: 'bicep-curl-2', name: 'Bicepsový zdvih (kladívkový (hammer)) — 2. expozice', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Biceps podruhé v týdnu. Varianta rotuje.' },
@@ -1147,14 +1149,14 @@ const np10: Week = {
   description: 'První top singly (95 %). 120 kg bench lehce, 125 se objevuje.',
   days: [
     npStrength(NP_MON, [
-      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '4', targetReps: '2/1/4/3', targetWeight: '167.5/175/160/160 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Nájezd 167.5×2 → TOP single 175×1 → Back-off 160×4 → Back-off 160×3' },
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'Nájezd', weight: '167.5', reps: '2', rpe: '8' }, { label: 'TOP single', weight: '175', reps: '1', rpe: '9' }, { label: 'Back-off', weight: '160', reps: '4', rpe: '8' }, { label: 'Back-off', weight: '160', reps: '3', rpe: '8' }], targetSets: '4', targetReps: '2/1/4/3', targetWeight: '167.5/175/160/160 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Nájezd 167.5×2 → TOP single 175×1 → Back-off 160×4 → Back-off 160×3' },
       { id: 'pause-squat', name: 'Pauzový dřep (2 s) — variace (na díru — ostří techniku k testu)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '137.5', note: 'Tvá 5.–7. „hlavní“ série na dřep. Sticking point.' },
       { id: 'leg-press', name: 'Leg press (stroj)', category: 'accessory', targetSets: '3', targetReps: '10–12', targetWeight: 'stroj střední–těžká, RPE 8', note: 'quad bez axiálního zatížení — fatigue mgmt (Israetel s. 93). Rotuje po blocích. Nízký–střední objem – nohy šetříme; když je readiness nízký, tenhle slot ubereš první.' },
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
     npStrength(NP_TUE, [
-      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', targetSets: '4', targetReps: '2/1/4/3', targetWeight: '115/120/110/110 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Nájezd 115×2 → TOP single 120×1 → Back-off 110×4 → Back-off 110×3' },
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Nájezd', weight: '115', reps: '2', rpe: '8' }, { label: 'TOP single', weight: '120', reps: '1', rpe: '9' }, { label: 'Back-off', weight: '110', reps: '4', rpe: '8' }, { label: 'Back-off', weight: '110', reps: '3', rpe: '8' }], targetSets: '4', targetReps: '2/1/4/3', targetWeight: '115/120/110/110 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Nájezd 115×2 → TOP single 120×1 → Back-off 110×4 → Back-off 110×3' },
       { id: 'spoto', name: 'Spoto press (2–3 cm nad hrudí) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: '102.5', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-skull', name: 'Skull crusher / JM press', category: 'isolation', targetSets: '3', targetReps: '10–12', targetWeight: 'střední', note: 'Náhrada dipů – triceps na lockout, šetří ramena. Rotuje po blocích.' },
       { id: 'pullup', name: 'Weighted pull-up (podhmat úzko – BICEPS)', category: 'accessory', targetSets: '3', targetReps: '8', note: 'Tvůj pull-up #1 – biceps varianta. Každý push den. Úchop rotuje.' },
@@ -1165,7 +1167,7 @@ const np10: Week = {
     npWedHiit(),
     npThuRest(),
     npStrength(NP_FRI, [
-      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', targetSets: '3', targetReps: '2/1/4', targetWeight: '207.5/217.5/200 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Nájezd 207.5×2 → TOP single 217.5×1 → Back-off 200×4' },
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Nájezd', weight: '207.5', reps: '2', rpe: '8' }, { label: 'TOP single', weight: '217.5', reps: '1', rpe: '9' }, { label: 'Back-off', weight: '200', reps: '4', rpe: '8' }], targetSets: '3', targetReps: '2/1/4', targetWeight: '207.5/217.5/200 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Nájezd 207.5×2 → TOP single 217.5×1 → Back-off 200×4' },
       { id: 'pendlay-row', name: 'Pendlay row (z podlahy) — silná záda = silný tah', category: 'accessory', targetSets: '3', targetReps: '8–10', targetWeight: '82.5', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '8', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
       { id: 'bicep-curl-2', name: 'Bicepsový zdvih (kladívkový (hammer)) — 2. expozice', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Biceps podruhé v týdnu. Varianta rotuje.' },
@@ -1182,14 +1184,14 @@ const np11: Week = {
   description: 'Nejtěžší tréninkový týden – singly 97 %. 125 kg jako těžší top single.',
   days: [
     npStrength(NP_MON, [
-      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '4', targetReps: '2/1/3/3', targetWeight: '170/180/162.5/162.5 kg', rpe: '8-9', note: 'Vlna (zapiš top/overload sérii): Nájezd 170×2 → TOP single 180×1 → Back-off 162.5×3 → Back-off 162.5×3' },
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'Nájezd', weight: '170', reps: '2', rpe: '8-9' }, { label: 'TOP single', weight: '180', reps: '1', rpe: '9' }, { label: 'Back-off', weight: '162.5', reps: '3', rpe: '8' }, { label: 'Back-off', weight: '162.5', reps: '3', rpe: '8' }], targetSets: '4', targetReps: '2/1/3/3', targetWeight: '170/180/162.5/162.5 kg', rpe: '8-9', note: 'Vlna (zapiš top/overload sérii): Nájezd 170×2 → TOP single 180×1 → Back-off 162.5×3 → Back-off 162.5×3' },
       { id: 'pause-squat', name: 'Pauzový dřep (2 s) — variace (na díru — ostří techniku k testu)', category: 'accessory', targetSets: '3', targetReps: '3', targetWeight: '147.5', note: 'Tvá 5.–7. „hlavní“ série na dřep. Sticking point.' },
       { id: 'leg-press', name: 'Leg press (stroj)', category: 'accessory', targetSets: '4', targetReps: '6–8', targetWeight: 'stroj střední–těžká, RPE 8', note: 'quad bez axiálního zatížení — fatigue mgmt (Israetel s. 93). Rotuje po blocích. Nízký–střední objem – nohy šetříme; když je readiness nízký, tenhle slot ubereš první.' },
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
     npStrength(NP_TUE, [
-      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', targetSets: '4', targetReps: '2/1/3/3', targetWeight: '117.5/122.5/112.5/112.5 kg', rpe: '8-9', note: 'Vlna (zapiš top/overload sérii): Nájezd 117.5×2 → TOP single 122.5×1 → Back-off 112.5×3 → Back-off 112.5×3' },
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Nájezd', weight: '117.5', reps: '2', rpe: '8-9' }, { label: 'TOP single', weight: '122.5', reps: '1', rpe: '9' }, { label: 'Back-off', weight: '112.5', reps: '3', rpe: '8' }, { label: 'Back-off', weight: '112.5', reps: '3', rpe: '8' }], targetSets: '4', targetReps: '2/1/3/3', targetWeight: '117.5/122.5/112.5/112.5 kg', rpe: '8-9', note: 'Vlna (zapiš top/overload sérii): Nájezd 117.5×2 → TOP single 122.5×1 → Back-off 112.5×3 → Back-off 112.5×3' },
       { id: 'pin-press', name: 'Pin press (z kolíků z prsu) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '4', targetWeight: '107.5', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-skull', name: 'Skull crusher / JM press', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Náhrada dipů – triceps na lockout, šetří ramena. Rotuje po blocích.' },
       { id: 'pullup', name: 'Weighted pull-up (podhmat úzko – BICEPS)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Tvůj pull-up #1 – biceps varianta. Každý push den. Úchop rotuje.' },
@@ -1199,7 +1201,7 @@ const np11: Week = {
     npWedHiit(),
     npThuRest(),
     npStrength(NP_FRI, [
-      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', targetSets: '3', targetReps: '2/1/3', targetWeight: '212.5/222.5/202.5 kg', rpe: '8-9', note: 'Vlna (zapiš top/overload sérii): Nájezd 212.5×2 → TOP single 222.5×1 → Back-off 202.5×3' },
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Nájezd', weight: '212.5', reps: '2', rpe: '8-9' }, { label: 'TOP single', weight: '222.5', reps: '1', rpe: '9' }, { label: 'Back-off', weight: '202.5', reps: '3', rpe: '8' }], targetSets: '3', targetReps: '2/1/3', targetWeight: '212.5/222.5/202.5 kg', rpe: '8-9', note: 'Vlna (zapiš top/overload sérii): Nájezd 212.5×2 → TOP single 222.5×1 → Back-off 202.5×3' },
       { id: 'pendlay-row', name: 'Pendlay row (z podlahy) — silná záda = silný tah', category: 'accessory', targetSets: '4', targetReps: '5', targetWeight: '97.5', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
       { id: 'bicep-curl-2', name: 'Bicepsový zdvih (kladívkový (hammer)) — 2. expozice', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Biceps podruhé v týdnu. Varianta rotuje.' },
@@ -1217,14 +1219,14 @@ const np12: Week = {
   description: 'Taper −60 % objemu, intenzita zachována. Nácvik openerů. Únava odchází.',
   days: [
     npStrength(NP_MON, [
-      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '3', targetReps: '1/2/3', targetWeight: '167.5/157.5/147.5 kg', rpe: '7', note: 'Vlna (zapiš top/overload sérii): Opener 167.5×1 → Druhá 157.5×2 → Objem 147.5×3' },
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'Opener', weight: '167.5', reps: '1', rpe: '7' }, { label: 'Druhá', weight: '157.5', reps: '2', rpe: '7' }, { label: 'Objem', weight: '147.5', reps: '3', rpe: '7' }], targetSets: '3', targetReps: '1/2/3', targetWeight: '167.5/157.5/147.5 kg', rpe: '7', note: 'Vlna (zapiš top/overload sérii): Opener 167.5×1 → Druhá 157.5×2 → Objem 147.5×3' },
       { id: 'pause-squat', name: 'Pauzový dřep (2 s) — variace (na díru — ostří techniku k testu)', category: 'accessory', targetSets: '3', targetReps: '3', targetWeight: '147.5', note: 'Tvá 5.–7. „hlavní“ série na dřep. Sticking point.' },
       { id: 'leg-press', name: 'Leg press (stroj)', category: 'accessory', targetSets: '3', targetReps: '10–12', targetWeight: 'stroj střední–těžká, RPE 8', note: 'quad bez axiálního zatížení — fatigue mgmt (Israetel s. 93). Rotuje po blocích. Nízký–střední objem – nohy šetříme; když je readiness nízký, tenhle slot ubereš první.' },
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
     npStrength(NP_TUE, [
-      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', targetSets: '3', targetReps: '1/2/3', targetWeight: '115/107.5/102.5 kg', rpe: '7', note: 'Vlna (zapiš top/overload sérii): Opener 115×1 → Druhá 107.5×2 → Objem 102.5×3' },
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Opener', weight: '115', reps: '1', rpe: '7' }, { label: 'Druhá', weight: '107.5', reps: '2', rpe: '7' }, { label: 'Objem', weight: '102.5', reps: '3', rpe: '7' }], targetSets: '3', targetReps: '1/2/3', targetWeight: '115/107.5/102.5 kg', rpe: '7', note: 'Vlna (zapiš top/overload sérii): Opener 115×1 → Druhá 107.5×2 → Objem 102.5×3' },
       { id: 'spoto', name: 'Spoto press (2–3 cm nad hrudí) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: '102.5', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-skull', name: 'Skull crusher / JM press', category: 'isolation', targetSets: '3', targetReps: '10–12', targetWeight: 'střední', note: 'Náhrada dipů – triceps na lockout, šetří ramena. Rotuje po blocích.' },
       { id: 'pullup', name: 'Weighted pull-up (podhmat úzko – BICEPS)', category: 'accessory', targetSets: '3', targetReps: '8', note: 'Tvůj pull-up #1 – biceps varianta. Každý push den. Úchop rotuje.' },
@@ -1235,7 +1237,7 @@ const np12: Week = {
     npWedHiit(),
     npThuRest(),
     npStrength(NP_FRI, [
-      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', targetSets: '3', targetReps: '1/2/3', targetWeight: '207.5/195/185 kg', rpe: '7', note: 'Vlna (zapiš top/overload sérii): Opener 207.5×1 → Druhá 195×2 → Objem 185×3' },
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Opener', weight: '207.5', reps: '1', rpe: '7' }, { label: 'Druhá', weight: '195', reps: '2', rpe: '7' }, { label: 'Objem', weight: '185', reps: '3', rpe: '7' }], targetSets: '3', targetReps: '1/2/3', targetWeight: '207.5/195/185 kg', rpe: '7', note: 'Vlna (zapiš top/overload sérii): Opener 207.5×1 → Druhá 195×2 → Objem 185×3' },
       { id: 'pendlay-row', name: 'Pendlay row (z podlahy) — silná záda = silný tah', category: 'accessory', targetSets: '3', targetReps: '8–10', targetWeight: '82.5', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '8', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
       { id: 'bicep-curl-2', name: 'Bicepsový zdvih (kladívkový (hammer)) — 2. expozice', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Biceps podruhé v týdnu. Varianta rotuje.' },
@@ -1252,15 +1254,15 @@ const np13: Week = {
   description: 'Test maxim. Dvou-faktorový model: únava pryč, fitness zůstala → výkon vyskočí. Cíle: bench 130, dřep 190, mrtvý tah 230+.',
   days: [
     npStrength(NP_MON, [
-      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '190 kg (CÍL)', rpe: 'MAX', note: 'TEST. Postup: 150×1 (Rozjezd) → 170×1 (Rozjezd) → 190×1 (CÍL) → 195×1 (PR (volitelně))' },
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'Rozjezd', weight: '150', reps: '1' }, { label: 'Rozjezd', weight: '170', reps: '1' }, { label: 'CÍL', weight: '190', reps: '1' }, { label: 'PR (volitelně)', weight: '195', reps: '1' }], targetSets: '1', targetReps: '1', targetWeight: '190 kg (CÍL)', rpe: 'MAX', note: 'TEST. Postup: 150×1 (Rozjezd) → 170×1 (Rozjezd) → 190×1 (CÍL) → 195×1 (PR (volitelně))' },
     ]),
     npStrength(NP_TUE, [
-      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '130 kg (CÍL)', rpe: 'MAX', note: 'TEST. Postup: 100×1 (Rozjezd) → 115×1 (Rozjezd) → 125×1 (Rozjezd) → 130×1 (CÍL) → 132.5×1 (PR (volitelně))' },
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Rozjezd', weight: '100', reps: '1' }, { label: 'Rozjezd', weight: '115', reps: '1' }, { label: 'Rozjezd', weight: '125', reps: '1' }, { label: 'CÍL', weight: '130', reps: '1' }, { label: 'PR (volitelně)', weight: '132.5', reps: '1' }], targetSets: '1', targetReps: '1', targetWeight: '130 kg (CÍL)', rpe: 'MAX', note: 'TEST. Postup: 100×1 (Rozjezd) → 115×1 (Rozjezd) → 125×1 (Rozjezd) → 130×1 (CÍL) → 132.5×1 (PR (volitelně))' },
     ]),
     npWedHiit(),
     npThuRest(),
     npStrength(NP_FRI, [
-      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', targetSets: '1', targetReps: '1', targetWeight: '230 kg (CÍL)', rpe: 'MAX', note: 'TEST. Postup: 180×1 (Rozjezd) → 207.5×1 (Rozjezd) → 230×1 (CÍL) → 235×1 (PR pokus)' },
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Rozjezd', weight: '180', reps: '1' }, { label: 'Rozjezd', weight: '207.5', reps: '1' }, { label: 'CÍL', weight: '230', reps: '1' }, { label: 'PR pokus', weight: '235', reps: '1' }], targetSets: '1', targetReps: '1', targetWeight: '230 kg (CÍL)', rpe: 'MAX', note: 'TEST. Postup: 180×1 (Rozjezd) → 207.5×1 (Rozjezd) → 230×1 (CÍL) → 235×1 (PR pokus)' },
     ]),
     npSatHiit(),
     npSunRest(),
