@@ -1,8 +1,9 @@
 // Gold Performance Design – Main App Shell
-// Bottom tab navigation: Přehled | Plán | Deník | Progres | Nástroje
+// Bottom tab navigation: Přehled | Plán | Průvodce | Deník | Progres | Nástroje
 import { useState } from 'react';
 import Overview from '@/components/Overview';
 import Plan from '@/components/Plan';
+import Guide from '@/components/Guide';
 import Diary from '@/components/Diary';
 import Progress from '@/components/Progress';
 import Tools from '@/components/Tools';
@@ -14,6 +15,7 @@ export type { Tab };
 const TABS: { key: Tab; label: string; icon: string }[] = [
   { key: 'overview', label: 'Přehled', icon: '⚡' },
   { key: 'plan', label: 'Plán', icon: '📋' },
+  { key: 'guide', label: 'Průvodce', icon: '📖' },
   { key: 'diary', label: 'Deník', icon: '📓' },
   { key: 'progress', label: 'Progres', icon: '📈' },
   { key: 'tools', label: 'Nástroje', icon: '🔧' },
@@ -44,6 +46,7 @@ export default function Home() {
       <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 72 }}>
         {activeTab === 'overview' && <Overview workoutData={workoutData} onNavigate={setActiveTab} />}
         {activeTab === 'plan' && <Plan workoutData={workoutData} />}
+        {activeTab === 'guide' && <Guide />}
         {activeTab === 'diary' && <Diary workoutData={workoutData} />}
         {activeTab === 'progress' && <Progress workoutData={workoutData} />}
         {activeTab === 'tools' && <Tools workoutData={workoutData} />}
