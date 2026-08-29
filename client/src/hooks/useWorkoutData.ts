@@ -36,6 +36,12 @@ function loadRecords(): RecordsMap {
     // ignore
   }
   merged = mergeUniqueRecords(merged, RECOVERED_WORKOUT_RECORDS);
+  // Předvyplněný plán se vždy synchronizuje s data.ts: neupravené záznamy
+  // (planned: true) se zahodí a nahradí aktuální verzí, takže se projeví
+  // i posun termínů plánu. Cokoli uživatel zapsal (planned: false) zůstává.
+  for (const key of Object.keys(merged)) {
+    merged[key] = (merged[key] ?? []).filter(r => !(r.planned === true && r.id.startsWith('plan-')));
+  }
   // Předvyplněný plán – přidá se jen to, co uživatel ještě nemá (podle id)
   return mergeUniqueRecords(merged, PLANNED_RECORDS);
 }
