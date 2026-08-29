@@ -13,8 +13,8 @@ interface Props {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  lower: '#F5C842', upper: '#E8E8E8', fullbody: '#F5C842',
-  hiit: '#6EE7B7', run: '#6EE7B7', rest: '#444',
+  lower: 'var(--gd-accent)', upper: 'var(--gd-text)', fullbody: 'var(--gd-accent)',
+  hiit: 'var(--gd-fern)', run: 'var(--gd-fern)', rest: 'var(--gd-text-4)',
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -57,21 +57,34 @@ export default function Plan({ workoutData }: Props) {
   return (
     <div style={{ padding: '0 0 16px' }}>
       {/* Header */}
-      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid #1c1c1c' }}>
-        <div style={{ color: '#F5C842', fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>
+      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--gd-line)' }}>
+        <div style={{ color: 'var(--gd-accent)', fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>
           TRÉNINKOVÝ PLÁN
         </div>
-        <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: '#f0f0f0' }}>
+        <h2 style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: 'var(--gd-text)' }}>
           Tréninkový plán Podzim 2026 v5.2
         </h2>
-        <p style={{ color: '#666', fontSize: 12, marginTop: 6, lineHeight: 1.5 }}>
+        <p style={{ color: 'var(--gd-text-3)', fontSize: 12, marginTop: 6, lineHeight: 1.5 }}>
           13týdenní peaking program · W1–4 Akumulace · W5–8 Síla · W9–11 Intenzifikace · W12 Taper · W13 Test
         </p>
+        {selectedWeek !== currentWeekIndex && (
+          <button
+            onClick={() => setSelectedWeek(currentWeekIndex)}
+            style={{
+              marginTop: 14, padding: '9px 14px', borderRadius: 0, border: 'none',
+              background: 'var(--gd-accent)', color: 'var(--gd-accent-ink)',
+              fontSize: 10, fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap',
+              letterSpacing: '0.18em', textTransform: 'uppercase',
+            }}
+          >
+            ← Zpět na T{PHASE3_WEEKS[currentWeekIndex].number}
+          </button>
+        )}
       </div>
 
-      {/* Week selector */}
-      <div style={{ padding: '12px 20px', borderBottom: '1px solid #1c1c1c', overflowX: 'auto' }}>
-        <div style={{ display: 'flex', gap: 6, minWidth: 'max-content', alignItems: 'center' }}>
+      {/* Week ruler – všech 13 týdnů najednou, bez rolování */}
+      <div style={{ borderBottom: '1px solid var(--gd-line)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
           {PHASE3_WEEKS.map((w, i) => {
             const isSelected = selectedWeek === i;
             const isCurrent = currentWeekIndex === i;
@@ -80,88 +93,61 @@ export default function Plan({ workoutData }: Props) {
                 key={w.number}
                 onClick={() => setSelectedWeek(i)}
                 style={{
-                  position: 'relative',
-                  padding: isCurrent ? '6px 12px 6px 20px' : '6px 12px',
-                  borderRadius: 8,
-                  border: isSelected
-                    ? '1px solid #F5C842'
+                  padding: '11px 0 9px',
+                  border: 'none',
+                  borderRight: (i % 7 === 6 || i === PHASE3_WEEKS.length - 1) ? 'none' : '1px solid var(--gd-line)',
+                  borderTop: i >= 7 ? '1px solid var(--gd-line)' : 'none',
+                  background: isSelected ? 'var(--gd-accent)' : 'transparent',
+                  color: isSelected
+                    ? 'var(--gd-accent-ink)'
                     : isCurrent
-                    ? '1px solid rgba(94,207,177,0.5)'
-                    : '1px solid #1c1c1c',
-                  background: isSelected
-                    ? 'rgba(245,200,66,0.12)'
-                    : isCurrent
-                    ? 'rgba(94,207,177,0.07)'
-                    : 'transparent',
-                  color: isSelected ? '#F5C842' : isCurrent ? '#5ECFB1' : (w.isDeload ? '#5ECFB1' : '#666'),
-                  fontSize: 11,
-                  fontWeight: isSelected || isCurrent ? 700 : 400,
+                    ? 'var(--gd-text)'
+                    : (w.isDeload ? 'var(--gd-text-4)' : 'var(--gd-text-3)'),
                   cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.15s ease',
+                  transition: 'background 0.15s ease, color 0.15s ease',
                 }}
               >
-                {isCurrent && (
-                  <span style={{
-                    position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)',
-                    width: 6, height: 6, borderRadius: '50%', background: '#5ECFB1',
-                    boxShadow: '0 0 6px rgba(94,207,177,0.8)',
-                  }} />
-                )}
-                T{w.number}{w.isDeload ? ' 🔄' : ''}
+                <div style={{ fontSize: 12, fontWeight: 800, fontVariantNumeric: 'tabular-nums', letterSpacing: '0.02em', lineHeight: 1 }}>
+                  {String(w.number).padStart(2, '0')}
+                </div>
+                <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: '0.14em', marginTop: 4, opacity: isSelected ? 0.62 : 1, color: isSelected ? 'inherit' : (isCurrent ? 'var(--gd-fern)' : 'var(--gd-text-4)') }}>
+                  {isCurrent ? 'TEĎ' : w.isDeload ? 'DL' : w.phase.includes('Taper') ? 'TAP' : w.phase.includes('TEST') ? 'TEST' : (w.phase.match(/Blok ([ABC])/)?.[1] ?? '·')}
+                </div>
               </button>
             );
           })}
-          {/* Jump to current week button – shown only when viewing a different week */}
-          {selectedWeek !== currentWeekIndex && (
-            <button
-              onClick={() => setSelectedWeek(currentWeekIndex)}
-              style={{
-                marginLeft: 8,
-                padding: '6px 10px',
-                borderRadius: 8,
-                border: '1px solid rgba(94,207,177,0.4)',
-                background: 'rgba(94,207,177,0.1)',
-                color: '#5ECFB1',
-                fontSize: 10,
-                fontWeight: 700,
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                letterSpacing: '0.05em',
-              }}
-            >
-              ► AKTUÁLNÍ TÝDEN
-            </button>
-          )}
+          {Array.from({ length: (7 - (PHASE3_WEEKS.length % 7)) % 7 }).map((_, i) => (
+            <div key={`pad-${i}`} style={{ borderTop: '1px solid var(--gd-line)' }} />
+          ))}
         </div>
       </div>
 
       {/* Selected week info */}
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid #1c1c1c' }}>
-        <div style={{ borderLeft: `3px solid ${selectedWeek === currentWeekIndex ? '#5ECFB1' : '#F5C842'}`, paddingLeft: 14 }}>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--gd-line)' }}>
+        <div style={{ borderLeft: `3px solid ${selectedWeek === currentWeekIndex ? 'var(--gd-fern)' : 'var(--gd-accent)'}`, paddingLeft: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <div style={{ color: '#F5C842', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            <div style={{ color: 'var(--gd-accent)', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
               {week.phase}
             </div>
             {selectedWeek === currentWeekIndex && (
               <span style={{
                 fontSize: 9, fontWeight: 700, letterSpacing: '0.12em',
-                color: '#5ECFB1', background: 'rgba(94,207,177,0.12)',
-                border: '1px solid rgba(94,207,177,0.4)', borderRadius: 4,
+                color: 'var(--gd-fern)', background: 'color-mix(in srgb, var(--gd-fern) 12%, transparent)',
+                border: '1px solid color-mix(in srgb, var(--gd-fern) 40%, transparent)', borderRadius: 0,
                 padding: '2px 6px', textTransform: 'uppercase',
               }}>
                 {notStarted ? '● ZAČÍNÁ BRZY' : '● AKTUÁLNÍ TÝDEN'}
               </span>
             )}
           </div>
-          <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 20, fontWeight: 800, color: '#f0f0f0', marginTop: 2 }}>
+          <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 20, fontWeight: 800, color: 'var(--gd-text)', marginTop: 2 }}>
             {week.label}
           </div>
-          <div style={{ color: '#888', fontSize: 12, marginTop: 4, lineHeight: 1.5 }}>{week.description}</div>
-          <div style={{ color: '#555', fontSize: 11, marginTop: 6 }}>
+          <div style={{ color: 'var(--gd-text-3)', fontSize: 12, marginTop: 4, lineHeight: 1.5 }}>{week.description}</div>
+          <div style={{ color: 'var(--gd-text-4)', fontSize: 11, marginTop: 6 }}>
             {week.dateFrom.split('-').reverse().join('.')} – {week.dateTo.split('-').reverse().join('.')}
             {selectedWeek === currentWeekIndex && (
-              <span style={{ color: '#5ECFB1', marginLeft: 8 }}>
+              <span style={{ color: 'var(--gd-fern)', marginLeft: 8 }}>
                 {notStarted ? `• Start ${week.dateFrom.split('-').reverse().join('.')}` : '• Právě probíhá'}
               </span>
             )}
@@ -174,7 +160,7 @@ export default function Plan({ workoutData }: Props) {
 
       {/* Days */}
       <div style={{ padding: '14px 20px' }}>
-        <div style={{ color: '#444', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>DENNÍ ROZVRH</div>
+        <div style={{ color: 'var(--gd-text-4)', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>DENNÍ ROZVRH</div>
         {week.days.map(day => (
           <DayCard
             key={day.key}
@@ -201,7 +187,7 @@ function WarmupSection() {
   ];
 
   return (
-    <div style={{ margin: '0 20px 12px', borderRadius: 12, border: '1px solid rgba(245,200,66,0.2)', background: 'rgba(245,200,66,0.03)', overflow: 'hidden' }}>
+    <div style={{ margin: '0 20px 12px', borderRadius: 0, border: '1px solid color-mix(in srgb, var(--gd-accent) 20%, transparent)', background: 'color-mix(in srgb, var(--gd-accent) 3%, transparent)', overflow: 'hidden' }}>
       <button
         onClick={() => setOpen(!open)}
         style={{
@@ -209,36 +195,36 @@ function WarmupSection() {
           background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left',
         }}
       >
-        <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(245,200,66,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0 }}>🔥</div>
+        <div style={{ width: 28, height: 28, borderRadius: 0, background: 'color-mix(in srgb, var(--gd-accent) 12%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, letterSpacing: '0.06em', flexShrink: 0 }}>WU</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#F5C842', letterSpacing: '0.05em' }}>WARM-UP PROTOKOL</div>
-          <div style={{ fontSize: 11, color: '#666', marginTop: 1 }}>~12 min · Povinný před každým silovým tréninkem</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--gd-accent)', letterSpacing: '0.05em' }}>WARM-UP PROTOKOL</div>
+          <div style={{ fontSize: 11, color: 'var(--gd-text-3)', marginTop: 1 }}>~12 min · Povinný před každým silovým tréninkem</div>
         </div>
-        <div style={{ color: '#555', fontSize: 12, transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }}>▼</div>
+        <div style={{ color: 'var(--gd-text-4)', fontSize: 12, transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }}>▼</div>
       </button>
 
       {open && (
-        <div style={{ padding: '0 14px 14px', borderTop: '1px solid rgba(245,200,66,0.1)' }}>
+        <div style={{ padding: '0 14px 14px', borderTop: '1px solid color-mix(in srgb, var(--gd-accent) 10%, transparent)' }}>
           {steps.map((step, i) => (
             <div key={i} style={{ display: 'flex', gap: 12, paddingTop: 12 }}>
-              <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(245,200,66,0.15)', border: '1px solid rgba(245,200,66,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#F5C842', flexShrink: 0, marginTop: 1 }}>{i + 1}</div>
+              <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'color-mix(in srgb, var(--gd-accent) 15%, transparent)', border: '1px solid color-mix(in srgb, var(--gd-accent) 30%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: 'var(--gd-accent)', flexShrink: 0, marginTop: 1 }}>{i + 1}</div>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#d0d0d0' }}>{step.label}</div>
-                <div style={{ fontSize: 11, color: '#777', marginTop: 2, lineHeight: 1.6, whiteSpace: 'pre-line' }}>{step.detail}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--gd-text)' }}>{step.label}</div>
+                <div style={{ fontSize: 11, color: 'var(--gd-text-3)', marginTop: 2, lineHeight: 1.6, whiteSpace: 'pre-line' }}>{step.detail}</div>
               </div>
             </div>
           ))}
-          <div style={{ marginTop: 14, padding: '8px 10px', background: 'rgba(0,0,0,0.2)', borderRadius: 8, borderLeft: '2px solid rgba(245,200,66,0.4)' }}>
-            <div style={{ fontSize: 10, color: '#F5C842', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 2 }}>WARM-UP BENCH – speciální série</div>
-            <div style={{ fontSize: 11, color: '#888', lineHeight: 1.6 }}>Tyč ×10 → 60 kg ×6 → 80 kg ×4 → 95 kg ×2 → pracovní váha</div>
+          <div style={{ marginTop: 14, padding: '8px 10px', background: 'color-mix(in srgb, var(--gd-shadow) 20%, transparent)', borderRadius: 0, borderLeft: '2px solid color-mix(in srgb, var(--gd-accent) 40%, transparent)' }}>
+            <div style={{ fontSize: 10, color: 'var(--gd-accent)', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 2 }}>WARM-UP BENCH – speciální série</div>
+            <div style={{ fontSize: 11, color: 'var(--gd-text-3)', lineHeight: 1.6 }}>Tyč ×10 → 60 kg ×6 → 80 kg ×4 → 95 kg ×2 → pracovní váha</div>
           </div>
-          <div style={{ marginTop: 8, padding: '8px 10px', background: 'rgba(0,0,0,0.2)', borderRadius: 8, borderLeft: '2px solid rgba(245,200,66,0.4)' }}>
-            <div style={{ fontSize: 10, color: '#F5C842', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 2 }}>WARM-UP SQUAT – speciální série</div>
-            <div style={{ fontSize: 11, color: '#888', lineHeight: 1.6 }}>Tyč ×10 → 80 kg ×6 → 100 kg ×4 → 120 kg ×2 → pracovní váha</div>
+          <div style={{ marginTop: 8, padding: '8px 10px', background: 'color-mix(in srgb, var(--gd-shadow) 20%, transparent)', borderRadius: 0, borderLeft: '2px solid color-mix(in srgb, var(--gd-accent) 40%, transparent)' }}>
+            <div style={{ fontSize: 10, color: 'var(--gd-accent)', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 2 }}>WARM-UP SQUAT – speciální série</div>
+            <div style={{ fontSize: 11, color: 'var(--gd-text-3)', lineHeight: 1.6 }}>Tyč ×10 → 80 kg ×6 → 100 kg ×4 → 120 kg ×2 → pracovní váha</div>
           </div>
-          <div style={{ marginTop: 8, padding: '8px 10px', background: 'rgba(0,0,0,0.2)', borderRadius: 8, borderLeft: '2px solid rgba(245,200,66,0.4)' }}>
-            <div style={{ fontSize: 10, color: '#F5C842', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 2 }}>WARM-UP DEADLIFT – speciální série</div>
-            <div style={{ fontSize: 11, color: '#888', lineHeight: 1.6 }}>Tyč ×10 → 100 kg ×5 → 130 kg ×3 → 155 kg ×1 → pracovní váha</div>
+          <div style={{ marginTop: 8, padding: '8px 10px', background: 'color-mix(in srgb, var(--gd-shadow) 20%, transparent)', borderRadius: 0, borderLeft: '2px solid color-mix(in srgb, var(--gd-accent) 40%, transparent)' }}>
+            <div style={{ fontSize: 10, color: 'var(--gd-accent)', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 2 }}>WARM-UP DEADLIFT – speciální série</div>
+            <div style={{ fontSize: 11, color: 'var(--gd-text-3)', lineHeight: 1.6 }}>Tyč ×10 → 100 kg ×5 → 130 kg ×3 → 155 kg ×1 → pracovní váha</div>
           </div>
         </div>
       )}
@@ -254,10 +240,10 @@ function ExerciseRow({ ex, idx, total, latest }: {
 }) {
   const [expanded, setExpanded] = useState(false);
   const info = getExerciseInfo(ex.id);
-  const catColor = info ? (CATEGORY_COLORS[info.category] || '#888') : getCategoryColor(ex.category);
+  const catColor = info ? (CATEGORY_COLORS[info.category] || 'var(--gd-text-3)') : getCategoryColor(ex.category);
 
   return (
-    <div style={{ borderBottom: idx < total - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+    <div style={{ borderBottom: idx < total - 1 ? '1px solid color-mix(in srgb, var(--gd-text) 4%, transparent)' : 'none' }}>
       {/* Exercise header row */}
       <div
         style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', cursor: info ? 'pointer' : 'default' }}
@@ -266,20 +252,20 @@ function ExerciseRow({ ex, idx, total, latest }: {
         <div style={{ width: 5, height: 5, borderRadius: '50%', background: catColor, flexShrink: 0, marginTop: 2 }} />
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-            <div style={{ fontSize: 13, color: '#d0d0d0', fontWeight: 500 }}>{ex.name}</div>
+            <div style={{ fontSize: 13, color: 'var(--gd-text)', fontWeight: 500 }}>{ex.name}</div>
             {ex.isDropset && (
-              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', color: '#F5C842', background: 'rgba(245,200,66,0.15)', border: '1px solid rgba(245,200,66,0.3)', borderRadius: 4, padding: '1px 5px', textTransform: 'uppercase' }}>DROP</span>
+              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', color: 'var(--gd-accent)', background: 'color-mix(in srgb, var(--gd-accent) 15%, transparent)', border: '1px solid color-mix(in srgb, var(--gd-accent) 30%, transparent)', borderRadius: 0, padding: '1px 5px', textTransform: 'uppercase' }}>DROP</span>
             )}
             {info && (
-              <span style={{ fontSize: 9, color: catColor, background: `${catColor}15`, border: `1px solid ${catColor}30`, borderRadius: 4, padding: '1px 5px', letterSpacing: '0.05em' }}>{info.category}</span>
+              <span style={{ fontSize: 9, color: catColor, background: `${catColor}15`, border: `1px solid ${catColor}30`, borderRadius: 0, padding: '1px 5px', letterSpacing: '0.05em' }}>{info.category}</span>
             )}
           </div>
           {ex.setPlan && ex.setPlan.length > 0 ? (
-            <div style={{ fontSize: 11, color: '#666', marginTop: 1 }}>
+            <div style={{ fontSize: 11, color: 'var(--gd-text-3)', marginTop: 1 }}>
               {ex.setPlan.length} pracovních sérií · klikni pro detail
             </div>
           ) : (
-            <div style={{ fontSize: 11, color: '#555', marginTop: 1 }}>
+            <div style={{ fontSize: 11, color: 'var(--gd-text-4)', marginTop: 1 }}>
               {ex.targetSets}×{ex.targetReps}
               {ex.targetWeight ? ` · ${ex.targetWeight}` : ''}
               {ex.note ? ` · ${ex.note}` : ''}
@@ -289,14 +275,14 @@ function ExerciseRow({ ex, idx, total, latest }: {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
           {latest && (
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 12, fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, color: '#F5C842' }}>
+              <div style={{ fontSize: 12, fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontWeight: 700, color: 'var(--gd-accent)' }}>
                 {latest.weight !== '0' ? `${latest.weight} kg` : '–'}
               </div>
-              <div style={{ fontSize: 10, color: '#444' }}>poslední</div>
+              <div style={{ fontSize: 10, color: 'var(--gd-text-4)' }}>poslední</div>
             </div>
           )}
           {info && (
-            <div style={{ color: '#444', fontSize: 12, transition: 'transform 0.2s', transform: expanded ? 'rotate(180deg)' : 'none', flexShrink: 0 }}>ⓘ</div>
+            <div style={{ color: 'var(--gd-text-4)', fontSize: 12, transition: 'transform 0.2s', transform: expanded ? 'rotate(180deg)' : 'none', flexShrink: 0 }}>ⓘ</div>
           )}
         </div>
 
@@ -304,8 +290,8 @@ function ExerciseRow({ ex, idx, total, latest }: {
 
       {/* Přehledný rozpis pracovních sérií */}
       {ex.setPlan && ex.setPlan.length > 0 && (
-        <div style={{ margin: '2px 0 8px 15px', border: '1px solid rgba(245,200,66,0.14)', borderRadius: 8, overflow: 'hidden' }}>
-          <div style={{ display: 'flex', background: 'rgba(245,200,66,0.07)', padding: '4px 8px', fontSize: 9, letterSpacing: '0.08em', color: '#8a7a4a', fontWeight: 700 }}>
+        <div style={{ margin: '2px 0 8px 15px', border: '1px solid color-mix(in srgb, var(--gd-accent) 14%, transparent)', borderRadius: 0, overflow: 'hidden' }}>
+          <div style={{ display: 'flex', background: 'color-mix(in srgb, var(--gd-accent) 7%, transparent)', padding: '4px 8px', fontSize: 9, letterSpacing: '0.08em', color: 'var(--gd-text-3)', fontWeight: 700 }}>
             <div style={{ width: 26 }}>#</div>
             <div style={{ width: 74 }}>VÁHA</div>
             <div style={{ width: 52 }}>OPAK.</div>
@@ -317,14 +303,14 @@ function ExerciseRow({ ex, idx, total, latest }: {
             return (
               <div key={i} style={{
                 display: 'flex', alignItems: 'center', padding: '5px 8px', fontSize: 12,
-                background: hot ? 'rgba(245,200,66,0.10)' : (i % 2 ? 'rgba(255,255,255,0.02)' : 'transparent'),
-                borderTop: '1px solid rgba(255,255,255,0.04)',
+                background: hot ? 'color-mix(in srgb, var(--gd-accent) 10%, transparent)' : (i % 2 ? 'color-mix(in srgb, var(--gd-text) 2%, transparent)' : 'transparent'),
+                borderTop: '1px solid color-mix(in srgb, var(--gd-text) 4%, transparent)',
               }}>
-                <div style={{ width: 26, color: '#666', fontSize: 11 }}>{i + 1}.</div>
-                <div style={{ width: 74, fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 800, fontSize: 15, color: hot ? '#F5C842' : '#e8e8e8' }}>{sp.weight} kg</div>
-                <div style={{ width: 52, fontWeight: 700, color: '#d0d0d0' }}>× {sp.reps}</div>
-                <div style={{ width: 42, color: '#777', fontSize: 11 }}>{sp.rpe || '–'}</div>
-                <div style={{ flex: 1, fontSize: 10, color: hot ? '#F5C842' : '#777', fontWeight: hot ? 700 : 400 }}>{sp.label}</div>
+                <div style={{ width: 26, color: 'var(--gd-text-3)', fontSize: 11 }}>{i + 1}.</div>
+                <div style={{ width: 74, fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontWeight: 800, fontSize: 15, color: hot ? 'var(--gd-accent)' : 'var(--gd-text)' }}>{sp.weight} kg</div>
+                <div style={{ width: 52, fontWeight: 700, color: 'var(--gd-text)' }}>× {sp.reps}</div>
+                <div style={{ width: 42, color: 'var(--gd-text-3)', fontSize: 11 }}>{sp.rpe || '–'}</div>
+                <div style={{ flex: 1, fontSize: 10, color: hot ? 'var(--gd-accent)' : 'var(--gd-text-3)', fontWeight: hot ? 700 : 400 }}>{sp.label}</div>
               </div>
             );
           })}
@@ -333,27 +319,27 @@ function ExerciseRow({ ex, idx, total, latest }: {
 
       {/* Expandable description */}
       {expanded && info && (
-        <div style={{ margin: '0 0 10px 15px', padding: '12px 14px', background: 'rgba(0,0,0,0.3)', borderRadius: 10, border: `1px solid ${catColor}20` }}>
+        <div style={{ margin: '0 0 10px 15px', padding: '12px 14px', background: 'color-mix(in srgb, var(--gd-shadow) 30%, transparent)', borderRadius: 0, border: `1px solid ${catColor}20` }}>
           {/* Why */}
           <div style={{ marginBottom: 10 }}>
             <div style={{ fontSize: 10, color: catColor, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>PROČ JE V PLÁNU</div>
-            <div style={{ fontSize: 12, color: '#aaa', lineHeight: 1.6 }}>{info.why}</div>
+            <div style={{ fontSize: 12, color: 'var(--gd-text-2)', lineHeight: 1.6 }}>{info.why}</div>
           </div>
           {/* How */}
           <div style={{ marginBottom: 10 }}>
-            <div style={{ fontSize: 10, color: '#888', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>JAK PROVÁDĚT</div>
-            <div style={{ fontSize: 12, color: '#888', lineHeight: 1.6, whiteSpace: 'pre-line' }}>{info.how}</div>
+            <div style={{ fontSize: 10, color: 'var(--gd-text-3)', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>JAK PROVÁDĚT</div>
+            <div style={{ fontSize: 12, color: 'var(--gd-text-3)', lineHeight: 1.6, whiteSpace: 'pre-line' }}>{info.how}</div>
           </div>
           {/* Tip */}
           {info.tip && (
-            <div style={{ padding: '8px 10px', background: 'rgba(245,200,66,0.06)', borderRadius: 8, borderLeft: '2px solid #F5C842' }}>
-              <div style={{ fontSize: 10, color: '#F5C842', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 2 }}>💡 TIP</div>
-              <div style={{ fontSize: 12, color: '#bba030', lineHeight: 1.5 }}>{info.tip}</div>
+            <div style={{ padding: '8px 10px', background: 'color-mix(in srgb, var(--gd-accent) 6%, transparent)', borderRadius: 0, borderLeft: '2px solid var(--gd-accent)' }}>
+              <div style={{ fontSize: 10, color: 'var(--gd-accent)', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 2 }}>TIP</div>
+              <div style={{ fontSize: 12, color: 'var(--gd-accent)', lineHeight: 1.5 }}>{info.tip}</div>
             </div>
           )}
           {/* Target muscles */}
           {info.targetMuscles && (
-            <div style={{ marginTop: 8, fontSize: 11, color: '#555' }}>🎯 {info.targetMuscles}</div>
+            <div style={{ marginTop: 8, fontSize: 11, color: 'var(--gd-text-4)' }}>{info.targetMuscles}</div>
           )}
         </div>
       )}
@@ -368,11 +354,11 @@ function WarmupSeriesBlock({ dayType, weekNumber }: { dayType: string; weekNumbe
   const weekData = WARMUP_SERIES_BY_WEEK[weekNumber];
 
   const lifts = dayType === 'lower'
-    ? [{ key: 'squat' as const, label: 'SQUAT – Rozehřívací série', icon: '🦵', series: weekData?.squat }]
+    ? [{ key: 'squat' as const, label: 'SQUAT – Rozehřívací série', icon: 'SQ', series: weekData?.squat }]
     : dayType === 'upper'
-    ? [{ key: 'bench' as const, label: 'BENCH PRESS – Rozehřívací série', icon: '💪', series: weekData?.bench }]
+    ? [{ key: 'bench' as const, label: 'BENCH PRESS – Rozehřívací série', icon: 'BP', series: weekData?.bench }]
     : [
-        { key: 'deadlift' as const, label: 'DEADLIFT – Rozehřívací série', icon: '🏋️', series: weekData?.deadlift },
+        { key: 'deadlift' as const, label: 'DEADLIFT – Rozehřívací série', icon: 'DL', series: weekData?.deadlift },
       ];
 
   const formatWeight = (w: number) => w === 20 ? 'Tyč (20 kg)' : `${w} kg`;
@@ -387,49 +373,49 @@ function WarmupSeriesBlock({ dayType, weekNumber }: { dayType: string; weekNumbe
   };
 
   return (
-    <div style={{ marginBottom: 12, borderRadius: 8, border: '1px solid rgba(94,207,177,0.2)', background: 'rgba(94,207,177,0.03)', overflow: 'hidden' }}>
+    <div style={{ marginBottom: 12, borderRadius: 0, border: '1px solid color-mix(in srgb, var(--gd-fern) 20%, transparent)', background: 'color-mix(in srgb, var(--gd-fern) 3%, transparent)', overflow: 'hidden' }}>
       <button
         onClick={() => setOpen(!open)}
         style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left' }}
       >
-        <div style={{ fontSize: 14 }}>🔥</div>
+        <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', color: 'var(--gd-fern)' }}>WU</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#5ECFB1', letterSpacing: '0.08em' }}>ROZEHŘÍVACÍ SÉRIE (Zatsiorsky) – W{weekNumber}</div>
-          <div style={{ fontSize: 10, color: '#555', marginTop: 1 }}>Klikněte pro zobrazení · Zapisují se jen pracovní série</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--gd-fern)', letterSpacing: '0.08em' }}>ROZEHŘÍVACÍ SÉRIE (Zatsiorsky) – W{weekNumber}</div>
+          <div style={{ fontSize: 10, color: 'var(--gd-text-4)', marginTop: 1 }}>Klikněte pro zobrazení · Zapisují se jen pracovní série</div>
         </div>
-        <div style={{ color: '#444', fontSize: 11, transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }}>▼</div>
+        <div style={{ color: 'var(--gd-text-4)', fontSize: 11, transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }}>▼</div>
       </button>
 
       {open && (
-        <div style={{ padding: '0 12px 12px', borderTop: '1px solid rgba(94,207,177,0.1)' }}>
+        <div style={{ padding: '0 12px 12px', borderTop: '1px solid color-mix(in srgb, var(--gd-fern) 10%, transparent)' }}>
           {lifts.map(lift => (
             <div key={lift.key} style={{ marginTop: 10 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: '#5ECFB1', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>{lift.icon} {lift.label}</div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--gd-fern)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>{lift.icon} {lift.label}</div>
               {lift.series && lift.series.length > 0 ? (
                 <div style={{ display: 'grid', gridTemplateColumns: '50px 100px 40px 50px 1fr', gap: '4px 8px' }}>
-                  <div style={{ fontSize: 9, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>SÉRIE</div>
-                  <div style={{ fontSize: 9, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>VÁHA</div>
-                  <div style={{ fontSize: 9, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>REPS</div>
-                  <div style={{ fontSize: 9, color: '#f0a500', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>% 1RM</div>
-                  <div style={{ fontSize: 9, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>POZNÁMKA</div>
+                  <div style={{ fontSize: 9, color: 'var(--gd-text-4)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>SÉRIE</div>
+                  <div style={{ fontSize: 9, color: 'var(--gd-text-4)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>VÁHA</div>
+                  <div style={{ fontSize: 9, color: 'var(--gd-text-4)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>REPS</div>
+                  <div style={{ fontSize: 9, color: 'var(--gd-accent)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>% 1RM</div>
+                  <div style={{ fontSize: 9, color: 'var(--gd-text-4)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>POZNÁMKA</div>
                   {lift.series.map((row: WarmupSet, i: number) => (
                     <>
-                      <div key={`s${i}`} style={{ fontSize: 11, color: '#aaa', padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>1×{row.reps}</div>
-                      <div key={`w${i}`} style={{ fontSize: 11, color: '#d0d0d0', fontWeight: 600, padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>{formatWeight(row.weight)}</div>
-                      <div key={`r${i}`} style={{ fontSize: 11, color: '#5ECFB1', padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>{row.reps}</div>
-                      <div key={`p${i}`} style={{ fontSize: 11, color: '#f0a500', fontWeight: 600, padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>{extractPct(row.note)}</div>
-                      <div key={`n${i}`} style={{ fontSize: 10, color: '#666', padding: '3px 0', borderTop: '1px solid rgba(255,255,255,0.04)', lineHeight: 1.4 }}>{extractNote(row.note) !== '–' ? extractNote(row.note) : (row.weight === 20 ? 'Pohybový vzorec' : '–')}</div>
+                      <div key={`s${i}`} style={{ fontSize: 11, color: 'var(--gd-text-2)', padding: '3px 0', borderTop: '1px solid color-mix(in srgb, var(--gd-text) 4%, transparent)' }}>1×{row.reps}</div>
+                      <div key={`w${i}`} style={{ fontSize: 11, color: 'var(--gd-text)', fontWeight: 600, padding: '3px 0', borderTop: '1px solid color-mix(in srgb, var(--gd-text) 4%, transparent)' }}>{formatWeight(row.weight)}</div>
+                      <div key={`r${i}`} style={{ fontSize: 11, color: 'var(--gd-fern)', padding: '3px 0', borderTop: '1px solid color-mix(in srgb, var(--gd-text) 4%, transparent)' }}>{row.reps}</div>
+                      <div key={`p${i}`} style={{ fontSize: 11, color: 'var(--gd-accent)', fontWeight: 600, padding: '3px 0', borderTop: '1px solid color-mix(in srgb, var(--gd-text) 4%, transparent)' }}>{extractPct(row.note)}</div>
+                      <div key={`n${i}`} style={{ fontSize: 10, color: 'var(--gd-text-3)', padding: '3px 0', borderTop: '1px solid color-mix(in srgb, var(--gd-text) 4%, transparent)', lineHeight: 1.4 }}>{extractNote(row.note) !== '–' ? extractNote(row.note) : (row.weight === 20 ? 'Pohybový vzorec' : '–')}</div>
                     </>
                   ))}
                 </div>
               ) : (
-                <div style={{ fontSize: 11, color: '#555' }}>Data pro tento týden nejsou k dispozici.</div>
+                <div style={{ fontSize: 11, color: 'var(--gd-text-4)' }}>Data pro tento týden nejsou k dispozici.</div>
               )}
             </div>
           ))}
-          <div style={{ marginTop: 10, padding: '7px 10px', background: 'rgba(0,0,0,0.2)', borderRadius: 6, borderLeft: '2px solid rgba(94,207,177,0.4)' }}>
-            <div style={{ fontSize: 10, color: '#5ECFB1', fontWeight: 700, marginBottom: 2 }}>⚠️ DO DENÍKU SE ZAPISUJÍ JEN PRACOVNÍ SÉRIE</div>
-            <div style={{ fontSize: 10, color: '#555', lineHeight: 1.5 }}>Rozehřívací série slouží jen jako příprava CNS a pohybového vzorce. Nepočítej je jako objem.</div>
+          <div style={{ marginTop: 10, padding: '7px 10px', background: 'color-mix(in srgb, var(--gd-shadow) 20%, transparent)', borderRadius: 0, borderLeft: '2px solid color-mix(in srgb, var(--gd-fern) 40%, transparent)' }}>
+            <div style={{ fontSize: 10, color: 'var(--gd-fern)', fontWeight: 700, marginBottom: 2 }}>⚠️ DO DENÍKU SE ZAPISUJÍ JEN PRACOVNÍ SÉRIE</div>
+            <div style={{ fontSize: 10, color: 'var(--gd-text-4)', lineHeight: 1.5 }}>Rozehřívací série slouží jen jako příprava CNS a pohybového vzorce. Nepočítej je jako objem.</div>
           </div>
         </div>
       )}
@@ -444,7 +430,7 @@ function DayCard({ day, isExpanded, onToggle, workoutData, weekNumber }: {
   workoutData: WorkoutDataHook;
   weekNumber: number;
 }) {
-  const color = TYPE_COLORS[day.type] || '#666';
+  const color = TYPE_COLORS[day.type] || 'var(--gd-text-3)';
   const isRest = day.type === 'rest';
 
   return (
@@ -453,9 +439,9 @@ function DayCard({ day, isExpanded, onToggle, workoutData, weekNumber }: {
         onClick={onToggle}
         style={{
           width: '100%',
-          background: isExpanded ? 'rgba(245,200,66,0.06)' : 'rgba(255,255,255,0.02)',
-          border: isExpanded ? '1px solid rgba(245,200,66,0.2)' : '1px solid #1c1c1c',
-          borderRadius: isExpanded ? '12px 12px 0 0' : 12,
+          background: isExpanded ? 'color-mix(in srgb, var(--gd-accent) 6%, transparent)' : 'color-mix(in srgb, var(--gd-text) 2%, transparent)',
+          border: isExpanded ? '1px solid color-mix(in srgb, var(--gd-accent) 20%, transparent)' : '1px solid var(--gd-line)',
+          borderRadius: 0,
           padding: '12px 14px',
           display: 'flex',
           alignItems: 'center',
@@ -465,26 +451,26 @@ function DayCard({ day, isExpanded, onToggle, workoutData, weekNumber }: {
           transition: 'all 0.15s ease',
         }}
       >
-        <div style={{ width: 3, height: 36, background: color, borderRadius: 2, flexShrink: 0 }} />
+        <div style={{ width: 3, height: 36, background: color, borderRadius: 0, flexShrink: 0 }} />
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#e0e0e0' }}>{day.label}</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--gd-text)' }}>{day.label}</div>
           <div style={{ fontSize: 11, color: color, marginTop: 1 }}>{TYPE_LABELS[day.type] || day.type.toUpperCase()}</div>
         </div>
         {!isRest && (
-          <div style={{ fontSize: 11, color: '#555' }}>{day.exercises.length} cviků</div>
+          <div style={{ fontSize: 11, color: 'var(--gd-text-4)' }}>{day.exercises.length} {day.exercises.length === 1 ? 'cvik' : day.exercises.length <= 4 ? 'cviky' : 'cviků'}</div>
         )}
-        <div style={{ color: '#555', fontSize: 14, transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'none' }}>▼</div>
+        <div style={{ color: 'var(--gd-text-4)', fontSize: 14, transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'none' }}>▼</div>
       </button>
 
       {isExpanded && !isRest && (
         <div style={{
-          background: 'rgba(245,200,66,0.03)',
-          border: '1px solid rgba(245,200,66,0.15)',
+          background: 'color-mix(in srgb, var(--gd-accent) 3%, transparent)',
+          border: '1px solid color-mix(in srgb, var(--gd-accent) 15%, transparent)',
           borderTop: 'none',
-          borderRadius: '0 0 12px 12px',
+          borderRadius: '0',
           padding: '8px 14px 12px',
         }}>
-          <div style={{ color: '#666', fontSize: 11, marginBottom: 10, paddingTop: 6 }}>{day.description}</div>
+          <div style={{ color: 'var(--gd-text-3)', fontSize: 11, marginBottom: 10, paddingTop: 6 }}>{day.description}</div>
           {/* Warm-up series for strength days */}
           {(day.type === 'lower' || day.type === 'upper' || day.type === 'fullbody') && (
             <WarmupSeriesBlock dayType={day.type} weekNumber={weekNumber} />
@@ -500,12 +486,12 @@ function DayCard({ day, isExpanded, onToggle, workoutData, weekNumber }: {
 
       {isExpanded && isRest && (
         <div style={{
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px solid #1c1c1c',
+          background: 'color-mix(in srgb, var(--gd-text) 2%, transparent)',
+          border: '1px solid var(--gd-line)',
           borderTop: 'none',
-          borderRadius: '0 0 12px 12px',
+          borderRadius: '0',
           padding: '12px 14px',
-          color: '#555',
+          color: 'var(--gd-text-4)',
           fontSize: 12,
         }}>
           Aktivní regenerace: procházka, strečink, sauna, masáž. Žádný silový trénink.

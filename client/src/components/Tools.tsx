@@ -44,11 +44,19 @@ function saveBodyWeights(entries: WeightEntry[]) {
 // RPE → Weight Calculator
 // Epley formula: weight = 1RM / (1 + reps/30)
 // ============================================================
+// RPE -> % 1RM podle referenční tabulky pod kalkulačkou (RPE 10 = 100 %, každý stupeň -4 %).
+// Mezistupně (8.5, 9.5) se dopočítají lineárně.
+function rpeToPercent(rpe: number): number {
+  const clamped = Math.min(10, Math.max(6, rpe));
+  return (100 - (10 - clamped) * 4) / 100;
+}
+
 function calcWeightFromRPE(oneRM: number, reps: number, rpe: number): number {
-  // Adjust 1RM based on RPE (RPE 10 = true max)
-  const adjustedRM = oneRM * (rpe / 10);
-  const weight = adjustedRM / (1 + reps / 30);
-  return Math.round(weight * 2) / 2; // round to nearest 0.5
+  if (!Number.isFinite(oneRM) || !Number.isFinite(reps) || !Number.isFinite(rpe)) return 0;
+  const r = Math.min(20, Math.max(1, reps));
+  // Epley pozpátku: strop pro dnešek je 1RM x RPE %, z toho váha na r opakování
+  const weight = (oneRM * rpeToPercent(rpe)) / (1 + r / 30);
+  return Math.round(weight * 2) / 2; // zaokrouhleno na 0,5 kg
 }
 
 function calc1RMFromWeight(weight: number, reps: number): number {
@@ -65,10 +73,10 @@ export default function Tools({ workoutData }: Props) {
   const sectionBtnStyle = (active: boolean) => ({
     flex: 1,
     padding: '8px 4px',
-    background: active ? 'rgba(245,200,66,0.1)' : 'transparent',
-    border: active ? '1px solid rgba(245,200,66,0.3)' : '1px solid #1c1c1c',
-    borderRadius: 10,
-    color: active ? '#F5C842' : '#555',
+    background: active ? 'color-mix(in srgb, var(--gd-accent) 10%, transparent)' : 'transparent',
+    border: active ? '1px solid color-mix(in srgb, var(--gd-accent) 30%, transparent)' : '1px solid var(--gd-line)',
+    borderRadius: 0,
+    color: active ? 'var(--gd-accent)' : 'var(--gd-text-4)',
     fontSize: 10,
     fontWeight: active ? 700 : 400,
     letterSpacing: '0.05em',
@@ -80,48 +88,50 @@ export default function Tools({ workoutData }: Props) {
   return (
     <div style={{ padding: '0 0 16px' }}>
       {/* Header */}
-      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid #1c1c1c' }}>
-        <div style={{ color: '#F5C842', fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>
+      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--gd-line)' }}>
+        <div style={{ color: 'var(--gd-accent)', fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>
           NÁSTROJE
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: theme === 'dark' ? '#f0f0f0' : '#111' }}>
+          <h2 style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: 'var(--gd-text)' }}>
             Fitness nástroje
           </h2>
           {switchable && (
             <button
               onClick={toggleTheme}
               style={{
-                background: 'rgba(245,200,66,0.1)',
-                border: '1px solid rgba(245,200,66,0.2)',
-                borderRadius: 20,
-                padding: '6px 12px',
-                color: '#F5C842',
-                fontSize: 12,
-                fontWeight: 600,
+                background: 'color-mix(in srgb, var(--gd-accent) 10%, transparent)',
+                border: '1px solid color-mix(in srgb, var(--gd-accent) 20%, transparent)',
+                borderRadius: 0,
+                padding: '7px 12px',
+                color: 'var(--gd-accent)',
+                fontSize: 9,
+                fontWeight: 800,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
               }}
             >
-              {theme === 'dark' ? '☀️ Světlý' : '🌙 Tmavý'}
+              {theme === 'dark' ? 'SVĚTLÝ' : 'TMAVÝ'}
             </button>
           )}
         </div>
       </div>
 
       {/* Section tabs */}
-      <div style={{ padding: '12px 20px', borderBottom: '1px solid #1c1c1c' }}>
+      <div style={{ padding: '12px 20px', borderBottom: '1px solid var(--gd-line)' }}>
         <div style={{ display: 'flex', gap: 6 }}>
           {[
             { key: 'rpe', label: 'RPE' },
             { key: 'bodyweight', label: 'Váha' },
             { key: 'timer', label: 'Timer' },
             { key: 'export', label: 'Export' },
-            { key: 'nutrition', label: '🥩 Výživa' },
-            { key: 'autoregulation', label: '🧠 Auto' },
-            { key: 'documents', label: '📁 Docs' },
+            { key: 'nutrition', label: 'Výživa' },
+            { key: 'autoregulation', label: 'Auto' },
+            { key: 'documents', label: 'Docs' },
           ].map(s => (
             <button
               key={s.key}
@@ -160,7 +170,11 @@ function RPECalculator() {
   const [repsForRM, setRepsForRM] = useState('5');
 
   const suggestedWeight = oneRM && reps && rpe
-    ? calcWeightFromRPE(parseFloat(oneRM), parseInt(reps), parseFloat(rpe))
+    ? calcWeightFromRPE(
+        Math.min(500, Math.max(1, parseFloat(oneRM) || 0)),
+        Math.min(20, Math.max(1, parseInt(reps) || 1)),
+        Math.min(10, Math.max(6, parseFloat(rpe) || 8)),
+      )
     : null;
 
   const estimated1RM = weight && repsForRM
@@ -168,10 +182,10 @@ function RPECalculator() {
     : null;
 
   const inputStyle = {
-    background: '#1a1a1a',
-    border: '1px solid #2a2a2a',
-    borderRadius: 8,
-    color: '#e0e0e0',
+    background: 'var(--gd-surface)',
+    border: '1px solid var(--gd-line)',
+    borderRadius: 0,
+    color: 'var(--gd-text)',
     padding: '10px 12px',
     fontSize: 14,
     width: '100%',
@@ -181,7 +195,7 @@ function RPECalculator() {
 
   const labelStyle = {
     fontSize: 11,
-    color: '#666',
+    color: 'var(--gd-text-3)',
     letterSpacing: '0.1em',
     textTransform: 'uppercase' as const,
     marginBottom: 4,
@@ -190,10 +204,10 @@ function RPECalculator() {
 
   return (
     <div>
-      <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, fontWeight: 800, color: '#F5C842', marginBottom: 4 }}>
+      <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 18, fontWeight: 800, color: 'var(--gd-accent)', marginBottom: 4 }}>
         RPE Kalkulačka
       </div>
-      <p style={{ fontSize: 12, color: '#555', marginBottom: 16 }}>
+      <p style={{ fontSize: 12, color: 'var(--gd-text-4)', marginBottom: 16 }}>
         RPE 10 = absolutní maximum. RPE 8 = 2 opakování v zásobě.
       </p>
 
@@ -202,19 +216,19 @@ function RPECalculator() {
         <button
           onClick={() => setMode('rpe2weight')}
           style={{
-            flex: 1, padding: '8px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-            background: mode === 'rpe2weight' ? '#F5C842' : 'transparent',
-            border: mode === 'rpe2weight' ? 'none' : '1px solid #2a2a2a',
-            color: mode === 'rpe2weight' ? '#0c0c0c' : '#666',
+            flex: 1, padding: '8px', borderRadius: 0, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            background: mode === 'rpe2weight' ? 'var(--gd-accent)' : 'transparent',
+            border: mode === 'rpe2weight' ? 'none' : '1px solid var(--gd-line)',
+            color: mode === 'rpe2weight' ? 'var(--gd-ink)' : 'var(--gd-text-3)',
           }}
         >RPE → Váha</button>
         <button
           onClick={() => setMode('weight2rm')}
           style={{
-            flex: 1, padding: '8px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-            background: mode === 'weight2rm' ? '#F5C842' : 'transparent',
-            border: mode === 'weight2rm' ? 'none' : '1px solid #2a2a2a',
-            color: mode === 'weight2rm' ? '#0c0c0c' : '#666',
+            flex: 1, padding: '8px', borderRadius: 0, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            background: mode === 'weight2rm' ? 'var(--gd-accent)' : 'transparent',
+            border: mode === 'weight2rm' ? 'none' : '1px solid var(--gd-line)',
+            color: mode === 'weight2rm' ? 'var(--gd-ink)' : 'var(--gd-text-3)',
           }}
         >Váha → 1RM</button>
       </div>
@@ -238,23 +252,23 @@ function RPECalculator() {
 
           {suggestedWeight !== null && (
             <div style={{
-              background: 'rgba(245,200,66,0.08)',
-              border: '1px solid rgba(245,200,66,0.2)',
-              borderRadius: 14,
+              background: 'color-mix(in srgb, var(--gd-accent) 8%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--gd-accent) 20%, transparent)',
+              borderRadius: 0,
               padding: '16px',
               textAlign: 'center',
             }}>
-              <div style={{ fontSize: 11, color: '#666', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Doporučená váha</div>
-              <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 48, fontWeight: 900, color: '#F5C842', lineHeight: 1 }}>
+              <div style={{ fontSize: 11, color: 'var(--gd-text-3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Doporučená váha</div>
+              <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 48, fontWeight: 900, color: 'var(--gd-accent)', lineHeight: 1 }}>
                 {suggestedWeight}
               </div>
-              <div style={{ fontSize: 14, color: '#888', marginTop: 4 }}>kg · {reps} opakování @ RPE {rpe}</div>
+              <div style={{ fontSize: 14, color: 'var(--gd-text-3)', marginTop: 4 }}>kg · {reps} opakování @ RPE {rpe}</div>
             </div>
           )}
 
           {/* RPE reference table */}
           <div style={{ marginTop: 16 }}>
-            <div style={{ fontSize: 10, color: '#444', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>RPE Referenční tabulka</div>
+            <div style={{ fontSize: 10, color: 'var(--gd-text-4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>RPE Referenční tabulka</div>
             {[
               { rpe: 10, desc: 'Absolutní maximum, 0 reps v zásobě', pct: '100%' },
               { rpe: 9, desc: '1 opakování v zásobě', pct: '96%' },
@@ -262,10 +276,10 @@ function RPECalculator() {
               { rpe: 7, desc: '3 opakování v zásobě', pct: '88%' },
               { rpe: 6, desc: '4+ opakování v zásobě', pct: '84%' },
             ].map(row => (
-              <div key={row.rpe} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: '1px solid #161616' }}>
-                <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, fontWeight: 800, color: '#F5C842', width: 28 }}>{row.rpe}</div>
-                <div style={{ flex: 1, fontSize: 12, color: '#666' }}>{row.desc}</div>
-                <div style={{ fontSize: 12, color: '#444', fontWeight: 600 }}>{row.pct}</div>
+              <div key={row.rpe} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: '1px solid var(--gd-surface)' }}>
+                <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 18, fontWeight: 800, color: 'var(--gd-accent)', width: 28 }}>{row.rpe}</div>
+                <div style={{ flex: 1, fontSize: 12, color: 'var(--gd-text-3)' }}>{row.desc}</div>
+                <div style={{ fontSize: 12, color: 'var(--gd-text-4)', fontWeight: 600 }}>{row.pct}</div>
               </div>
             ))}
           </div>
@@ -285,31 +299,31 @@ function RPECalculator() {
 
           {estimated1RM !== null && (
             <div style={{
-              background: 'rgba(245,200,66,0.08)',
-              border: '1px solid rgba(245,200,66,0.2)',
-              borderRadius: 14,
+              background: 'color-mix(in srgb, var(--gd-accent) 8%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--gd-accent) 20%, transparent)',
+              borderRadius: 0,
               padding: '16px',
               textAlign: 'center',
             }}>
-              <div style={{ fontSize: 11, color: '#666', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Odhadované 1RM</div>
-              <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 48, fontWeight: 900, color: '#F5C842', lineHeight: 1 }}>
+              <div style={{ fontSize: 11, color: 'var(--gd-text-3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Odhadované 1RM</div>
+              <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 48, fontWeight: 900, color: 'var(--gd-accent)', lineHeight: 1 }}>
                 {estimated1RM}
               </div>
-              <div style={{ fontSize: 14, color: '#888', marginTop: 4 }}>kg (Epley formula)</div>
+              <div style={{ fontSize: 14, color: 'var(--gd-text-3)', marginTop: 4 }}>kg (Epley formula)</div>
             </div>
           )}
 
           {/* Quick reference for common %1RM */}
           {estimated1RM && (
             <div style={{ marginTop: 16 }}>
-              <div style={{ fontSize: 10, color: '#444', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>Procentuální tabulka</div>
+              <div style={{ fontSize: 10, color: 'var(--gd-text-4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>Procentuální tabulka</div>
               {[100, 95, 90, 85, 80, 75, 70].map(pct => (
-                <div key={pct} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '5px 0', borderBottom: '1px solid #161616' }}>
-                  <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 700, color: '#F5C842', width: 40 }}>{pct}%</div>
-                  <div style={{ flex: 1, fontSize: 12, color: '#666' }}>
+                <div key={pct} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '5px 0', borderBottom: '1px solid var(--gd-surface)' }}>
+                  <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 16, fontWeight: 700, color: 'var(--gd-accent)', width: 40 }}>{pct}%</div>
+                  <div style={{ flex: 1, fontSize: 12, color: 'var(--gd-text-3)' }}>
                     {pct === 100 ? '1 rep' : pct >= 90 ? '2-3 reps' : pct >= 85 ? '4-5 reps' : pct >= 80 ? '5-6 reps' : pct >= 75 ? '8-10 reps' : '12-15 reps'}
                   </div>
-                  <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, fontWeight: 800, color: '#e0e0e0' }}>
+                  <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 18, fontWeight: 800, color: 'var(--gd-text)' }}>
                     {Math.round(estimated1RM * pct / 100 * 2) / 2} kg
                   </div>
                 </div>
@@ -371,10 +385,10 @@ function BodyWeightTracker() {
   }));
 
   const inputStyle = {
-    background: '#1a1a1a',
-    border: '1px solid #2a2a2a',
-    borderRadius: 8,
-    color: '#e0e0e0',
+    background: 'var(--gd-surface)',
+    border: '1px solid var(--gd-line)',
+    borderRadius: 0,
+    color: 'var(--gd-text)',
     padding: '10px 12px',
     fontSize: 14,
     width: '100%',
@@ -384,7 +398,7 @@ function BodyWeightTracker() {
 
   const labelStyle = {
     fontSize: 11,
-    color: '#666',
+    color: 'var(--gd-text-3)',
     letterSpacing: '0.1em',
     textTransform: 'uppercase' as const,
     marginBottom: 4,
@@ -395,14 +409,14 @@ function BodyWeightTracker() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <div>
-          <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, fontWeight: 800, color: '#F5C842' }}>
+          <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 18, fontWeight: 800, color: 'var(--gd-accent)' }}>
             Tělesná váha
           </div>
           {latest && (
-            <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: 'var(--gd-text-3)', marginTop: 2 }}>
               Poslední: {latest.weight} kg · {formatDate(latest.date)}
               {change !== null && (
-                <span style={{ color: change < 0 ? '#6EE7B7' : '#F87171', marginLeft: 8, fontWeight: 600 }}>
+                <span style={{ color: change < 0 ? 'var(--gd-fern)' : 'var(--gd-danger)', marginLeft: 8, fontWeight: 600 }}>
                   {change > 0 ? '+' : ''}{change.toFixed(1)} kg
                 </span>
               )}
@@ -412,8 +426,8 @@ function BodyWeightTracker() {
         <button
           onClick={() => setShowForm(!showForm)}
           style={{
-            background: '#F5C842', border: 'none', borderRadius: 8,
-            color: '#0c0c0c', fontSize: 12, fontWeight: 700, padding: '8px 14px',
+            background: 'var(--gd-accent)', border: 'none', borderRadius: 0,
+            color: 'var(--gd-ink)', fontSize: 12, fontWeight: 700, padding: '8px 14px',
             cursor: 'pointer',
           }}
         >+ Přidat</button>
@@ -421,9 +435,9 @@ function BodyWeightTracker() {
 
       {showForm && (
         <div style={{
-          background: '#111',
-          border: '1px solid rgba(245,200,66,0.2)',
-          borderRadius: 14,
+          background: 'var(--gd-surface)',
+          border: '1px solid color-mix(in srgb, var(--gd-accent) 20%, transparent)',
+          borderRadius: 0,
           padding: '14px',
           marginBottom: 16,
         }}>
@@ -442,10 +456,10 @@ function BodyWeightTracker() {
             <input type="text" value={newNote} onChange={e => setNewNote(e.target.value)} placeholder="ráno, nalačno..." style={inputStyle} />
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={addEntry} style={{ flex: 1, background: '#F5C842', border: 'none', borderRadius: 8, color: '#0c0c0c', fontSize: 13, fontWeight: 700, padding: '9px', cursor: 'pointer' }}>
+            <button onClick={addEntry} style={{ flex: 1, background: 'var(--gd-accent)', border: 'none', borderRadius: 0, color: 'var(--gd-ink)', fontSize: 13, fontWeight: 700, padding: '9px', cursor: 'pointer' }}>
               Uložit
             </button>
-            <button onClick={() => setShowForm(false)} style={{ padding: '9px 14px', background: 'transparent', border: '1px solid #2a2a2a', borderRadius: 8, color: '#666', fontSize: 13, cursor: 'pointer' }}>
+            <button onClick={() => setShowForm(false)} style={{ padding: '9px 14px', background: 'transparent', border: '1px solid var(--gd-line)', borderRadius: 0, color: 'var(--gd-text-3)', fontSize: 13, cursor: 'pointer' }}>
               Zrušit
             </button>
           </div>
@@ -457,15 +471,15 @@ function BodyWeightTracker() {
         <div style={{ marginBottom: 16 }}>
           <ResponsiveContainer width="100%" height={140}>
             <LineChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
-              <XAxis dataKey="date" tick={{ fill: '#555', fontSize: 9 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#555', fontSize: 9 }} axisLine={false} tickLine={false} domain={['auto', 'auto']} />
+              <XAxis dataKey="date" tick={{ fill: 'var(--gd-text-4)', fontSize: 9 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: 'var(--gd-text-4)', fontSize: 9 }} axisLine={false} tickLine={false} domain={['auto', 'auto']} />
               <Tooltip
-                contentStyle={{ background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 8, fontSize: 12 }}
-                labelStyle={{ color: '#888' }}
-                itemStyle={{ color: '#F5C842' }}
+                contentStyle={{ background: 'var(--gd-surface)', border: '1px solid var(--gd-line)', borderRadius: 0, fontSize: 12 }}
+                labelStyle={{ color: 'var(--gd-text-3)' }}
+                itemStyle={{ color: 'var(--gd-accent)' }}
                 formatter={(v: number) => [`${v} kg`, 'Váha']}
               />
-              <Line type="monotone" dataKey="weight" stroke="#F5C842" strokeWidth={2} dot={{ fill: '#F5C842', r: 3 }} activeDot={{ r: 5 }} />
+              <Line type="monotone" dataKey="weight" stroke="var(--gd-accent)" strokeWidth={2} dot={{ fill: 'var(--gd-accent)', r: 3 }} activeDot={{ r: 5 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -473,35 +487,35 @@ function BodyWeightTracker() {
 
       {/* Entries list */}
       {sorted.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '30px 0', color: '#444' }}>
-          <div style={{ fontSize: 28, marginBottom: 8 }}>⚖️</div>
+        <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--gd-text-4)' }}>
+          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.24em', marginBottom: 10, color: 'var(--gd-text-4)' }}>VÁHA</div>
           <div style={{ fontSize: 13 }}>Žádné záznamy. Přidej první měření!</div>
         </div>
       ) : (
         <div>
-          <div style={{ fontSize: 10, color: '#444', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>ZÁZNAMY</div>
+          <div style={{ fontSize: 10, color: 'var(--gd-text-4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>ZÁZNAMY</div>
           {[...sorted].reverse().slice(0, 10).map((entry, idx) => (
             <div
               key={entry.id}
               style={{
                 display: 'flex', alignItems: 'center', gap: 10,
                 padding: '9px 12px',
-                background: idx === 0 ? 'rgba(245,200,66,0.05)' : 'rgba(255,255,255,0.02)',
-                border: idx === 0 ? '1px solid rgba(245,200,66,0.15)' : '1px solid #1c1c1c',
-                borderRadius: 10,
+                background: idx === 0 ? 'color-mix(in srgb, var(--gd-accent) 5%, transparent)' : 'color-mix(in srgb, var(--gd-text) 2%, transparent)',
+                border: idx === 0 ? '1px solid color-mix(in srgb, var(--gd-accent) 15%, transparent)' : '1px solid var(--gd-line)',
+                borderRadius: 0,
                 marginBottom: 6,
               }}
             >
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>{formatDate(entry.date)}</div>
-                {entry.note && <div style={{ fontSize: 11, color: '#444', marginTop: 1 }}>{entry.note}</div>}
+                <div style={{ fontSize: 12, color: 'var(--gd-text-3)' }}>{formatDate(entry.date)}</div>
+                {entry.note && <div style={{ fontSize: 11, color: 'var(--gd-text-4)', marginTop: 1 }}>{entry.note}</div>}
               </div>
-              <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 20, fontWeight: 800, color: '#F5C842' }}>
+              <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 20, fontWeight: 800, color: 'var(--gd-accent)' }}>
                 {entry.weight} kg
               </div>
               <button
                 onClick={() => deleteEntry(entry.id)}
-                style={{ background: 'none', border: 'none', color: '#333', fontSize: 14, cursor: 'pointer', padding: 4 }}
+                style={{ background: 'none', border: 'none', color: 'var(--gd-line)', fontSize: 14, cursor: 'pointer', padding: 4 }}
               >✕</button>
             </div>
           ))}
@@ -565,10 +579,10 @@ function RestTimer() {
 
   return (
     <div>
-      <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, fontWeight: 800, color: '#F5C842', marginBottom: 4 }}>
+      <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 18, fontWeight: 800, color: 'var(--gd-accent)', marginBottom: 4 }}>
         Odpočinkový timer
       </div>
-      <p style={{ fontSize: 12, color: '#555', marginBottom: 20 }}>
+      <p style={{ fontSize: 12, color: 'var(--gd-text-4)', marginBottom: 20 }}>
         Nastav délku odpočinku a spusť timer po sérii.
       </p>
 
@@ -576,11 +590,11 @@ function RestTimer() {
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
         <div style={{ position: 'relative', width: 140, height: 140 }}>
           <svg width="140" height="140" style={{ transform: 'rotate(-90deg)' }}>
-            <circle cx="70" cy="70" r="54" fill="none" stroke="#1c1c1c" strokeWidth="8" />
+            <circle cx="70" cy="70" r="54" fill="none" stroke="var(--gd-line)" strokeWidth="8" />
             <circle
               cx="70" cy="70" r="54"
               fill="none"
-              stroke={pct > 0.3 ? '#F5C842' : '#F87171'}
+              stroke={pct > 0.3 ? 'var(--gd-accent)' : 'var(--gd-danger)'}
               strokeWidth="8"
               strokeDasharray={circumference}
               strokeDashoffset={circumference * (1 - pct)}
@@ -593,10 +607,10 @@ function RestTimer() {
             transform: 'translate(-50%, -50%)',
             textAlign: 'center',
           }}>
-            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 32, fontWeight: 900, color: '#f0f0f0', lineHeight: 1 }}>
+            <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 32, fontWeight: 900, color: 'var(--gd-text)', lineHeight: 1 }}>
               {mins}:{secs.toString().padStart(2, '0')}
             </div>
-            <div style={{ fontSize: 10, color: '#555', marginTop: 2 }}>{running ? 'BĚŽÍ' : 'STOP'}</div>
+            <div style={{ fontSize: 10, color: 'var(--gd-text-4)', marginTop: 2 }}>{running ? 'BĚŽÍ' : 'STOP'}</div>
           </div>
         </div>
       </div>
@@ -607,15 +621,15 @@ function RestTimer() {
           onClick={startStop}
           style={{
             flex: 2,
-            background: running ? 'rgba(248,113,113,0.15)' : '#F5C842',
-            border: running ? '1px solid rgba(248,113,113,0.3)' : 'none',
-            borderRadius: 12,
-            color: running ? '#F87171' : '#0c0c0c',
+            background: running ? 'color-mix(in srgb, var(--gd-danger) 15%, transparent)' : 'var(--gd-accent)',
+            border: running ? '1px solid color-mix(in srgb, var(--gd-danger) 30%, transparent)' : 'none',
+            borderRadius: 0,
+            color: running ? 'var(--gd-danger)' : 'var(--gd-ink)',
             fontSize: 16,
             fontWeight: 800,
             padding: '14px',
             cursor: 'pointer',
-            fontFamily: 'Barlow Condensed, sans-serif',
+            fontFamily: 'Archivo, sans-serif', fontStretch: '118%',
             letterSpacing: '0.05em',
           }}
         >
@@ -625,10 +639,10 @@ function RestTimer() {
           onClick={reset}
           style={{
             flex: 1,
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid #2a2a2a',
-            borderRadius: 12,
-            color: '#666',
+            background: 'color-mix(in srgb, var(--gd-text) 4%, transparent)',
+            border: '1px solid var(--gd-line)',
+            borderRadius: 0,
+            color: 'var(--gd-text-3)',
             fontSize: 14,
             fontWeight: 600,
             padding: '14px',
@@ -638,7 +652,7 @@ function RestTimer() {
       </div>
 
       {/* Presets */}
-      <div style={{ fontSize: 10, color: '#444', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10 }}>RYCHLÉ NASTAVENÍ</div>
+      <div style={{ fontSize: 10, color: 'var(--gd-text-4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10 }}>RYCHLÉ NASTAVENÍ</div>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         {presets.map(s => (
           <button
@@ -646,10 +660,10 @@ function RestTimer() {
             onClick={() => setDuration(s)}
             style={{
               padding: '7px 12px',
-              background: duration === s ? 'rgba(245,200,66,0.15)' : 'rgba(255,255,255,0.03)',
-              border: duration === s ? '1px solid rgba(245,200,66,0.3)' : '1px solid #1c1c1c',
-              borderRadius: 8,
-              color: duration === s ? '#F5C842' : '#555',
+              background: duration === s ? 'color-mix(in srgb, var(--gd-accent) 15%, transparent)' : 'color-mix(in srgb, var(--gd-text) 3%, transparent)',
+              border: duration === s ? '1px solid color-mix(in srgb, var(--gd-accent) 30%, transparent)' : '1px solid var(--gd-line)',
+              borderRadius: 0,
+              color: duration === s ? 'var(--gd-accent)' : 'var(--gd-text-4)',
               fontSize: 12,
               fontWeight: duration === s ? 700 : 400,
               cursor: 'pointer',
@@ -920,10 +934,10 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
 
   return (
     <div>
-      <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, fontWeight: 800, color: '#F5C842', marginBottom: 4 }}>
+      <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 18, fontWeight: 800, color: 'var(--gd-accent)', marginBottom: 4 }}>
         Export dat
       </div>
-      <p style={{ fontSize: 12, color: '#555', marginBottom: 20 }}>
+      <p style={{ fontSize: 12, color: 'var(--gd-text-4)', marginBottom: 20 }}>
         Stáhni svá data jako XLSX soubor – 4 listy identické se starým deníkem.
       </p>
 
@@ -935,11 +949,11 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
           { label: 'Váha', value: bwCount },
         ].map(s => (
           <div key={s.label} style={{
-            flex: 1, background: 'rgba(255,255,255,0.02)', border: '1px solid #1c1c1c',
-            borderRadius: 10, padding: '10px', textAlign: 'center',
+            flex: 1, background: 'color-mix(in srgb, var(--gd-text) 2%, transparent)', border: '1px solid var(--gd-line)',
+            borderRadius: 0, padding: '10px', textAlign: 'center',
           }}>
-            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 24, fontWeight: 800, color: '#F5C842' }}>{s.value}</div>
-            <div style={{ fontSize: 10, color: '#555', marginTop: 2 }}>{s.label}</div>
+            <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 24, fontWeight: 800, color: 'var(--gd-accent)' }}>{s.value}</div>
+            <div style={{ fontSize: 10, color: 'var(--gd-text-4)', marginTop: 2 }}>{s.label}</div>
           </div>
         ))}
       </div>
@@ -949,9 +963,9 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
         <button
           onClick={exportXLSX}
           style={{
-            background: 'rgba(245,200,66,0.08)',
-            border: '1px solid rgba(245,200,66,0.2)',
-            borderRadius: 12,
+            background: 'color-mix(in srgb, var(--gd-accent) 8%, transparent)',
+            border: '1px solid color-mix(in srgb, var(--gd-accent) 20%, transparent)',
+            borderRadius: 0,
             padding: '14px 16px',
             display: 'flex',
             alignItems: 'center',
@@ -961,20 +975,20 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
             width: '100%',
           }}
         >
-          <span style={{ fontSize: 24 }}>📊</span>
+          <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', color: 'var(--gd-accent)' }}>XLS</span>
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 700, color: '#F5C842' }}>Export tréninků (XLSX)</div>
-            <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>{totalRecords} záznamů · 4 listy: Záznamy, Souhrn cviků, Souhrn týdnů, Metadata</div>
+            <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 16, fontWeight: 700, color: 'var(--gd-accent)' }}>Export tréninků (XLSX)</div>
+            <div style={{ fontSize: 11, color: 'var(--gd-text-3)', marginTop: 2 }}>{totalRecords} záznamů · 4 listy: Záznamy, Souhrn cviků, Souhrn týdnů, Metadata</div>
           </div>
-          <div style={{ color: '#F5C842', fontSize: 16 }}>↓</div>
+          <div style={{ color: 'var(--gd-accent)', fontSize: 16 }}>↓</div>
         </button>
 
         <button
           onClick={exportBodyWeight}
           style={{
-            background: 'rgba(110,231,183,0.06)',
-            border: '1px solid rgba(110,231,183,0.15)',
-            borderRadius: 12,
+            background: 'color-mix(in srgb, var(--gd-fern) 6%, transparent)',
+            border: '1px solid color-mix(in srgb, var(--gd-fern) 15%, transparent)',
+            borderRadius: 0,
             padding: '14px 16px',
             display: 'flex',
             alignItems: 'center',
@@ -984,46 +998,46 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
             width: '100%',
           }}
         >
-          <span style={{ fontSize: 24 }}>⚖️</span>
+          <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', color: 'var(--gd-fern)' }}>KG</span>
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 700, color: '#6EE7B7' }}>Export tělesné váhy (XLSX)</div>
-            <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>{bwCount} záznamů · 1 list</div>
+            <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 16, fontWeight: 700, color: 'var(--gd-fern)' }}>Export tělesné váhy (XLSX)</div>
+            <div style={{ fontSize: 11, color: 'var(--gd-text-3)', marginTop: 2 }}>{bwCount} záznamů · 1 list</div>
           </div>
-          <div style={{ color: '#6EE7B7', fontSize: 16 }}>↓</div>
+          <div style={{ color: 'var(--gd-fern)', fontSize: 16 }}>↓</div>
         </button>
 
         <button
           onClick={exportBackup}
-          style={{ background: 'rgba(147,197,253,0.06)', border: '1px solid rgba(147,197,253,0.18)', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', textAlign: 'left', width: '100%' }}
+          style={{ background: 'color-mix(in srgb, var(--gd-text-2) 6%, transparent)', border: '1px solid color-mix(in srgb, var(--gd-text-2) 18%, transparent)', borderRadius: 0, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', textAlign: 'left', width: '100%' }}
         >
-          <span style={{ fontSize: 24 }}>💾</span>
+          <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', color: 'var(--gd-text-2)' }}>JSON</span>
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 700, color: '#93C5FD' }}>Kompletní záloha (JSON)</div>
-            <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>Cviky, běhy, HIIT i tělesná váha · soubor lze později načíst zpět</div>
+            <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 16, fontWeight: 700, color: 'var(--gd-text-2)' }}>Kompletní záloha (JSON)</div>
+            <div style={{ fontSize: 11, color: 'var(--gd-text-3)', marginTop: 2 }}>Cviky, běhy, HIIT i tělesná váha · soubor lze později načíst zpět</div>
           </div>
-          <div style={{ color: '#93C5FD', fontSize: 16 }}>↓</div>
+          <div style={{ color: 'var(--gd-text-2)', fontSize: 16 }}>↓</div>
         </button>
 
         <input ref={backupInputRef} type="file" accept="application/json,.json" onChange={importBackup} style={{ display: 'none' }} />
         <button
           onClick={() => backupInputRef.current?.click()}
-          style={{ background: 'transparent', border: '1px dashed rgba(147,197,253,0.28)', borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', textAlign: 'left', width: '100%' }}
+          style={{ background: 'transparent', border: '1px dashed color-mix(in srgb, var(--gd-text-2) 28%, transparent)', borderRadius: 0, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', textAlign: 'left', width: '100%' }}
         >
           <span style={{ fontSize: 20 }}>↑</span>
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 15, fontWeight: 700, color: '#93C5FD' }}>Načíst zálohu (JSON)</div>
-            <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>Obnoví data do tohoto prohlížeče a aplikace se znovu načte</div>
+            <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 15, fontWeight: 700, color: 'var(--gd-text-2)' }}>Načíst zálohu (JSON)</div>
+            <div style={{ fontSize: 11, color: 'var(--gd-text-3)', marginTop: 2 }}>Obnoví data do tohoto prohlížeče a aplikace se znovu načte</div>
           </div>
         </button>
       </div>
 
-      <div style={{ marginTop: 16, padding: '10px 12px', background: 'rgba(245,200,66,0.04)', border: '1px solid rgba(245,200,66,0.15)', borderRadius: 10 }}>
-        <div style={{ fontSize: 10, color: '#F5C842', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>XLSX STRUKTURA (identická se starým deníkem)</div>
-        <div style={{ fontSize: 11, color: '#666', lineHeight: 1.6 }}>
-          📄 <b style={{color:'#aaa'}}>Záznamy</b> – všechny zápisy s datem, cvikem, váhou, objemem<br/>
-          📄 <b style={{color:'#aaa'}}>Souhrn cviků</b> – max váha, trend, celkový objem<br/>
-          📄 <b style={{color:'#aaa'}}>Souhrn týdnů</b> – objem a počet záznamů po týdních<br/>
-          📄 <b style={{color:'#aaa'}}>Metadata</b> – informace o plánu a exportu
+      <div style={{ marginTop: 16, padding: '10px 12px', background: 'color-mix(in srgb, var(--gd-accent) 4%, transparent)', border: '1px solid color-mix(in srgb, var(--gd-accent) 15%, transparent)', borderRadius: 0 }}>
+        <div style={{ fontSize: 10, color: 'var(--gd-accent)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>XLSX STRUKTURA (identická se starým deníkem)</div>
+        <div style={{ fontSize: 11, color: 'var(--gd-text-3)', lineHeight: 1.6 }}>
+          <b style={{color:'var(--gd-text-2)'}}>Záznamy</b> – všechny zápisy s datem, cvikem, váhou, objemem<br/>
+          <b style={{color:'var(--gd-text-2)'}}>Souhrn cviků</b> – max váha, trend, celkový objem<br/>
+          <b style={{color:'var(--gd-text-2)'}}>Souhrn týdnů</b> – objem a počet záznamů po týdních<br/>
+          <b style={{color:'var(--gd-text-2)'}}>Metadata</b> – informace o plánu a exportu
         </div>
       </div>
     </div>
@@ -1038,35 +1052,35 @@ function NutritionGuide() {
 
   const tabStyle = (active: boolean) => ({
     padding: '7px 14px',
-    borderRadius: 8,
+    borderRadius: 0,
     border: 'none',
     fontSize: 12,
     fontWeight: 600,
     cursor: 'pointer',
-    background: active ? '#D4AF37' : 'rgba(255,255,255,0.04)',
-    color: active ? '#000' : '#888',
+    background: active ? 'var(--gd-accent)' : 'color-mix(in srgb, var(--gd-text) 4%, transparent)',
+    color: active ? 'var(--gd-ink)' : 'var(--gd-text-3)',
     transition: 'all 0.2s',
   });
 
   const cardStyle = {
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid #1c1c1c',
-    borderRadius: 12,
+    background: 'color-mix(in srgb, var(--gd-text) 3%, transparent)',
+    border: '1px solid var(--gd-line)',
+    borderRadius: 0,
     padding: '14px 16px',
     marginBottom: 10,
   };
 
-  const labelStyle = { fontSize: 10, color: '#666', letterSpacing: '0.08em', textTransform: 'uppercase' as const, marginBottom: 4 };
-  const valueStyle = { fontFamily: 'Barlow Condensed, sans-serif', fontSize: 22, fontWeight: 700, color: '#D4AF37' };
-  const subStyle = { fontSize: 12, color: '#888', marginTop: 2 };
+  const labelStyle = { fontSize: 10, color: 'var(--gd-text-3)', letterSpacing: '0.08em', textTransform: 'uppercase' as const, marginBottom: 4 };
+  const valueStyle = { fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 22, fontWeight: 700, color: 'var(--gd-accent)' };
+  const subStyle = { fontSize: 12, color: 'var(--gd-text-3)', marginTop: 2 };
 
   return (
     <div>
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 20, fontWeight: 700, color: '#fff', marginBottom: 4 }}>
+        <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 20, fontWeight: 700, color: 'var(--gd-text)', marginBottom: 4 }}>
           Výživa & Suplementace
         </div>
-        <div style={{ fontSize: 12, color: '#666' }}>Protokol z vědecky podloženého plánu 2026 v4</div>
+        <div style={{ fontSize: 12, color: 'var(--gd-text-3)' }}>Protokol z vědecky podloženého plánu 2026 v4</div>
       </div>
 
       {/* Sub-tabs */}
@@ -1085,9 +1099,9 @@ function NutritionGuide() {
 
       {tab === 'macros' && (
         <div>
-          <div style={{ ...cardStyle, borderColor: 'rgba(212,175,55,0.2)', background: 'rgba(212,175,55,0.04)' }}>
+          <div style={{ ...cardStyle, borderColor: 'color-mix(in srgb, var(--gd-accent) 20%, transparent)', background: 'color-mix(in srgb, var(--gd-accent) 4%, transparent)' }}>
             <div style={labelStyle}>Cíl – Rekomposice těla</div>
-            <div style={{ fontSize: 13, color: '#ccc', lineHeight: 1.6 }}>
+            <div style={{ fontSize: 13, color: 'var(--gd-text-2)', lineHeight: 1.6 }}>
               Mírný kalorický přebytek v tréninkové dny, udržovací příjem ve dnech odpočinku. Priorita: svalová hypertrofie + minimalizace tuku.
             </div>
           </div>
@@ -1106,27 +1120,27 @@ function NutritionGuide() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-            <div style={{ ...cardStyle, borderColor: 'rgba(239,68,68,0.2)', background: 'rgba(239,68,68,0.04)' }}>
+            <div style={{ ...cardStyle, borderColor: 'color-mix(in srgb, var(--gd-danger) 20%, transparent)', background: 'color-mix(in srgb, var(--gd-danger) 4%, transparent)' }}>
               <div style={labelStyle}>Bílkoviny</div>
-              <div style={{ ...valueStyle, color: '#EF4444' }}>180–200g</div>
+              <div style={{ ...valueStyle, color: 'var(--gd-danger)' }}>180–200g</div>
               <div style={subStyle}>2,2–2,5 g/kg</div>
             </div>
-            <div style={{ ...cardStyle, borderColor: 'rgba(59,130,246,0.2)', background: 'rgba(59,130,246,0.04)' }}>
+            <div style={{ ...cardStyle, borderColor: 'color-mix(in srgb, var(--gd-text-2) 20%, transparent)', background: 'color-mix(in srgb, var(--gd-text-2) 4%, transparent)' }}>
               <div style={labelStyle}>Sacharidy</div>
-              <div style={{ ...valueStyle, color: '#3B82F6' }}>280–350g</div>
+              <div style={{ ...valueStyle, color: 'var(--gd-text-2)' }}>280–350g</div>
               <div style={subStyle}>3,5–4,5 g/kg</div>
             </div>
-            <div style={{ ...cardStyle, borderColor: 'rgba(234,179,8,0.2)', background: 'rgba(234,179,8,0.04)' }}>
+            <div style={{ ...cardStyle, borderColor: 'color-mix(in srgb, var(--gd-accent) 20%, transparent)', background: 'color-mix(in srgb, var(--gd-accent) 4%, transparent)' }}>
               <div style={labelStyle}>Tuky</div>
-              <div style={{ ...valueStyle, color: '#EAB308' }}>70–90g</div>
+              <div style={{ ...valueStyle, color: 'var(--gd-accent)' }}>70–90g</div>
               <div style={subStyle}>0,9–1,1 g/kg</div>
             </div>
           </div>
 
           <div style={{ ...cardStyle, marginTop: 10 }}>
             <div style={labelStyle}>Hydratace</div>
-            <div style={{ fontSize: 13, color: '#ccc', lineHeight: 1.6 }}>
-              <strong style={{ color: '#D4AF37' }}>3–4 litry vody denně.</strong> V tréninkový den +500 ml navíc. Elektrolyty (sodík, draslík) při tréninku delším než 60 min.
+            <div style={{ fontSize: 13, color: 'var(--gd-text-2)', lineHeight: 1.6 }}>
+              <strong style={{ color: 'var(--gd-accent)' }}>3–4 litry vody denně.</strong> V tréninkový den +500 ml navíc. Elektrolyty (sodík, draslík) při tréninku delším než 60 min.
             </div>
           </div>
         </div>
@@ -1138,7 +1152,7 @@ function NutritionGuide() {
             {
               time: '07:00 – Ráno',
               icon: '🌅',
-              color: '#F59E0B',
+              color: 'var(--gd-accent)',
               items: [
                 '300–400 kcal · sacharidy + bílkoviny',
                 'Ovesná kaše + protein shake nebo vejce',
@@ -1148,7 +1162,7 @@ function NutritionGuide() {
             {
               time: 'Pre-workout (60–90 min před)',
               icon: '⚡',
-              color: '#D4AF37',
+              color: 'var(--gd-accent)',
               items: [
                 '40–60g sacharidů (rýže, banán, ovesné vločky)',
                 '20–30g bílkovin (kuřecí, tvaroh, protein shake)',
@@ -1158,7 +1172,7 @@ function NutritionGuide() {
             {
               time: 'Intra-workout',
               icon: '🏋️',
-              color: '#3B82F6',
+              color: 'var(--gd-text-2)',
               items: [
                 'Voda 500–750 ml',
                 'Při tréninku >75 min: 30–40g rychlých sacharidů (sportovní nápoj, banán)',
@@ -1168,7 +1182,7 @@ function NutritionGuide() {
             {
               time: 'Post-workout (do 30–60 min)',
               icon: '🔄',
-              color: '#10B981',
+              color: 'var(--gd-fern)',
               items: [
                 '40–60g sacharidů (rýže, brambory, ovoce)',
                 '30–40g bílkovin (protein shake, kuřecí, tvaroh)',
@@ -1178,7 +1192,7 @@ function NutritionGuide() {
             {
               time: 'Večeře (2–3h před spaním)',
               icon: '🌙',
-              color: '#8B5CF6',
+              color: 'var(--gd-text-2)',
               items: [
                 '30–40g bílkovin (kasein, tvaroh, vejce)',
                 'Zelenina, zdravé tuky',
@@ -1189,10 +1203,10 @@ function NutritionGuide() {
             <div key={i} style={{ ...cardStyle, borderLeft: `3px solid ${meal.color}` }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <span style={{ fontSize: 18 }}>{meal.icon}</span>
-                <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 15, fontWeight: 700, color: '#fff' }}>{meal.time}</div>
+                <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 15, fontWeight: 700, color: 'var(--gd-text)' }}>{meal.time}</div>
               </div>
               {meal.items.map((item, j) => (
-                <div key={j} style={{ fontSize: 12, color: '#aaa', marginBottom: 3, paddingLeft: 4 }}>
+                <div key={j} style={{ fontSize: 12, color: 'var(--gd-text-2)', marginBottom: 3, paddingLeft: 4 }}>
                   · {item}
                 </div>
               ))}
@@ -1203,26 +1217,26 @@ function NutritionGuide() {
 
       {tab === 'supplements' && (
         <div>
-          <div style={{ ...cardStyle, borderColor: 'rgba(212,175,55,0.2)', background: 'rgba(212,175,55,0.04)', marginBottom: 14 }}>
-            <div style={{ fontSize: 12, color: '#888' }}>
+          <div style={{ ...cardStyle, borderColor: 'color-mix(in srgb, var(--gd-accent) 20%, transparent)', background: 'color-mix(in srgb, var(--gd-accent) 4%, transparent)', marginBottom: 14 }}>
+            <div style={{ fontSize: 12, color: 'var(--gd-text-3)' }}>
               Suplementy jsou doplněk, ne náhrada. Priorita: jídlo, spánek, konzistence.
             </div>
           </div>
 
           {[
-            { name: 'Kreatin monohydrát', dose: '5g / den', timing: 'Ráno nebo post-workout', priority: 'ZÁKLAD', color: '#D4AF37', note: 'Nejlépe vědecky podložený suplement. Zvyšuje sílu o 5–15%, svalovou hmotu, kognitivní funkce. Saturace za 3–4 týdny.' },
-            { name: 'Protein (syrovátkový)', dose: '25–40g / dávka', timing: 'Post-workout nebo mezi jídly', priority: 'ZÁKLAD', color: '#D4AF37', note: 'Pouze pokud nedosáhneš 180–200g bílkovin z jídla. Whey isolate = nejrychlejší vstřebávání.' },
-            { name: 'Kofein', dose: '150–200 mg', timing: '45–60 min před tréninkem', priority: 'VÝKON', color: '#F59E0B', note: 'Zvyšuje sílu, výdrž, fokus. Cykluj – 5 dní on / 2 dny off. Nepij po 14:00 (narušuje spánek).' },
-            { name: 'Omega-3 (rybí olej)', dose: '2–3g EPA+DHA / den', timing: 'S jídlem', priority: 'ZDRAVÍ', color: '#3B82F6', note: 'Protizánětlivé, podpora kloubů, kardiovaskulárního zdraví. Důležité při vysokém objemu tréninku.' },
-            { name: 'Vitamín D3 + K2', dose: '2 000–4 000 IU D3 + 100 mcg K2', timing: 'Ráno s jídlem', priority: 'ZDRAVÍ', color: '#3B82F6', note: 'Testosteron, imunita, kosti. Většina populace má deficit. K2 zajišťuje správné ukládání vápníku.' },
-            { name: 'Magnesium', dose: '300–400 mg', timing: 'Večer před spaním', priority: 'REGENERACE', color: '#10B981', note: 'Kvalita spánku, svalová relaxace, redukce křečí. Preferuj glycinát nebo malát (lepší vstřebávání než oxid).' },
-            { name: 'Zinek', dose: '15–25 mg', timing: 'Večer', priority: 'REGENERACE', color: '#10B981', note: 'Testosteron, imunita, hojení. Nekombinuj s vápníkem (snižuje vstřebávání).' },
-            { name: 'Beta-alanin', dose: '3,2–6,4g / den', timing: 'Pre-workout nebo s jídlem', priority: 'VOLITELNÉ', color: '#8B5CF6', note: 'Snižuje únavu při opakovaných sériích (8–15 opakování). Způsobuje brnění (parestézie) – normální.' },
+            { name: 'Kreatin monohydrát', dose: '5g / den', timing: 'Ráno nebo post-workout', priority: 'ZÁKLAD', color: 'var(--gd-accent)', note: 'Nejlépe vědecky podložený suplement. Zvyšuje sílu o 5–15%, svalovou hmotu, kognitivní funkce. Saturace za 3–4 týdny.' },
+            { name: 'Protein (syrovátkový)', dose: '25–40g / dávka', timing: 'Post-workout nebo mezi jídly', priority: 'ZÁKLAD', color: 'var(--gd-accent)', note: 'Pouze pokud nedosáhneš 180–200g bílkovin z jídla. Whey isolate = nejrychlejší vstřebávání.' },
+            { name: 'Kofein', dose: '150–200 mg', timing: '45–60 min před tréninkem', priority: 'VÝKON', color: 'var(--gd-accent)', note: 'Zvyšuje sílu, výdrž, fokus. Cykluj – 5 dní on / 2 dny off. Nepij po 14:00 (narušuje spánek).' },
+            { name: 'Omega-3 (rybí olej)', dose: '2–3g EPA+DHA / den', timing: 'S jídlem', priority: 'ZDRAVÍ', color: 'var(--gd-text-2)', note: 'Protizánětlivé, podpora kloubů, kardiovaskulárního zdraví. Důležité při vysokém objemu tréninku.' },
+            { name: 'Vitamín D3 + K2', dose: '2 000–4 000 IU D3 + 100 mcg K2', timing: 'Ráno s jídlem', priority: 'ZDRAVÍ', color: 'var(--gd-text-2)', note: 'Testosteron, imunita, kosti. Většina populace má deficit. K2 zajišťuje správné ukládání vápníku.' },
+            { name: 'Magnesium', dose: '300–400 mg', timing: 'Večer před spaním', priority: 'REGENERACE', color: 'var(--gd-fern)', note: 'Kvalita spánku, svalová relaxace, redukce křečí. Preferuj glycinát nebo malát (lepší vstřebávání než oxid).' },
+            { name: 'Zinek', dose: '15–25 mg', timing: 'Večer', priority: 'REGENERACE', color: 'var(--gd-fern)', note: 'Testosteron, imunita, hojení. Nekombinuj s vápníkem (snižuje vstřebávání).' },
+            { name: 'Beta-alanin', dose: '3,2–6,4g / den', timing: 'Pre-workout nebo s jídlem', priority: 'VOLITELNÉ', color: 'var(--gd-text-2)', note: 'Snižuje únavu při opakovaných sériích (8–15 opakování). Způsobuje brnění (parestézie) – normální.' },
           ].map((s, i) => (
             <div key={i} style={{ ...cardStyle, borderLeft: `3px solid ${s.color}` }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-                <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 700, color: '#fff' }}>{s.name}</div>
-                <span style={{ fontSize: 10, fontWeight: 700, color: s.color, background: `${s.color}18`, padding: '2px 8px', borderRadius: 4 }}>
+                <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 16, fontWeight: 700, color: 'var(--gd-text)' }}>{s.name}</div>
+                <span style={{ fontSize: 10, fontWeight: 700, color: s.color, background: `${s.color}18`, padding: '2px 8px', borderRadius: 0 }}>
                   {s.priority}
                 </span>
               </div>
@@ -1233,10 +1247,10 @@ function NutritionGuide() {
                 </div>
                 <div>
                   <div style={labelStyle}>Načasování</div>
-                  <div style={{ fontSize: 13, color: '#aaa' }}>{s.timing}</div>
+                  <div style={{ fontSize: 13, color: 'var(--gd-text-2)' }}>{s.timing}</div>
                 </div>
               </div>
-              <div style={{ fontSize: 11, color: '#666', lineHeight: 1.5 }}>{s.note}</div>
+              <div style={{ fontSize: 11, color: 'var(--gd-text-3)', lineHeight: 1.5 }}>{s.note}</div>
             </div>
           ))}
         </div>
@@ -1248,46 +1262,46 @@ function NutritionGuide() {
             {
               title: '80/20 pravidlo',
               icon: '🎯',
-              color: '#D4AF37',
+              color: 'var(--gd-accent)',
               text: '80% jídla z celých, minimálně zpracovaných potravin. 20% flexibilita – pizza, dezert, restaurace. Perfekcionismus vede k selhání.',
             },
             {
               title: 'Bílkoviny jako základ',
               icon: '🥩',
-              color: '#EF4444',
+              color: 'var(--gd-danger)',
               text: 'Každé jídlo = zdroj bílkovin. Kuřecí, hovězí, vejce, tvaroh, ryby, luštěniny. Cíl: 180–200g denně. Bez dostatku bílkovin nerostou svaly.',
             },
             {
               title: 'Sacharidy = palivo',
               icon: '⚡',
-              color: '#3B82F6',
+              color: 'var(--gd-text-2)',
               text: 'Nejvíce sacharidů kolem tréninku (pre + post). Rýže, brambory, ovesné vločky, ovoce. Snižuj sacharidy ve dnech odpočinku.',
             },
             {
               title: 'Spánek = suplement #1',
               icon: '😴',
-              color: '#8B5CF6',
+              color: 'var(--gd-text-2)',
               text: '7–9 hodin denně. Bez spánku nefunguje žádný trénink ani výživa. GH se vylučuje primárně v noci. Prioritizuj spánek nad vším ostatním.',
             },
             {
               title: 'Konzistence > Perfekce',
               icon: '📅',
-              color: '#10B981',
+              color: 'var(--gd-fern)',
               text: '1 špatný den nezničí výsledky. 1 měsíc špatných návyků ano. Zaměř se na průměr za týden, ne na každý den zvlášť.',
             },
             {
               title: 'Deload = jez stejně',
               icon: '🔄',
-              color: '#F59E0B',
+              color: 'var(--gd-accent)',
               text: 'V deload týdnu (W4, W8, W12, W16) nesniž příjem kalorií. Tělo potřebuje živiny pro regeneraci a superkompenzaci.',
             },
           ].map((rule, i) => (
             <div key={i} style={{ ...cardStyle, borderLeft: `3px solid ${rule.color}` }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                 <span style={{ fontSize: 20 }}>{rule.icon}</span>
-                <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 700, color: '#fff' }}>{rule.title}</div>
+                <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 16, fontWeight: 700, color: 'var(--gd-text)' }}>{rule.title}</div>
               </div>
-              <div style={{ fontSize: 12, color: '#aaa', lineHeight: 1.6 }}>{rule.text}</div>
+              <div style={{ fontSize: 12, color: 'var(--gd-text-2)', lineHeight: 1.6 }}>{rule.text}</div>
             </div>
           ))}
         </div>
@@ -1307,7 +1321,7 @@ function AutoregulationGuide() {
       id: 'rpe-autoregulation',
       title: 'RPE Autoregulace (Tuchscherer)',
       icon: '🎯',
-      color: '#F5C842',
+      color: 'var(--gd-accent)',
       summary: 'Pokud RPE > cílové o 1+ → sniž váhu o 5%. Pokud RPE < cílové o 1+ → přidej 2.5 kg.',
       content: [
         { label: 'Pravidlo 1', text: 'Každý trénink začínej s plánovanou váhou. Pokud první série má RPE o 1 vyšší než plán → sniž váhu o 5% pro zbývající série.' },
@@ -1320,7 +1334,7 @@ function AutoregulationGuide() {
       id: 'double-progression',
       title: 'Double Progression (Fáze 1–2)',
       icon: '📈',
-      color: '#6EE7B7',
+      color: 'var(--gd-fern)',
       summary: 'Nejprve přidej rep (6→8→10), pak přidej váhu (+2.5 kg) a vrať se na 6 repů.',
       content: [
         { label: 'Jak funguje', text: 'Cíl: 4×6–10 @ RPE 7–8. Začni s 6 repy. Každý trénink přidej 1 rep dokud nedosáhneš 10. Pak přidej 2.5 kg a vrať se na 6 repů.' },
@@ -1332,7 +1346,7 @@ function AutoregulationGuide() {
       id: 'ramp-topset',
       title: 'RAMP / TOP SET / BACK-OFF (Fáze 2–4)',
       icon: '🏔️',
-      color: '#93C5FD',
+      color: 'var(--gd-text-2)',
       summary: 'Ramp = příprava na top set. Top set = maximální úsilí. Back-off = −8% pro objem.',
       content: [
         { label: 'RAMP série', text: '2–3 série s 75–85% 1RM. Cíl: aktivace CNS, příprava kloubů, technická příprava. RPE 7.' },
@@ -1345,7 +1359,7 @@ function AutoregulationGuide() {
       id: 'fatigue-management',
       title: 'Fatigue Management (Israetel)',
       icon: '⚡',
-      color: '#F87171',
+      color: 'var(--gd-danger)',
       summary: 'Únava maskuje fitness. Deload odstraní únavu a odhalí skutečnou sílu.',
       content: [
         { label: 'Princip', text: 'Každý trénink přidává únavu. Únava dočasně snižuje výkon. Deload (W4, W8, W12) odstraní únavu → superkompenzace = nové maximum.' },
@@ -1358,7 +1372,7 @@ function AutoregulationGuide() {
       id: 'run-interference',
       title: 'Běh & Interference (Viada)',
       icon: '🏃',
-      color: '#A78BFA',
+      color: 'var(--gd-text-2)',
       summary: 'Min. 24h buffer mezi během a deadliftem. HIIT ve středu/sobotu = optimální načasování.',
       content: [
         { label: 'Interference efekt', text: 'Vytrvalostní trénink aktivuje AMPK (katabolická dráha), silový trénink aktivuje mTOR (anabolická dráha). Souběžný trénink může snížit silové zisky o 20–30%. Zdroj: Viada – Hybrid Athlete.' },
@@ -1371,7 +1385,7 @@ function AutoregulationGuide() {
       id: 'sleep-nutrition',
       title: 'Spánek & Výživa pro sílu',
       icon: '😴',
-      color: '#34D399',
+      color: 'var(--gd-fern)',
       summary: '8+ h spánku. 2.2 g/kg bílkovin. Sacharidy kolem tréninku. Kreatin 5g/den.',
       content: [
         { label: 'Spánek', text: 'Cíl: 8–9 h. Spánek je nejsilnější anabolický stimulus. GH se vylučuje primárně v hlubokém spánku. Méně než 6h → −10–15% síly. Zdroj: Schumann – Strength Training.' },
@@ -1383,19 +1397,19 @@ function AutoregulationGuide() {
   ];
 
   const cardStyle = {
-    background: 'rgba(255,255,255,0.02)',
-    border: '1px solid #1c1c1c',
-    borderRadius: 12,
+    background: 'color-mix(in srgb, var(--gd-text) 2%, transparent)',
+    border: '1px solid var(--gd-line)',
+    borderRadius: 0,
     marginBottom: 8,
     overflow: 'hidden' as const,
   };
 
   return (
     <div>
-      <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, fontWeight: 800, color: '#F5C842', marginBottom: 4 }}>
+      <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 18, fontWeight: 800, color: 'var(--gd-accent)', marginBottom: 4 }}>
         Autoregulace & Vědecké principy
       </div>
-      <p style={{ fontSize: 12, color: '#555', marginBottom: 16, lineHeight: 1.6 }}>
+      <p style={{ fontSize: 12, color: 'var(--gd-text-4)', marginBottom: 16, lineHeight: 1.6 }}>
         Klíčové principy plánu v4 – Israetel, Tuchscherer, Zatsiorsky, Viada, Schumann.
       </p>
 
@@ -1408,14 +1422,14 @@ function AutoregulationGuide() {
               background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left',
             }}
           >
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: `${sec.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 0, background: `${sec.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>
               {sec.icon}
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: sec.color }}>{sec.title}</div>
-              <div style={{ fontSize: 11, color: '#555', marginTop: 2, lineHeight: 1.4 }}>{sec.summary}</div>
+              <div style={{ fontSize: 11, color: 'var(--gd-text-4)', marginTop: 2, lineHeight: 1.4 }}>{sec.summary}</div>
             </div>
-            <div style={{ color: '#333', fontSize: 12, transition: 'transform 0.2s', transform: openSection === sec.id ? 'rotate(180deg)' : 'none', flexShrink: 0 }}>▼</div>
+            <div style={{ color: 'var(--gd-line)', fontSize: 12, transition: 'transform 0.2s', transform: openSection === sec.id ? 'rotate(180deg)' : 'none', flexShrink: 0 }}>▼</div>
           </button>
 
           {openSection === sec.id && (
@@ -1425,7 +1439,7 @@ function AutoregulationGuide() {
                   <div style={{ fontSize: 11, fontWeight: 700, color: sec.color, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 3 }}>
                     {item.label}
                   </div>
-                  <div style={{ fontSize: 12, color: '#888', lineHeight: 1.6 }}>{item.text}</div>
+                  <div style={{ fontSize: 12, color: 'var(--gd-text-3)', lineHeight: 1.6 }}>{item.text}</div>
                 </div>
               ))}
             </div>
@@ -1442,29 +1456,20 @@ function AutoregulationGuide() {
 function DocumentsSection() {
   const docs = [
     {
-      icon: '📋',
+      icon: 'DOC',
       title: 'Tréninkový plán Podzim 2026 v5.2',
-      subtitle: 'Zdrojový dokument · 13týdenní peaking plán',
+      subtitle: 'Zdrojový dokument · 13týdenní peaking plán · 31. 8. – 29. 11. 2026',
       type: 'DOCX',
-      color: '#F5C842',
-      url: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663392973146/MCSrHsYMzcpmCEqjyKDjDk/treninkovy-plan-2026-v4_720eaeb5.docx',
-      filename: 'treninkovy-plan-2026-v4.docx',
+      color: 'var(--gd-accent)',
+      url: './docs/treninkovy-plan-podzim-2026-v5.2.docx',
+      filename: 'Treninkovy_plan_Podzim_2026_v5.2.docx',
     },
     {
-      icon: '📊',
-      title: 'Tréninkový deník – analýza 2026',
-      subtitle: 'Předchozí období (leden–březen 2026) · Excel analýza',
-      type: 'XLSX',
-      color: '#6EE7B7',
-      url: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663392973146/MCSrHsYMzcpmCEqjyKDjDk/treninkovy-denik-analyza-2026-04-10_eb2fdc06.xlsx',
-      filename: 'treninkovy-denik-analyza-2026-04-10.xlsx',
-    },
-    {
-      icon: '🏃',
+      icon: 'RUN',
       title: 'Strava profil',
       subtitle: 'Běžecké a kardio aktivity · Strava.com',
       type: 'LINK',
-      color: '#FC4C02',
+      color: 'var(--gd-fern)',
       url: 'https://www.strava.com',
       filename: '',
     },
@@ -1487,10 +1492,10 @@ function DocumentsSection() {
 
   return (
     <div>
-      <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, fontWeight: 800, color: '#F5C842', marginBottom: 4 }}>
+      <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 18, fontWeight: 800, color: 'var(--gd-accent)', marginBottom: 4 }}>
         Zdrojové dokumenty
       </div>
-      <p style={{ fontSize: 12, color: '#555', marginBottom: 20, lineHeight: 1.5 }}>
+      <p style={{ fontSize: 12, color: 'var(--gd-text-4)', marginBottom: 20, lineHeight: 1.5 }}>
         Originální dokumenty plánu a předchozího deníku. Vždy dostupné ke stažení.
       </p>
 
@@ -1500,9 +1505,9 @@ function DocumentsSection() {
             key={doc.title}
             onClick={() => handleDownload(doc)}
             style={{
-              background: `rgba(${doc.color === '#F5C842' ? '245,200,66' : doc.color === '#6EE7B7' ? '110,231,183' : '252,76,2'},0.06)`,
+              background: `rgba(${doc.color === 'var(--gd-accent)' ? '245,200,66' : doc.color === 'var(--gd-fern)' ? '110,231,183' : '252,76,2'},0.06)`,
               border: `1px solid ${doc.color}30`,
-              borderRadius: 12,
+              borderRadius: 0,
               padding: '14px 16px',
               display: 'flex',
               alignItems: 'center',
@@ -1514,7 +1519,7 @@ function DocumentsSection() {
             }}
           >
             <div style={{
-              width: 44, height: 44, borderRadius: 10,
+              width: 44, height: 44, borderRadius: 0,
               background: `${doc.color}15`,
               border: `1px solid ${doc.color}30`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1523,15 +1528,15 @@ function DocumentsSection() {
               {doc.icon}
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 15, fontWeight: 700, color: '#e0e0e0' }}>{doc.title}</div>
-              <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>{doc.subtitle}</div>
+              <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 15, fontWeight: 700, color: 'var(--gd-text)' }}>{doc.title}</div>
+              <div style={{ fontSize: 11, color: 'var(--gd-text-3)', marginTop: 2 }}>{doc.subtitle}</div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, flexShrink: 0 }}>
               <div style={{
                 fontSize: 9, fontWeight: 700, letterSpacing: '0.1em',
                 color: doc.color, background: `${doc.color}15`,
                 border: `1px solid ${doc.color}30`,
-                borderRadius: 4, padding: '2px 6px',
+                borderRadius: 0, padding: '2px 6px',
               }}>
                 {doc.type}
               </div>
@@ -1541,9 +1546,9 @@ function DocumentsSection() {
         ))}
       </div>
 
-      <div style={{ marginTop: 20, padding: '12px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid #1c1c1c', borderRadius: 10 }}>
-        <div style={{ fontSize: 10, color: '#444', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>ℹ️ O DOKUMENTECH</div>
-        <div style={{ fontSize: 11, color: '#555', lineHeight: 1.6 }}>
+      <div style={{ marginTop: 20, padding: '12px 14px', background: 'color-mix(in srgb, var(--gd-text) 2%, transparent)', border: '1px solid var(--gd-line)', borderRadius: 0 }}>
+        <div style={{ fontSize: 10, color: 'var(--gd-text-4)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>O DOKUMENTECH</div>
+        <div style={{ fontSize: 11, color: 'var(--gd-text-4)', lineHeight: 1.6 }}>
           Soubory jsou trvale uloženy na CDN a jsou dostupné i po reinstalaci aplikace. Slouží jako záloha a referenční materiál.
         </div>
       </div>

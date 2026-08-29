@@ -13,12 +13,12 @@ import type { Tab } from '@/lib/types';
 export type { Tab };
 
 const TABS: { key: Tab; label: string; icon: string }[] = [
-  { key: 'overview', label: 'Přehled', icon: '⚡' },
-  { key: 'plan', label: 'Plán', icon: '📋' },
-  { key: 'guide', label: 'Průvodce', icon: '📖' },
-  { key: 'diary', label: 'Deník', icon: '📓' },
-  { key: 'progress', label: 'Progres', icon: '📈' },
-  { key: 'tools', label: 'Nástroje', icon: '🔧' },
+  { key: 'overview', label: 'Přehled', icon: '01' },
+  { key: 'plan', label: 'Plán', icon: '02' },
+  { key: 'guide', label: 'Průvodce', icon: '03' },
+  { key: 'diary', label: 'Deník', icon: '04' },
+  { key: 'progress', label: 'Progres', icon: '05' },
+  { key: 'tools', label: 'Nástroje', icon: '06' },
 ];
 
 export default function Home() {
@@ -26,10 +26,11 @@ export default function Home() {
   const workoutData = useWorkoutData();
   const { theme } = useTheme();
 
-  const isDark = theme === 'dark';
-  const bg = isDark ? '#0c0c0c' : '#f5f5f0';
-  const tabBg = isDark ? 'rgba(12,12,12,0.97)' : 'rgba(245,245,240,0.97)';
-  const tabBorder = isDark ? '#1c1c1c' : '#e0e0d8';
+  // Barvy řídí tokeny kitu – obě témata jsou definovaná v index.css
+  void theme;
+  const bg = 'var(--gd-ink)';
+  const tabBg = 'var(--gd-ink)';
+  const tabBorder = 'var(--gd-line)';
 
   return (
     <div style={{
@@ -77,7 +78,7 @@ export default function Home() {
               padding: '10px 0 8px',
               background: 'none',
               border: 'none',
-              borderTop: activeTab === tab.key ? '2px solid #F5C842' : '2px solid transparent',
+              borderTop: activeTab === tab.key ? '2px solid var(--gd-accent)' : '2px solid transparent',
               cursor: 'pointer',
               transition: 'all 0.15s ease',
               display: 'flex',
@@ -86,12 +87,17 @@ export default function Home() {
               gap: 2,
             }}
           >
-            <span style={{ fontSize: 18, lineHeight: 1 }}>{tab.icon}</span>
+            <span style={{
+              fontSize: 10, lineHeight: 1, fontWeight: 700,
+              fontVariantNumeric: 'tabular-nums', letterSpacing: '0.06em',
+              color: activeTab === tab.key ? 'var(--gd-accent)' : 'var(--gd-text-4)',
+            }}>{tab.icon}</span>
             <span style={{
               fontSize: 9,
-              fontWeight: activeTab === tab.key ? 700 : 400,
-              color: activeTab === tab.key ? '#F5C842' : (isDark ? '#555' : '#999'),
-              letterSpacing: '0.02em',
+              fontWeight: activeTab === tab.key ? 700 : 500,
+              color: activeTab === tab.key ? 'var(--gd-text)' : 'var(--gd-text-3)',
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
               transition: 'color 0.15s ease',
             }}>
               {tab.label}

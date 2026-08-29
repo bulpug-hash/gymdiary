@@ -220,10 +220,10 @@ export function getExerciseInfo(exerciseId: string): ExerciseInfo | null {
 
 // Category color mapping
 export const CATEGORY_COLORS: Record<string, string> = {
-  'Hlavní cvik': '#F5C842',
-  'Slabinová variace': '#E8A020',
-  'Podpůrný cvik': '#6EE7B7',
-  'Prevence': '#93C5FD',
-  'Core': '#C4B5FD',
-  'Kardio': '#FCA5A5',
+  'Hlavní cvik': 'var(--gd-accent)',
+  'Slabinová variace': 'var(--gd-accent)',
+  'Podpůrný cvik': 'var(--gd-fern)',
+  'Prevence': 'var(--gd-text-2)',
+  'Core': 'var(--gd-text-2)',
+  'Kardio': 'var(--gd-danger)',
 };

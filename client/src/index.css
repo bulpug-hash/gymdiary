@@ -44,6 +44,51 @@
   --color-chart-5: var(--chart-5);
 }
 
+/* ============================================================
+   DESIGN SYSTEM — "247"
+   Tonal monochrome kit: jet black, aged black, graphene, ash,
+   dirty white, flat white. One hi-vis accent, one fern.
+   Sharp corners, hairline rules, wide-tracked uppercase labels.
+   ============================================================ */
+
+:root {
+  /* LIGHT — flat white kit */
+  --gd-ink:        #F1EFE8;
+  --gd-surface:    #E7E4DA;
+  --gd-surface-2:  #DDD9CD;
+  --gd-line:       #C9C4B6;
+  --gd-text:       #141410;
+  --gd-text-2:     #4B4941;
+  --gd-text-3:     #75726A;
+  --gd-text-4:     #9B978D;
+  --gd-invert-bg:  #0E0E0E;
+  --gd-invert-fg:  #F1EFE8;
+  --gd-accent:     #5C6E00;
+  --gd-accent-ink: #F4F2EC;
+  --gd-fern:       #4E5B36;
+  --gd-danger:     #A64A2B;
+  --gd-shadow:     #141410;
+}
+
+:root.dark {
+  /* DARK — jet black kit */
+  --gd-ink:        #0E0E0E;
+  --gd-surface:    #161615;
+  --gd-surface-2:  #1E1E1C;
+  --gd-line:       #2C2C28;
+  --gd-text:       #E6E3D9;
+  --gd-text-2:     #A8A59A;
+  --gd-text-3:     #726F66;
+  --gd-text-4:     #4C4A44;
+  --gd-invert-bg:  #F1EFE8;
+  --gd-invert-fg:  #0E0E0E;
+  --gd-accent:     #D9F24B;
+  --gd-accent-ink: #0E0E0E;
+  --gd-fern:       #8C9B63;
+  --gd-danger:     #C9663F;
+  --gd-shadow:     #000000;
+}
+
 :root {
   --radius: 0.75rem;
   --background: oklch(0.10 0.003 260);
@@ -86,6 +131,29 @@
   --color-danger: #F87171;
 }
 
+/* Tailwind/shadcn tokens follow the 247 kit in both themes */
+:root, :root.dark {
+  --background: var(--gd-ink);
+  --foreground: var(--gd-text);
+  --card: var(--gd-surface);
+  --card-foreground: var(--gd-text);
+  --popover: var(--gd-surface);
+  --popover-foreground: var(--gd-text);
+  --primary: var(--gd-accent);
+  --primary-foreground: var(--gd-accent-ink);
+  --secondary: var(--gd-surface-2);
+  --secondary-foreground: var(--gd-text-2);
+  --muted: var(--gd-surface);
+  --muted-foreground: var(--gd-text-3);
+  --accent: var(--gd-surface-2);
+  --accent-foreground: var(--gd-text);
+  --destructive: var(--gd-danger);
+  --border: var(--gd-line);
+  --input: var(--gd-line);
+  --ring: var(--gd-accent);
+  --radius: 0px;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -93,11 +161,15 @@
     box-sizing: border-box;
   }
   html {
-    color-scheme: dark;
+    color-scheme: light;
+    background: var(--gd-ink);
   }
+  html.dark { color-scheme: dark; }
   body {
-    @apply bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--gd-ink);
+    color: var(--gd-text);
+    font-family: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-variant-numeric: tabular-nums;
     overscroll-behavior: none;
     -webkit-font-smoothing: antialiased;
   }
@@ -117,22 +189,21 @@
   }
   input[type="number"] { -moz-appearance: textfield; }
   input, select, textarea {
-    background: oklch(0.17 0.005 260);
-    color: oklch(0.93 0.005 80);
-    border: 1px solid oklch(0.22 0.006 260);
-    border-radius: 0.5rem;
+    background: var(--gd-surface-2);
+    color: var(--gd-text);
+    border: 1px solid var(--gd-line);
+    border-radius: 0;
+    font-family: inherit;
     padding: 0.5rem 0.75rem;
     font-size: 0.9rem;
     outline: none;
     width: 100%;
   }
   input:focus, select:focus, textarea:focus {
-    border-color: var(--gold);
-    box-shadow: 0 0 0 2px rgba(245,200,66,0.15);
+    border-color: var(--gd-accent);
+    box-shadow: inset 0 -2px 0 0 var(--gd-accent);
   }
-  input[type="date"] {
-    color-scheme: dark;
-  }
+  input[type="date"] { color-scheme: inherit; }
 }
 
 @layer components {
@@ -204,4 +275,47 @@
     from { opacity: 0; max-height: 0; }
     to { opacity: 1; max-height: 1000px; }
   }
+}
+
+
+/* ============================================================
+   247 — kit details
+   ============================================================ */
+@layer components {
+  /* Sharp geometry everywhere. Circles stay circles. */
+  .num-display {
+    font-family: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 800;
+    font-stretch: 118%;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+  }
+
+  /* Garment-tag label: the recurring micro type of the kit */
+  .gd-tag {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gd-text-3);
+  }
+
+  /* Full-bleed band that inverts — the "this is now" state */
+  .gd-invert {
+    background: var(--gd-invert-bg);
+    color: var(--gd-invert-fg);
+  }
+  .gd-hi {
+    background: var(--gd-accent);
+    color: var(--gd-accent-ink);
+  }
+
+  .gold-card {
+    background: var(--gd-surface);
+    border: 1px solid var(--gd-line);
+    border-radius: 0;
+  }
+  .gold-card-accent { border-left: 2px solid var(--gd-accent); }
+
+  ::-webkit-scrollbar-thumb { background: var(--gd-line); border-radius: 0; }
 }

@@ -23,11 +23,13 @@ function App() {
             position="top-center"
             toastOptions={{
               style: {
-                background: '#1a1a1a',
-                border: '1px solid #2a2a2a',
-                color: '#F5C842',
-                fontFamily: 'Inter, sans-serif',
-                fontSize: '14px',
+                background: 'var(--gd-surface)',
+                border: '1px solid var(--gd-line)',
+                color: 'var(--gd-text)',
+                borderRadius: 0,
+                fontFamily: 'Archivo, sans-serif',
+                fontSize: '13px',
+                letterSpacing: '0.02em',
               },
             }}
           />

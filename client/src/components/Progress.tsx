@@ -13,19 +13,19 @@ interface Props {
 type LiftKey = 'bench' | 'squat' | 'deadlift';
 
 const LIFTS: { key: LiftKey; exerciseId: string; label: string; goal: number; color: string }[] = [
-  { key: 'bench', exerciseId: 'bench', label: 'Bench Press', goal: GOALS.bench, color: '#F5C842' },
-  { key: 'squat', exerciseId: 'squat', label: 'Back Squat', goal: GOALS.squat, color: '#E8E8E8' },
-  { key: 'deadlift', exerciseId: 'deadlift', label: 'Mrtvý tah', goal: GOALS.deadlift, color: '#6EE7B7' },
+  { key: 'bench', exerciseId: 'bench', label: 'Bench Press', goal: GOALS.bench, color: 'var(--gd-accent)' },
+  { key: 'squat', exerciseId: 'squat', label: 'Back Squat', goal: GOALS.squat, color: 'var(--gd-text)' },
+  { key: 'deadlift', exerciseId: 'deadlift', label: 'Mrtvý tah', goal: GOALS.deadlift, color: 'var(--gd-fern)' },
 ];
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <div style={{
-        background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 8,
+        background: 'var(--gd-surface)', border: '1px solid var(--gd-line)', borderRadius: 0,
         padding: '8px 12px', fontSize: 12,
       }}>
-        <div style={{ color: '#888', marginBottom: 4 }}>{label}</div>
+        <div style={{ color: 'var(--gd-text-3)', marginBottom: 4 }}>{label}</div>
         {payload.map((p: any) => (
           <div key={p.dataKey} style={{ color: p.color, fontWeight: 700 }}>
             {p.value} kg
@@ -80,18 +80,18 @@ export default function Progress({ workoutData }: Props) {
   return (
     <div style={{ padding: '0 0 16px' }}>
       {/* Header */}
-      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid #1c1c1c' }}>
-        <div style={{ color: '#F5C842', fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>
+      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--gd-line)' }}>
+        <div style={{ color: 'var(--gd-accent)', fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>
           PROGRES
         </div>
-        <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: '#f0f0f0' }}>
+        <h2 style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: 'var(--gd-text)' }}>
           Výkonnostní přehled
         </h2>
       </div>
 
       {/* Summary stats */}
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid #1c1c1c' }}>
-        <div style={{ color: '#444', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>AKTUÁLNÍ MAXIMA</div>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--gd-line)' }}>
+        <div style={{ color: 'var(--gd-text-4)', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>AKTUÁLNÍ MAXIMA</div>
         <div style={{ display: 'flex', gap: 8 }}>
           {allStats.map(s => (
             <button
@@ -99,34 +99,34 @@ export default function Progress({ workoutData }: Props) {
               onClick={() => setSelectedLift(s.key)}
               style={{
                 flex: 1,
-                background: selectedLift === s.key ? `${s.color}15` : 'rgba(255,255,255,0.02)',
-                border: selectedLift === s.key ? `1px solid ${s.color}40` : '1px solid #1c1c1c',
-                borderRadius: 12,
+                background: selectedLift === s.key ? `${s.color}15` : 'color-mix(in srgb, var(--gd-text) 2%, transparent)',
+                border: selectedLift === s.key ? `1px solid ${s.color}40` : '1px solid var(--gd-line)',
+                borderRadius: 0,
                 padding: '10px 8px',
                 textAlign: 'center',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
               }}
             >
-              <div style={{ fontSize: 10, color: '#555', marginBottom: 3 }}>{s.label.split(' ')[0]}</div>
-              <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 22, fontWeight: 800, color: s.color, lineHeight: 1 }}>
+              <div style={{ fontSize: 10, color: 'var(--gd-text-4)', marginBottom: 3 }}>{s.label.split(' ')[0]}</div>
+              <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 22, fontWeight: 800, color: s.color, lineHeight: 1 }}>
                 {s.realWeight > 0 ? s.realWeight : '–'}
               </div>
-              <div style={{ fontSize: 9, color: '#444', marginTop: 1 }}>{s.lastSetsReps || 'kg'}</div>
-              <div style={{ fontSize: 9, color: '#333', marginTop: 2 }}>1RM~{s.est1RM} · {s.pct}%</div>
+              <div style={{ fontSize: 9, color: 'var(--gd-text-4)', marginTop: 1 }}>{s.lastSetsReps || 'kg'}</div>
+              <div style={{ fontSize: 9, color: 'var(--gd-line)', marginTop: 2 }}>1RM~{s.est1RM} · {s.pct}%</div>
             </button>
           ))}
         </div>
       </div>
 
       {/* Chart */}
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid #1c1c1c' }}>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--gd-line)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <div style={{ color: '#444', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+          <div style={{ color: 'var(--gd-text-4)', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
             {lift.label} – odh. 1RM
           </div>
           {improvement > 0 && (
-            <div style={{ fontSize: 12, color: '#6EE7B7', fontWeight: 700 }}>+{improvement} kg ↑</div>
+            <div style={{ fontSize: 12, color: 'var(--gd-fern)', fontWeight: 700 }}>+{improvement} kg ↑</div>
           )}
         </div>
 
@@ -135,12 +135,12 @@ export default function Progress({ workoutData }: Props) {
             <LineChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
               <XAxis
                 dataKey="date"
-                tick={{ fill: '#555', fontSize: 10 }}
-                axisLine={{ stroke: '#1c1c1c' }}
+                tick={{ fill: 'var(--gd-text-4)', fontSize: 10 }}
+                axisLine={{ stroke: 'var(--gd-line)' }}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fill: '#555', fontSize: 10 }}
+                tick={{ fill: 'var(--gd-text-4)', fontSize: 10 }}
                 axisLine={false}
                 tickLine={false}
                 domain={['auto', 'auto']}
@@ -164,7 +164,7 @@ export default function Progress({ workoutData }: Props) {
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <div style={{ height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#444', fontSize: 13 }}>
+          <div style={{ height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--gd-text-4)', fontSize: 13 }}>
             Přidej alespoň 2 záznamy pro zobrazení grafu
           </div>
         )}
@@ -172,15 +172,15 @@ export default function Progress({ workoutData }: Props) {
         {/* Progress to goal */}
         <div style={{ marginTop: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-            <span style={{ fontSize: 12, color: '#666' }}>Progres k cíli {lift.goal} kg</span>
+            <span style={{ fontSize: 12, color: 'var(--gd-text-3)' }}>Progres k cíli {lift.goal} kg</span>
             <span style={{ fontSize: 12, fontWeight: 700, color: lift.color }}>{pctToGoal}%</span>
           </div>
-          <div style={{ height: 4, background: '#1c1c1c', borderRadius: 2, overflow: 'hidden' }}>
+          <div style={{ height: 4, background: 'var(--gd-line)', borderRadius: 0, overflow: 'hidden' }}>
             <div style={{
               height: '100%',
               width: `${pctToGoal}%`,
               background: `linear-gradient(90deg, ${lift.color}88, ${lift.color})`,
-              borderRadius: 2,
+              borderRadius: 0,
               transition: 'width 0.8s ease',
             }} />
           </div>
@@ -192,11 +192,11 @@ export default function Progress({ workoutData }: Props) {
 
       {/* Recent records table */}
       <div style={{ padding: '14px 20px' }}>
-        <div style={{ color: '#444', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>
+        <div style={{ color: 'var(--gd-text-4)', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>
           POSLEDNÍ ZÁZNAMY – {lift.label.toUpperCase()}
         </div>
         {chartData.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '20px 0', color: '#444', fontSize: 13 }}>
+          <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--gd-text-4)', fontSize: 13 }}>
             Žádné záznamy
           </div>
         ) : (
@@ -206,18 +206,18 @@ export default function Progress({ workoutData }: Props) {
               justifyContent: 'space-between',
               alignItems: 'center',
               padding: '8px 0',
-              borderBottom: '1px solid #1a1a1a',
+              borderBottom: '1px solid var(--gd-surface)',
             }}>
               <div>
-                <span style={{ fontSize: 12, color: '#888' }}>{d.date}</span>
-                {d.note && <span style={{ fontSize: 11, color: '#444', marginLeft: 8 }}>{d.note.slice(0, 30)}{d.note.length > 30 ? '…' : ''}</span>}
+                <span style={{ fontSize: 12, color: 'var(--gd-text-3)' }}>{d.date}</span>
+                {d.note && <span style={{ fontSize: 11, color: 'var(--gd-text-4)', marginLeft: 8 }}>{d.note.slice(0, 30)}{d.note.length > 30 ? '…' : ''}</span>}
               </div>
               <div style={{ textAlign: 'right' }}>
-                <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 700, color: lift.color }}>
+                <span style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 16, fontWeight: 700, color: lift.color }}>
                   {d.weight} kg
                 </span>
-                <span style={{ fontSize: 11, color: '#555', marginLeft: 8 }}>{d.sets}×{d.reps}</span>
-                <span style={{ fontSize: 10, color: '#444', marginLeft: 6 }}>≈{d.est1RM}kg</span>
+                <span style={{ fontSize: 11, color: 'var(--gd-text-4)', marginLeft: 8 }}>{d.sets}×{d.reps}</span>
+                <span style={{ fontSize: 10, color: 'var(--gd-text-4)', marginLeft: 6 }}>≈{d.est1RM}kg</span>
               </div>
             </div>
           ))
@@ -250,10 +250,10 @@ function WeeklyVolumeSection({ workoutData }: { workoutData: WorkoutDataHook }) 
   const prevWeekVol = weeks[weeks.length - 2]?.volume ?? 0;
   const volChange = currentWeekVol - prevWeekVol;
   return (
-    <div style={{ padding: '14px 20px', borderBottom: '1px solid #1c1c1c' }}>
+    <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--gd-line)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <div style={{ color: '#444', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase' }}>TÝDENNÍ OBJEM (kg)</div>
-        <div style={{ fontSize: 12, fontWeight: 700, color: volChange >= 0 ? '#6EE7B7' : '#F87171' }}>
+        <div style={{ color: 'var(--gd-text-4)', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase' }}>TÝDENNÍ OBJEM (kg)</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: volChange >= 0 ? 'var(--gd-fern)' : 'var(--gd-danger)' }}>
           {currentWeekVol.toLocaleString()} kg{volChange !== 0 ? (volChange > 0 ? ` +${volChange.toLocaleString()}` : ` ${volChange.toLocaleString()}`) : ''}
         </div>
       </div>
@@ -263,16 +263,16 @@ function WeeklyVolumeSection({ workoutData }: { workoutData: WorkoutDataHook }) 
           const barHeight = maxVol > 0 ? Math.max(4, (w.volume / maxVol) * 72) : 4;
           return (
             <div key={w.startDate} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-              <div style={{ width: '100%', height: barHeight, background: isCurrentWeek ? '#F5C842' : w.volume > 0 ? 'rgba(245,200,66,0.3)' : '#1c1c1c', borderRadius: '3px 3px 0 0', alignSelf: 'flex-end' }} />
-              <div style={{ fontSize: 8, color: isCurrentWeek ? '#F5C842' : '#444', whiteSpace: 'nowrap' }}>{w.label}</div>
+              <div style={{ width: '100%', height: barHeight, background: isCurrentWeek ? 'var(--gd-accent)' : w.volume > 0 ? 'color-mix(in srgb, var(--gd-accent) 30%, transparent)' : 'var(--gd-line)', borderRadius: '0', alignSelf: 'flex-end' }} />
+              <div style={{ fontSize: 8, color: isCurrentWeek ? 'var(--gd-accent)' : 'var(--gd-text-4)', whiteSpace: 'nowrap' }}>{w.label}</div>
             </div>
           );
         })}
       </div>
       {prevWeekVol > 0 && (
-        <div style={{ marginTop: 10, fontSize: 11, color: '#555', textAlign: 'center' }}>
+        <div style={{ marginTop: 10, fontSize: 11, color: 'var(--gd-text-4)', textAlign: 'center' }}>
           Minulý týden: {prevWeekVol.toLocaleString()} kg
-          <span style={{ color: volChange > 0 ? '#6EE7B7' : volChange < 0 ? '#F87171' : '#555', marginLeft: 6, fontWeight: 700 }}>
+          <span style={{ color: volChange > 0 ? 'var(--gd-fern)' : volChange < 0 ? 'var(--gd-danger)' : 'var(--gd-text-4)', marginLeft: 6, fontWeight: 700 }}>
             {volChange > 0 ? `+${volChange.toLocaleString()}` : volChange < 0 ? `${volChange.toLocaleString()}` : '='} kg
           </span>
         </div>
