@@ -39,11 +39,19 @@ function getCurrentWeekIndex(): number {
   return idx;
 }
 
+// Plan hasn't started yet (today is before W1)
+function isBeforePlanStart(): boolean {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today < new Date(PHASE3_WEEKS[0].dateFrom + 'T00:00:00');
+}
+
 export default function Plan({ workoutData }: Props) {
   const [selectedWeek, setSelectedWeek] = useState(() => getCurrentWeekIndex());
   const [expandedDay, setExpandedDay] = useState<string | null>(null);
 
   const currentWeekIndex = getCurrentWeekIndex();
+  const notStarted = isBeforePlanStart();
   const week = PHASE3_WEEKS[selectedWeek];
 
   return (
@@ -142,7 +150,7 @@ export default function Plan({ workoutData }: Props) {
                 border: '1px solid rgba(94,207,177,0.4)', borderRadius: 4,
                 padding: '2px 6px', textTransform: 'uppercase',
               }}>
-                ● AKTUÁLNÍ TÝDEN
+                {notStarted ? '● ZAČÍNÁ BRZY' : '● AKTUÁLNÍ TÝDEN'}
               </span>
             )}
           </div>
@@ -153,7 +161,9 @@ export default function Plan({ workoutData }: Props) {
           <div style={{ color: '#555', fontSize: 11, marginTop: 6 }}>
             {week.dateFrom.split('-').reverse().join('.')} – {week.dateTo.split('-').reverse().join('.')}
             {selectedWeek === currentWeekIndex && (
-              <span style={{ color: '#5ECFB1', marginLeft: 8 }}>• Právě probíhá</span>
+              <span style={{ color: '#5ECFB1', marginLeft: 8 }}>
+                {notStarted ? `• Start ${week.dateFrom.split('-').reverse().join('.')}` : '• Právě probíhá'}
+              </span>
             )}
           </div>
         </div>
