@@ -54,31 +54,42 @@ export default function Overview({ workoutData, onNavigate }: Props) {
     <div style={{ padding: '0 0 16px' }}>
       {/* Header */}
       <div style={{ padding: '20px 20px 0', borderBottom: '1px solid var(--gd-line)', paddingBottom: 16 }}>
-        <div style={{ color: 'var(--gd-accent)', fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>
-          TRÉNINKOVÝ DENÍK · PODZIM 2026
+        {/* Lockup ve stylu 247: kód sezóny, verze, číslo týdne */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+          <span style={{
+            background: 'var(--gd-text)', color: 'var(--gd-ink)',
+            fontSize: 11, fontWeight: 800, letterSpacing: '0.08em',
+            padding: '3px 7px', lineHeight: 1.1,
+          }}>247</span>
+          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--gd-text-3)' }}>
+            Podzim ’26
+          </span>
+          <span style={{ flex: 1, height: 1, background: 'var(--gd-line)' }} />
+          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--gd-text-3)' }}>
+            v5.2
+          </span>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-          <div>
-            <h1 style={{
-              fontFamily: 'Barlow Condensed, Inter, sans-serif',
-              fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em',
-              lineHeight: 1.1, margin: 0, color: 'var(--gd-text)',
-            }}>
-              Tréninkový plán<br />Podzim 2026 v5.2
-            </h1>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 11, color: 'var(--gd-text-4)', marginBottom: 2 }}>Týden</div>
-            <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 28, fontWeight: 800, color: 'var(--gd-accent)', lineHeight: 1 }}>
-              {currentWeek.number}
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16 }}>
+          <h1 style={{
+            fontFamily: 'Archivo, sans-serif', fontStretch: '118%',
+            fontSize: 40, fontWeight: 800, letterSpacing: '-0.045em',
+            lineHeight: 0.9, margin: 0, color: 'var(--gd-text)', textTransform: 'uppercase',
+          }}>
+            Tréninkový<br />deník
+          </h1>
+          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--gd-text-4)', marginBottom: 4 }}>Týden</div>
+            <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 40, fontWeight: 800, color: 'var(--gd-accent)', lineHeight: 0.85, letterSpacing: '-0.04em', fontVariantNumeric: 'tabular-nums' }}>
+              {String(currentWeek.number).padStart(2, '0')}
             </div>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
-          <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--gd-accent)' }} />
-          <span style={{ color: 'var(--gd-text-3)', fontSize: 12 }}>
-            {currentWeek.label} · {currentWeek.dateFrom.split('-').slice(1).reverse().join('.')} – {currentWeek.dateTo.split('-').slice(1).reverse().join('.')}
-          </span>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14, fontSize: 9, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--gd-text-3)' }}>
+          <span>{currentWeek.label}</span>
+          <span style={{ color: 'var(--gd-text-4)' }}>/</span>
+          <span>{currentWeek.dateFrom.split('-').slice(1).reverse().join('.')} – {currentWeek.dateTo.split('-').slice(1).reverse().join('.')}</span>
         </div>
       </div>
 

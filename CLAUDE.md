@@ -1,0 +1,270 @@
+# GymDiary — kontext pro AI asistenta
+
+Osobní tréninkový deník Tomáše Jirků (26 let, 95 kg, 184 cm, česky).
+Jednouživatelská PWA. Živě běží na **https://bulpug-hash.github.io/gymdiary/**
+
+---
+
+## 1. Rychlý start
+
+```bash
+pnpm install
+pnpm dev        # vite dev server
+pnpm check      # tsc --noEmit  — MUSÍ projít před každým commitem
+pnpm build      # vite build + esbuild serveru → dist/
+```
+
+**Před každým pushem spusť `pnpm check` i `pnpm build`.** Deploy je automatický a rozbitý build znamená rozbitý web.
+
+---
+
+## 2. Deploy
+
+`.github/workflows/deploy.yml` → push do `main` → GitHub Actions → GitHub Pages.
+Build běží s `vite build --base=./`, takže všechny cesty jsou relativní.
+Trvá ~90–120 s. Ověř výsledek přes Actions API nebo tvrdým reloadem s cache-busting query (`?v=N`).
+
+Repo: `bulpug-hash/gymdiary` (public, kvůli Pages na free plánu).
+Manus (původní hosting) je **kompletně odstraněný** — nic na něm nesmí záviset.
+
+**Pozor:** kontejner Claude Cowork nemá přístup na `api.github.com` ani `git push` (agent proxy vrací 403).
+Push se dělá přes uživatelův počítač — `mcp__remote-devices__device_bash` na jeho stroji síť má:
+
+```bash
+# na jeho stroji
+git clone https://x-access-token:$TOKEN@github.com/bulpug-hash/gymdiary.git
+```
+
+Soubory se tam dostanou přes `SendUserFile` (tarball) → `device_commit_files` do `~/Downloads/`
+→ `tar xzf` v klonu → commit → push. Base64 v heredocu **nefunguje spolehlivě** (data se komolí),
+tarball přes `device_commit_files` je ověřená cesta. Vždy porovnej `sha256` na obou stranách.
+
+---
+
+## 3. Architektura
+
+```
+client/
+  index.html               ← Google Fonts (Archivo), theme-color, manifest
+  public/docs/             ← zdrojové dokumenty ke stažení (plán v5.2 .docx)
+  src/
+    index.css              ← DESIGN TOKENY (--gd-*) pro obě témata + Tailwind aliasy
+    App.tsx                ← ThemeProvider (dark default, switchable), Toaster
+    pages/Home.tsx         ← shell + spodní navigace (6 záložek)
+    contexts/ThemeContext.tsx
+    hooks/useWorkoutData.ts← localStorage persistence + merge záznamů
+    lib/
+      data.ts              ← ⭐ JEDINÝ ZDROJ PRAVDY (~200 KB)
+      weekGuide.ts         ← texty pro záložku Průvodce
+      exerciseDescriptions.ts
+      recoveryData.ts      ← obnovená historie W1–W14 (čte LEGACY_PLAN_WEEKS)
+      types.ts             ← type Tab
+    components/
+      Overview.tsx Plan.tsx Guide.tsx Diary.tsx Progress.tsx Tools.tsx
+```
+
+### Záložky (pořadí v `TABS` v Home.tsx)
+`01 Přehled · 02 Plán · 03 Průvodce · 04 Deník · 05 Progres · 06 Nástroje`
+
+### Klíčové exporty v `lib/data.ts`
+
+| Export | Význam |
+|---|---|
+| `GOALS` | `{ bench: 130, squat: 190, deadlift: 230 }` |
+| `STARTING_MAXES` / `CURRENT_MAXES` | `{ bench: 127, squat: 185, deadlift: 230 }` |
+| `PLAN_START_DATE` | `'2026-08-31'` — pondělí, začátek T1 |
+| `PHASE3_WEEKS` | aktuální plán, 13 týdnů (`np1`…`np13`), Po–Ne |
+| `LEGACY_PLAN_WEEKS` | starý plán `w1`…`w16` — **nemazat**, drží historii |
+| `DEFAULT_RECORDS` | reálná historie (únor–srpen 2026) |
+| `PLANNED_RECORDS` | 295 předepsaných sérií, `planned: true` |
+| `WARMUP_SERIES_BY_WEEK` | rozehřívací série (Zatsiorsky) |
+| `Exercise.setPlan` | `{ label, weight, reps, rpe }[]` — rozpis pracovních sérií |
+
+### Jak fungují předepsané záznamy (`planned`)
+
+- `PLANNED_RECORDS` mají id `plan-w{tyden}-{po|ut|pa}-{exId}[-i]` a `planned: true`.
+- `loadRecords()` v `useWorkoutData.ts` při **každém** načtení zahodí uložené záznamy
+  s `planned === true` a `id.startsWith('plan-')` a nahradí je aktuální verzí z `data.ts`.
+  Díky tomu se posun termínů plánu propíše i do prohlížeče, kde už data leží.
+- Jakmile uživatel sérii přepíše, `updateRecord` nastaví `planned: false` → záznam je jeho
+  a synchronizace se ho už nikdy nedotkne.
+- `planned` záznamy jsou **vyloučené** z: grafů v Progresu, „poslední" hodnoty,
+  ALL-TIME PR odznaku a týdenního objemu.
+
+**Když měníš plán, měň i `PLANNED_RECORDS` — jinak se deník rozejde s Plánem.**
+
+---
+
+## 4. Design systém — kit „247"
+
+Vizuál je postavený podle značky **Represent / 247** (representclo.com): tonální
+monochrom, ostré hrany, obří grotesková čísla, jedna signální barva, hodně vzduchu.
+
+### Tokeny (`client/src/index.css`)
+
+Všechny barvy v komponentách jdou přes `var(--gd-*)`. **Nikdy nepiš hex přímo do komponent** —
+rozbil bys světlé téma.
+
+| Token | Tmavé (default) | Světlé |
+|---|---|---|
+| `--gd-ink` | `#0E0E0E` jet black | `#FFFFFF` flat white |
+| `--gd-surface` / `-2` | `#161615` / `#1E1E1C` | `#F4F4F2` / `#EAEAE7` |
+| `--gd-line` | `#2C2C28` | `#D8D8D4` |
+| `--gd-text` → `-4` | `#E6E3D9` → `#4C4A44` | `#0A0A0A` → `#A3A39E` |
+| `--gd-accent` | `#D9F24B` hi-vis volt | `#0A0A0A` (signálem je inverze) |
+| `--gd-accent-ink` | `#0E0E0E` | `#FFFFFF` |
+| `--gd-fern` | `#8C9B63` | `#4A5732` |
+| `--gd-danger` | `#C9663F` | `#9E4526` |
+
+Průhlednost se dělá přes `color-mix(in srgb, var(--gd-accent) 12%, transparent)`.
+
+Tailwind/shadcn tokeny (`--background`, `--primary`, …) jsou nastavené jako aliasy
+na `--gd-*`, takže se drží obou témat.
+
+### Pravidla kitu
+
+1. **Žádné rádiusy.** `borderRadius: 0` všude; `'50%'` jen pro tečky.
+2. **Žádné stíny.** Hranu dělá barva nebo linka 1 px `var(--gd-line)`.
+3. **Písmo:** jediná rodina **Archivo** (Google Fonts, osa `wdth 62..125`).
+   Display = `fontStretch: '118%'`, `fontWeight: 800`, záporný tracking.
+   Mikropopisky = 9 px, `fontWeight: 700`, `letterSpacing: '0.18–0.24em'`, uppercase.
+   Čísla vždy `fontVariantNumeric: 'tabular-nums'`.
+4. **Signální barva jen na:** dnešní den, aktuální týden, top/overload sérii,
+   osobní rekord, aktivní záložku. Nikde jinde.
+5. **Žádné emoji v UI.** Místo ikon typografické kódy (`247`, `WU`, `DL`, `01`–`06`, `XLS`).
+   Šipky `→ ← ↑ ↓ ▼` jsou typografie, ne emoji — ty zůstávají.
+6. **Celoplošné pásy** místo karet tam, kde jde o stav „teď".
+7. **České plurály:** `1 cvik / 2–4 cviky / 5+ cviků`.
+8. **Desetinná čárka** u vah (`sp.weight.replace('.', ',')`).
+
+---
+
+## 5. Tréninkový plán — Podzim 2026 v5.2
+
+13 týdnů, **31. 8. – 29. 11. 2026**, týdny pondělí–neděle.
+
+| Blok | Týdny | Zaměření |
+|---|---|---|
+| A — Akumulace | T1–T3 (+T4 deload) | objem 8/6 op., jedna overload expozice |
+| B — Síla | T5–T7 (+T8 deload) | 6/5 op., těžší top série |
+| C — Intenzifikace | T9–T11 | dvojky/single na top, objemové back-offy |
+| Taper | T12 | ostrost, minimum objemu |
+| Test maxim | T13 | 3 samostatné dny (Po dřep, Út bench, Pá tah) |
+
+**Týdenní split (pevný):**
+Po = DŘEP (nohy, silově) · Út = BENCH (tlak) · **St = HIIT** · Čt = volno ·
+Pá = MRTVÝ TAH (tah/posterior) · **So = HIIT** · Ne = volno (± lehký Z2 běh)
+
+Středa a sobota HIIT jsou **neměnné** — je to skupinová lekce.
+Dřep i tah jsou schválně 4 dny od sebe a vždy 2 dny po HIIT, aby na ně šel na čerstvé nohy.
+
+**Vlnový systém** (jeho vlastní, aplikovaný na všechny tři hlavní cviky):
+objemová série → OVERLOAD (těžší, méně opakování) → back-off série.
+Např. bench T1: `100×8 → 112,5×3 → 105×6 → 105×6`.
+
+**Cíle:** bench 130 · dřep 190 · mrtvý tah 230 kg.
+Reálná výchozí maxima: bench 127, dřep 185, tah 220×3 (odhad 1RM 230).
+
+**Pevná pravidla jeho zadání:**
+- pull-up v každém push i pull tréninku (jednou bicepsový úchop, jednou zádový)
+- břicho v každém tréninku
+- ~7 hlavních sérií na nohy s 6/8 opakováními
+- **žádné dipy** (dělají mu rameno)
+- nohy držet silově — ničí mu je běhy a HIIT
+- cviky rotují po blocích (výpady, leg press, bulharský dřep, veslování atd.)
+- střídat silové a objemové týdny u doplňků
+
+Zdrojový dokument: `client/public/docs/treninkovy-plan-podzim-2026-v5.2.docx`
+(generuje ho `/home/claude/plan/build.js` z `plan.json` — mimo repo).
+
+Literatura, o kterou se plán opírá: Israetel (MRV, deload), Tuchscherer (RPE autoregulace),
+Smith (vlnové zatížení), Zatsiorsky (rozehřívací série), Horschig (mobilita),
+Viada + Schumann (concurrent training, interference běhu a síly).
+
+---
+
+## 6. Co po mně chtěl a v jakém je to stavu
+
+| # | Zadání | Stav |
+|---|---|---|
+| 1 | Nový 3měsíční plán z jeho dat, PDF učebnic a health analýzy | ✅ hotovo, v5.2 |
+| 2 | Doložit plán literaturou (přesné pasáže a strany) | ✅ hotovo |
+| 3 | Opravit mrtvý tah na reálné max 220×3 | ✅ hotovo |
+| 4 | Vyhodit dipy, přidat variabilitu nohou, rotovat cviky | ✅ hotovo |
+| 5 | Nasadit plán na web, zrušit závislost na Manusu | ✅ hotovo (GitHub Actions → Pages) |
+| 6 | Zkontrolovat, že web sedí s plánem — proklikat ho | ✅ hotovo |
+| 7 | Zkontrolovat jednotlivé váhy, předepsat vše do deníku | ✅ 295 záznamů, 2 váhy sníženy (T2 152,5 / T3 155) |
+| 8 | Přehlednější Plán — každá série s vahou a opakováními | ✅ tabulka `setPlan` |
+| 9 | Nová záložka s detailním rozpisem týdne | ✅ záložka Průvodce |
+| 10 | Posunout start plánu na **31. 8. 2026** | ✅ posun o 13 dní, týdny nově Po–Ne |
+| 11 | Zkontrolovat celý web + 5 návrhů na vizuální osvěžení | ✅ artefakt s návrhy + 4 opravené chyby |
+| 12 | Předělat vizuál do stylu **Represent / 247** | 🟡 kit nasazený, dolaďuje se |
+
+### Chyby nalezené při kontrole a opravené
+
+- **Světlý režim byl rozbitý** — nadpisy bílé na krémové. Příčina: natvrdo zapsané hexy
+  v komponentách. Vyřešeno tokeny `--gd-*`.
+- **Docs mířily na mrtvou Manus CDN** (HTTP 403) a nabízely starý plán v4.
+  Teď `./docs/treninkovy-plan-podzim-2026-v5.2.docx` přímo z appky.
+- **RPE kalkulačka počítala blbě** — `1RM × RPE/10`, což odporovalo její vlastní
+  tabulce pod ní. Pro 130 kg / 5 op. / RPE 8 hlásila 89 kg místo ~102,5 kg.
+  Opraveno na `1RM × rpeToPercent(rpe) / (1 + reps/30)`, vstupy jsou clampované.
+- **Tlačítko „zpět na aktuální týden"** bylo až za T13 v rolovacím stripu — nikdy na
+  něj nenarazil. Strip nahrazen pravítkem 01–13 (2 řádky po 7), tlačítko je v hlavičce.
+- **Detekce aktuálního týdne** ignorovala časové pásmo (`new Date('2026-08-25')` je
+  UTC půlnoc). Řešeno `+ 'T00:00:00'` / `'T23:59:59'`.
+- **ALL-TIME PR odznak** se ukazoval i na předepsaných sériích.
+- **Rozpis sérií** se vykresloval uvnitř flex hlavičky a mačkal název cviku.
+
+---
+
+## 7. Co nesmíš měnit bez jeho výslovného souhlasu
+
+- cílová maxima (130 / 190 / 230)
+- datum startu plánu
+- strukturu záložek
+- HIIT ve středu a v sobotu
+- vracet zpátky Hack Squat
+- **mazat nebo přepisovat jeho reálné záznamy** — 366 záznamů od února 2026,
+  včetně ALL-TIME PR (dřep 170 kg z 3. 8. 2026)
+
+Když si nejsi jistý, jestli je změna v pořádku, zeptej se — ale **rozporuj**.
+Výslovně řekl, že nechce slepou poslušnost: *„klidně to nějak rozporuj, vysvětluj,
+já zase ti nechci to úplně diktovat."*
+
+---
+
+## 8. Ověřování změn
+
+Kontejner nemá přístup na živý web ani na GitHub API. Máš dvě cesty:
+
+**a) Lokální render (rychlé, spolehlivé).** Playwright + Chromium jsou předinstalované:
+
+```bash
+node -e "require('playwright')"   # pokud chybí: npm i playwright v /tmp
+# executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome'
+```
+
+Naservíruj `dist/public` přes malý http server, projdi všech 6 záložek,
+udělej screenshoty a hlídej dvě věci:
+- `pageerror` / console errors
+- přetékání: element s `getBoundingClientRect().right > window.innerWidth`
+
+Fonty se v kontejneru nenačtou (Google Fonts je blokované) — typografie proto
+ve screenshotech vypadá jinak než na jeho telefonu. Layout to neovlivní.
+
+**b) Živý web přes prohlížeč uživatele** (`mcp__claude-in-chrome__*`).
+Tohle je jediný způsob, jak vidět skutečný výsledek včetně jeho dat v localStorage.
+Vždy s cache-busting query (`?v=N`).
+
+**Nespoléhej na vlastní ověřovací skripty proti lokálnímu klonu** — už jednou
+hlásily falešné chyby, protože četly zastaralý checkout. Ověřuj proti nasazenému
+bundlu nebo proti živému webu.
+
+---
+
+## 9. Tón a jazyk
+
+Všechno UI i komunikace **česky**. Píše mluvenou češtinou, často diktuje —
+počítej s překlepy a nedokončenými větami, ptej se, když je zadání dvojznačné.
+Chce věcnost, ne nadšení. Ocení, když mu řekneš, co je špatně a proč.

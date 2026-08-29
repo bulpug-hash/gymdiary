@@ -52,22 +52,22 @@
    ============================================================ */
 
 :root {
-  /* LIGHT — flat white kit */
-  --gd-ink:        #F1EFE8;
-  --gd-surface:    #E7E4DA;
-  --gd-surface-2:  #DDD9CD;
-  --gd-line:       #C9C4B6;
-  --gd-text:       #141410;
-  --gd-text-2:     #4B4941;
-  --gd-text-3:     #75726A;
-  --gd-text-4:     #9B978D;
-  --gd-invert-bg:  #0E0E0E;
-  --gd-invert-fg:  #F1EFE8;
-  --gd-accent:     #5C6E00;
-  --gd-accent-ink: #F4F2EC;
-  --gd-fern:       #4E5B36;
-  --gd-danger:     #A64A2B;
-  --gd-shadow:     #141410;
+  /* LIGHT — "flat white" kit, jak 247 vypadá na webu značky */
+  --gd-ink:        #FFFFFF;   /* flat white */
+  --gd-surface:    #F4F4F2;
+  --gd-surface-2:  #EAEAE7;
+  --gd-line:       #D8D8D4;
+  --gd-text:       #0A0A0A;   /* jet black */
+  --gd-text-2:     #3A3A38;   /* graphite */
+  --gd-text-3:     #71716C;   /* washed grey */
+  --gd-text-4:     #A3A39E;   /* ash grey */
+  --gd-invert-bg:  #0A0A0A;
+  --gd-invert-fg:  #FFFFFF;
+  --gd-accent:     #0A0A0A;   /* ve světlém kitu je signálem inverze, ne barva */
+  --gd-accent-ink: #FFFFFF;
+  --gd-fern:       #4A5732;
+  --gd-danger:     #9E4526;
+  --gd-shadow:     #0A0A0A;
 }
 
 :root.dark {
