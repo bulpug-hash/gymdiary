@@ -58,11 +58,11 @@ export default function Plan({ workoutData }: Props) {
     <div style={{ padding: '0 0 16px' }}>
       {/* Header */}
       <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--gd-line)' }}>
-        <div style={{ color: 'var(--gd-accent)', fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>
-          TRÉNINKOVÝ PLÁN
+        <div style={{ color: 'var(--gd-accent)', fontSize: 9, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 6 }}>
+          Tréninkový plán · v5.2
         </div>
-        <h2 style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: 'var(--gd-text)' }}>
-          Tréninkový plán Podzim 2026 v5.2
+        <h2 style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 34, fontWeight: 800, margin: 0, letterSpacing: '-0.035em', lineHeight: 0.95, color: 'var(--gd-text)', textTransform: 'uppercase' }}>
+          Podzim 2026
         </h2>
         <p style={{ color: 'var(--gd-text-3)', fontSize: 12, marginTop: 6, lineHeight: 1.5 }}>
           13týdenní peaking program · W1–4 Akumulace · W5–8 Síla · W9–11 Intenzifikace · W12 Taper · W13 Test
@@ -290,27 +290,31 @@ function ExerciseRow({ ex, idx, total, latest }: {
 
       {/* Přehledný rozpis pracovních sérií */}
       {ex.setPlan && ex.setPlan.length > 0 && (
-        <div style={{ margin: '2px 0 8px 15px', border: '1px solid color-mix(in srgb, var(--gd-accent) 14%, transparent)', borderRadius: 0, overflow: 'hidden' }}>
-          <div style={{ display: 'flex', background: 'color-mix(in srgb, var(--gd-accent) 7%, transparent)', padding: '4px 8px', fontSize: 9, letterSpacing: '0.08em', color: 'var(--gd-text-3)', fontWeight: 700 }}>
-            <div style={{ width: 26 }}>#</div>
-            <div style={{ width: 74 }}>VÁHA</div>
-            <div style={{ width: 52 }}>OPAK.</div>
-            <div style={{ width: 42 }}>RPE</div>
-            <div style={{ flex: 1 }}>TYP</div>
+        <div style={{ margin: '2px 0 10px 15px', border: '1px solid var(--gd-line)', borderRadius: 0, overflow: 'hidden' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '22px minmax(84px, auto) 46px 40px 1fr', gap: 8, alignItems: 'center', background: 'var(--gd-surface)', padding: '5px 9px', fontSize: 8, letterSpacing: '0.18em', color: 'var(--gd-text-3)', fontWeight: 700 }}>
+            <div>#</div>
+            <div>VÁHA</div>
+            <div>OPAK.</div>
+            <div>RPE</div>
+            <div style={{ textAlign: 'right' }}>TYP</div>
           </div>
           {ex.setPlan.map((sp, i) => {
             const hot = /OVERLOAD|TOP|CÍL|PR/.test(sp.label);
             return (
               <div key={i} style={{
-                display: 'flex', alignItems: 'center', padding: '5px 8px', fontSize: 12,
-                background: hot ? 'color-mix(in srgb, var(--gd-accent) 10%, transparent)' : (i % 2 ? 'color-mix(in srgb, var(--gd-text) 2%, transparent)' : 'transparent'),
-                borderTop: '1px solid color-mix(in srgb, var(--gd-text) 4%, transparent)',
+                display: 'grid', gridTemplateColumns: '22px minmax(84px, auto) 46px 40px 1fr', gap: 8,
+                alignItems: 'center', padding: '7px 9px', fontSize: 12,
+                background: hot ? 'var(--gd-accent)' : 'transparent',
+                color: hot ? 'var(--gd-accent-ink)' : 'inherit',
+                borderTop: hot ? '1px solid var(--gd-accent)' : '1px solid var(--gd-line)',
               }}>
-                <div style={{ width: 26, color: 'var(--gd-text-3)', fontSize: 11 }}>{i + 1}.</div>
-                <div style={{ width: 74, fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontWeight: 800, fontSize: 15, color: hot ? 'var(--gd-accent)' : 'var(--gd-text)' }}>{sp.weight} kg</div>
-                <div style={{ width: 52, fontWeight: 700, color: 'var(--gd-text)' }}>× {sp.reps}</div>
-                <div style={{ width: 42, color: 'var(--gd-text-3)', fontSize: 11 }}>{sp.rpe || '–'}</div>
-                <div style={{ flex: 1, fontSize: 10, color: hot ? 'var(--gd-accent)' : 'var(--gd-text-3)', fontWeight: hot ? 700 : 400 }}>{sp.label}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, opacity: hot ? 0.6 : 1, color: hot ? 'inherit' : 'var(--gd-text-4)' }}>{i + 1}</div>
+                <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums', color: hot ? 'inherit' : 'var(--gd-text)' }}>
+                  {sp.weight.replace('.', ',')}<span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', marginLeft: 3, opacity: 0.6 }}>KG</span>
+                </div>
+                <div style={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap', color: hot ? 'inherit' : 'var(--gd-text-2)' }}>× {sp.reps}</div>
+                <div style={{ fontSize: 11, fontWeight: 600, opacity: hot ? 0.7 : 1, color: hot ? 'inherit' : 'var(--gd-text-3)' }}>{sp.rpe || '–'}</div>
+                <div style={{ fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700, textAlign: 'right', opacity: hot ? 0.85 : 1, color: hot ? 'inherit' : 'var(--gd-text-3)' }}>{sp.label}</div>
               </div>
             );
           })}
