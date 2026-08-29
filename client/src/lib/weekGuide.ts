@@ -8,7 +8,7 @@ export interface WeekGuide {
 }
 export const WEEK_GUIDE: WeekGuide[] = [
   {
-    wk: 1, title: 'Blok A — Akumulace', block: 'Blok A', dates: '18.–24. 8.', mode: 'objemový',
+    wk: 1, title: 'Blok A — Akumulace', block: 'Blok A', dates: '31. 8.–6. 9.', mode: 'objemový',
     focus: 'Reacklimatizace, znovunastavení vah po restartu. Objem 8/6 op., jedna těžká overload expozice.',
     why: 'Rozjezd bloku. Po restartu se vrací pracovní kapacita – jedeš 8 a 6 opakování, ale hned s jednou těžkou expozicí (overload trojka), aby tělo nezapomnělo na vysoké procento. Israetel: adaptace na 87–95 % 1RM potřebuje opakovanou expozici, ne jen pár těžkých týdnů na konci.',
     points: ['Doplňky jedou na vyšší opakování (8–12) – víc objemu, nižší váhy.', 'Face pull navíc na zdraví ramen.', 'Nohy drž silově, nepřidávej vysokoopakovkové drtičky.'],
@@ -17,7 +17,7 @@ export const WEEK_GUIDE: WeekGuide[] = [
     cardio: 'HIIT středa + sobota beze změny. Volitelný lehký Z2 běh v neděli, do 5 km – není povinný.', rpe: 'Pracovní série RPE 7–8 (2–3 opakování v zásobě). Overload RPE 8.',
   },
   {
-    wk: 2, title: 'Blok A — Akumulace', block: 'Blok A', dates: '25.–31. 8.', mode: 'objemový',
+    wk: 2, title: 'Blok A — Akumulace', block: 'Blok A', dates: '7.–13. 9.', mode: 'objemový',
     focus: 'Double progression – přidat opakování/váhu. Overload dvojka.',
     why: 'Double progression – přidáváš buď opakování, nebo váhu, ne obojí. Overload jde z trojky na dvojku, takže expozice je těžší, ale kratší. Objem zůstává stejný.',
     points: ['Doplňky jedou na vyšší opakování (8–12) – víc objemu, nižší váhy.', 'Face pull navíc na zdraví ramen.', 'Nohy drž silově, nepřidávej vysokoopakovkové drtičky.'],
@@ -26,7 +26,7 @@ export const WEEK_GUIDE: WeekGuide[] = [
     cardio: 'HIIT středa + sobota beze změny. Volitelný lehký Z2 běh v neděli, do 5 km – není povinný.', rpe: 'Pracovní série RPE 7–8 (2–3 opakování v zásobě). Overload RPE 8.',
   },
   {
-    wk: 3, title: 'Blok A — Akumulace', block: 'Blok A', dates: '1.–7. 9.', mode: 'silový',
+    wk: 3, title: 'Blok A — Akumulace', block: 'Blok A', dates: '14.–20. 9.', mode: 'silový',
     focus: 'Vrchol akumulace (tvůj oblíbený „týden 3“ styl). Nejvyšší objem bloku.',
     why: 'Vrchol bloku A – nejvyšší kombinace objemu a intenzity. Tohle je ten typ týdne, který ti dřív seděl nejvíc. Overload dvojka je ~92 % TM. Pokud RPE přeleze 9, uber back-off sérii, ne váhu na overloadu.',
     points: ['Doplňky silově (4–6 op.), přidej zátěž na pull-upy a dipy nahrazující triceps.', 'Nordic curl / GHD jen v tomhle typu týdne.', 'Veslování 4×5 místo 3×8–10.'],
@@ -35,7 +35,7 @@ export const WEEK_GUIDE: WeekGuide[] = [
     cardio: 'HIIT středa + sobota beze změny. Volitelný lehký Z2 běh v neděli, do 5 km – není povinný.', rpe: 'Top set RPE 8–9 (1–2 v zásobě). Back-offy RPE 8.',
   },
   {
-    wk: 4, title: 'Deload', block: 'Blok A', dates: '8.–14. 9.', mode: 'deload',
+    wk: 4, title: 'Deload', block: 'Blok A', dates: '21.–27. 9.', mode: 'deload',
     focus: 'Deload −40 % objemu. Aktivní regenerace, technika. HRV/readiness zpět nahoru.',
     why: 'Deload. Objem dolů o ~40 %, váhy ~72 % – aktivní regenerace, ne volno. Cílem je nechat odejít únavu z bloku A, aby blok B mohl začít z čistého štítu. HRV a readiness se mají vrátit nahoru.',
     points: ['Nejezdi do selhání, RPE max 6–7.', 'Doplňky zredukované na 2 série.', 'Spánek a jídlo priorita – deload je práce na regeneraci.'],
@@ -44,7 +44,7 @@ export const WEEK_GUIDE: WeekGuide[] = [
     cardio: 'HIIT středa + sobota beze změny. Volitelný lehký Z2 běh v neděli, do 5 km – není povinný.', rpe: 'Vše RPE 6–7. Má to být lehké.',
   },
   {
-    wk: 5, title: 'Blok B — Síla', block: 'Blok B', dates: '15.–21. 9.', mode: 'silový',
+    wk: 5, title: 'Blok B — Síla', block: 'Blok B', dates: '28. 9.–4. 10.', mode: 'silový',
     focus: 'Vstup do síly. Zavádíme pětky/trojky. Ramp → top → overload → back-off.',
     why: 'Start bloku B. Přecházíš z 8/6 opakování na 5/3 – míň opakování, vyšší kvalita. Struktura je pořád stejná vlna, jen posunutá k intenzitě. Sekundární dřep se mění na pin dřep (mrtvý bod).',
     points: ['Doplňky silově (4–6 op.), přidej zátěž na pull-upy a dipy nahrazující triceps.', 'Nordic curl / GHD jen v tomhle typu týdne.', 'Veslování 4×5 místo 3×8–10.'],
@@ -53,7 +53,7 @@ export const WEEK_GUIDE: WeekGuide[] = [
     cardio: 'HIIT středa + sobota beze změny. Volitelný lehký Z2 běh v neděli, do 5 km – není povinný.', rpe: 'Top set RPE 8–9 (1–2 v zásobě). Back-offy RPE 8.',
   },
   {
-    wk: 6, title: 'Blok B — Síla', block: 'Blok B', dates: '22.–28. 9.', mode: 'objemový',
+    wk: 6, title: 'Blok B — Síla', block: 'Blok B', dates: '5.–11. 10.', mode: 'objemový',
     focus: 'Progrese, čtyřky na top setu. Objem doplňků nahoru (objemový týden).',
     why: 'Objemový týden uvnitř silového bloku – doplňky jdou na vyšší opakování, hlavní cviky drží čtyřky. Rotace cviků (výpady, overhead extension) dává nový podnět bez nárůstu únavy.',
     points: ['Doplňky jedou na vyšší opakování (8–12) – víc objemu, nižší váhy.', 'Face pull navíc na zdraví ramen.', 'Nohy drž silově, nepřidávej vysokoopakovkové drtičky.'],
@@ -62,7 +62,7 @@ export const WEEK_GUIDE: WeekGuide[] = [
     cardio: 'HIIT středa + sobota beze změny. Volitelný lehký Z2 běh v neděli, do 5 km – není povinný.', rpe: 'Pracovní série RPE 7–8 (2–3 opakování v zásobě). Overload RPE 8.',
   },
   {
-    wk: 7, title: 'Blok B — Síla', block: 'Blok B', dates: '29. 9.–5. 10.', mode: 'silový',
+    wk: 7, title: 'Blok B — Síla', block: 'Blok B', dates: '12.–18. 10.', mode: 'silový',
     focus: 'Nejvyšší intenzita bloku B – trojky/dvojky. Silové doplňky.',
     why: 'Nejtěžší týden bloku B. Trojky a dvojky na hlavních cvicích, doplňky silově. Tady se ukáže, jestli deload W4 zabral. Když RPE top setu přeleze 9,5, vynech back-offy.',
     points: ['Doplňky silově (4–6 op.), přidej zátěž na pull-upy a dipy nahrazující triceps.', 'Nordic curl / GHD jen v tomhle typu týdne.', 'Veslování 4×5 místo 3×8–10.'],
@@ -71,7 +71,7 @@ export const WEEK_GUIDE: WeekGuide[] = [
     cardio: 'HIIT středa + sobota beze změny. Volitelný lehký Z2 běh v neděli, do 5 km – není povinný.', rpe: 'Top set RPE 8–9 (1–2 v zásobě). Back-offy RPE 8.',
   },
   {
-    wk: 8, title: 'Deload', block: 'Blok B', dates: '6.–12. 10.', mode: 'deload',
+    wk: 8, title: 'Deload', block: 'Blok B', dates: '19.–25. 10.', mode: 'deload',
     focus: 'Deload −50 %. Před intenzifikací plně zregenerovat.',
     why: 'Druhý deload. Před blokem C musíš být čerstvý – intenzifikace je nejnáročnější část plánu. Objem dolů o ~50 %, váhy ~77 %.',
     points: ['Nejezdi do selhání, RPE max 6–7.', 'Doplňky zredukované na 2 série.', 'Spánek a jídlo priorita – deload je práce na regeneraci.'],
@@ -80,7 +80,7 @@ export const WEEK_GUIDE: WeekGuide[] = [
     cardio: 'HIIT středa + sobota beze změny. Volitelný lehký Z2 běh v neděli, do 5 km – není povinný.', rpe: 'Vše RPE 6–7. Má to být lehké.',
   },
   {
-    wk: 9, title: 'Blok C — Intenzifikace', block: 'Blok C', dates: '13.–19. 10.', mode: 'silový',
+    wk: 9, title: 'Blok C — Intenzifikace', block: 'Blok C', dates: '26. 10.–1. 11.', mode: 'silový',
     focus: 'Vstup do intenzifikace – tvůj „pozdní“ vlnový systém: dvojka na top, pak objemové back-offy. 120 na benchi má být LEHKÝCH.',
     why: 'Start intenzifikace. Přecházíš na dvojky na top setu a objemové back-offy. Tady začíná ta část, kterou jsi popisoval: 120 na benchi má být LEHKÝCH. Pokud není, je to signál zpomalit, ne přidat.',
     points: ['Doplňky silově (4–6 op.), přidej zátěž na pull-upy a dipy nahrazující triceps.', 'Nordic curl / GHD jen v tomhle typu týdne.', 'Veslování 4×5 místo 3×8–10.'],
@@ -89,7 +89,7 @@ export const WEEK_GUIDE: WeekGuide[] = [
     cardio: 'HIIT středa + sobota beze změny. Volitelný lehký Z2 běh v neděli, do 5 km – není povinný.', rpe: 'Top set RPE 8–9 (1–2 v zásobě). Back-offy RPE 8.',
   },
   {
-    wk: 10, title: 'Blok C — Intenzifikace', block: 'Blok C', dates: '20.–26. 10.', mode: 'objemový',
+    wk: 10, title: 'Blok C — Intenzifikace', block: 'Blok C', dates: '2.–8. 11.', mode: 'objemový',
     focus: 'První top singly (95 %). 120 kg bench lehce, 125 se objevuje.',
     why: 'První top singly (95 %). Bench 120×1 by měl jít hladce – to je kontrolní bod před 130. Doplňky jdou objemově, aby se udržela svalová hmota při klesajícím objemu hlavních cviků.',
     points: ['Doplňky jedou na vyšší opakování (8–12) – víc objemu, nižší váhy.', 'Face pull navíc na zdraví ramen.', 'Nohy drž silově, nepřidávej vysokoopakovkové drtičky.'],
@@ -98,7 +98,7 @@ export const WEEK_GUIDE: WeekGuide[] = [
     cardio: 'HIIT středa + sobota beze změny. Volitelný lehký Z2 běh v neděli, do 5 km – není povinný.', rpe: 'Pracovní série RPE 7–8 (2–3 opakování v zásobě). Overload RPE 8.',
   },
   {
-    wk: 11, title: 'Blok C — Intenzifikace', block: 'Blok C', dates: '27. 10.–2. 11.', mode: 'silový',
+    wk: 11, title: 'Blok C — Intenzifikace', block: 'Blok C', dates: '9.–15. 11.', mode: 'silový',
     focus: 'Nejtěžší tréninkový týden – singly 97 %. 125 kg jako těžší top single.',
     why: 'Nejtěžší tréninkový týden celého plánu – singly na 97 %. Bench 122,5, dřep 180, tah 222,5. RPE 9 znamená: šla by ještě jedna, ale sotva. Nejezdi na RPE 10, na to je testovací týden.',
     points: ['Doplňky silově (4–6 op.), přidej zátěž na pull-upy a dipy nahrazující triceps.', 'Nordic curl / GHD jen v tomhle typu týdne.', 'Veslování 4×5 místo 3×8–10.'],
@@ -107,7 +107,7 @@ export const WEEK_GUIDE: WeekGuide[] = [
     cardio: 'HIIT středa + sobota beze změny. Volitelný lehký Z2 běh v neděli, do 5 km – není povinný.', rpe: 'Top set RPE 8–9 (1–2 v zásobě). Back-offy RPE 8.',
   },
   {
-    wk: 12, title: 'Taper', block: 'Taper', dates: '3.–9. 11.', mode: 'taper',
+    wk: 12, title: 'Taper', block: 'Taper', dates: '16.–22. 11.', mode: 'taper',
     focus: 'Taper −60 % objemu, intenzita zachována. Nácvik openerů. Únava odchází.',
     why: 'Taper. Objem dolů o ~60 %, intenzita zůstává. Jedeš openery a druhé pokusy, žádné back-offy. Dvou-faktorový model: únava odchází rychleji než fitness, takže výkon vyskočí nad dosavadní úroveň. Běh tento týden vynech.',
     points: ['Žádné back-off série.', 'Nacvič si opener – váhu, kterou dáš i ve špatný den.', 'Vynech běh, HIIT ber jako lehké.'],
@@ -116,7 +116,7 @@ export const WEEK_GUIDE: WeekGuide[] = [
     cardio: 'Běh tento týden vynech (minimalizace interference před maximem – Viada). HIIT St + So ber lehce.', rpe: 'Vše RPE 7. Žádné hrdinství.',
   },
   {
-    wk: 13, title: 'TEST MAXIM', block: 'TEST MAXIM', dates: '10.–16. 11.', mode: 'test',
+    wk: 13, title: 'TEST MAXIM', block: 'TEST MAXIM', dates: '23.–29. 11.', mode: 'test',
     focus: 'Test maxim. Dvou-faktorový model: únava pryč, fitness zůstala → výkon vyskočí. Cíle: bench 130, dřep 190, mrtvý tah 230+.',
     why: 'Testovací týden. Každý den jeden lift, postupné singly až na cíl. Před testem: dobrý spánek, +100 g sacharidů ráno, žádný běh. Mezi pokusy 3–5 min. Zastav, když technika povolí.',
     points: ['Jeden lift denně, plný odpočinek mezi pokusy.', 'Rozjezd → cíl → volitelný PR pokus.', 'Když druhý pokus jde hladce, jdi na PR. Když ne, spokoj se s cílem.'],
