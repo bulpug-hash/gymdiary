@@ -550,3 +550,214 @@
   .gd-marquee__track { animation: none; }
   .gd-reveal { opacity: 1; transform: none; transition: none; }
 }
+
+/* ============================================================
+   Lišta odpočinku – sedí nad spodní navigací, vidíš ji odkudkoli.
+   ============================================================ */
+@layer components {
+  .gd-restbar {
+    position: fixed;
+    left: 0; right: 0;
+    bottom: calc(65px + env(safe-area-inset-bottom, 0px));
+    z-index: 115;
+    background: var(--gd-ink);
+    border-top: 1px solid var(--gd-line);
+    overflow: hidden;
+  }
+  .gd-restbar__fill {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--gd-accent) 16%, transparent);
+    transform-origin: left center;
+    transition: transform 0.25s linear;
+  }
+  .gd-restbar__row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+  }
+  .gd-restbar__lbl {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--gd-text-2);
+  }
+  .gd-restbar__clock {
+    font-size: 20px;
+    color: var(--gd-accent);
+    letter-spacing: -0.02em;
+  }
+  .gd-restbar__btn {
+    background: none;
+    border: 1px solid var(--gd-line);
+    border-radius: 0;
+    color: var(--gd-text-3);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .gd-restbar__btn:active { color: var(--gd-text); }
+}
+
+@media (min-width: 760px) {
+  .gd-restbar { max-width: 760px; margin-inline: auto; border-inline: 1px solid var(--gd-line); }
+}
+
+/* ============================================================
+   Odškrtávání sérií (SetLogger)
+   ============================================================ */
+@layer components {
+  .gd-sets { display: block; }
+
+  .gd-set {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    border-top: 1px solid var(--gd-line);
+  }
+  .gd-set.is-done { background: color-mix(in srgb, var(--gd-accent) 7%, transparent); }
+
+  .gd-set__main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 52px;
+    padding: 10px 0 10px 0;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    min-width: 0;
+  }
+  .gd-set__tick {
+    flex: 0 0 22px;
+    width: 22px;
+    height: 22px;
+    border: 1px solid var(--gd-line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--gd-accent-ink);
+  }
+  .gd-set.is-done .gd-set__tick {
+    background: var(--gd-accent);
+    border-color: var(--gd-accent);
+  }
+  .gd-set__lbl {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gd-text-2);
+  }
+  .gd-set__prev {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    color: var(--gd-text-4);
+  }
+  .gd-set__num {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    font-size: 15px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--gd-text);
+  }
+  .gd-set.is-done .gd-set__num { color: var(--gd-accent); }
+  .gd-set__rpe {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--gd-text-4);
+  }
+
+  .gd-set__edit {
+    flex-shrink: 0;
+    width: 44px;
+    background: none;
+    border: none;
+    border-left: 1px solid var(--gd-line);
+    color: var(--gd-text-4);
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .gd-set__form {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr;
+    gap: 8px 10px;
+    align-items: center;
+    padding: 12px 0 14px;
+    border-top: 1px solid var(--gd-line);
+  }
+  .gd-set__form input { padding: 9px 10px; font-size: 15px; }
+  .gd-set__save {
+    grid-column: 1 / -1;
+    padding: 12px;
+    background: var(--gd-accent);
+    color: var(--gd-accent-ink);
+    border: none;
+    border-radius: 0;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .gd-set__warn {
+    grid-column: 1 / -1;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--gd-danger);
+    border-left: 2px solid var(--gd-danger);
+    padding-left: 10px;
+  }
+}
+
+/* Proužek aktualizace / offline připravenosti */
+@layer components {
+  .gd-updatebar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    background: color-mix(in srgb, var(--gd-accent) 10%, var(--gd-ink));
+    border-bottom: 1px solid var(--gd-line);
+  }
+  .gd-updatebar__lbl { flex: 1; min-width: 0; color: var(--gd-text-2); }
+  .gd-updatebar__btn {
+    background: var(--gd-accent);
+    color: var(--gd-accent-ink);
+    border: none;
+    border-radius: 0;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+}
+@media (min-width: 760px) {
+  .gd-updatebar { max-width: 760px; margin-inline: auto; }
+}

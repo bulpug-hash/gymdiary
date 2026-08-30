@@ -1,6 +1,7 @@
 import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
@@ -150,7 +151,57 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+
+/**
+ * Service worker se skládá až po buildu – šablona ve scripts/sw-template.js
+ * nezná hashovaná jména assetů. Šablona ZÁMĚRNĚ neleží v client/public/:
+ * kdyby tam byla a plugin selhal, nasadil by se SW s nenahrazenými zástupnými
+ * hodnotami, zaregistroval by se a nic by nepředcachoval.
+ */
+function vitePluginGymdiarySW(): Plugin {
+  return {
+    name: "gymdiary-sw",
+    apply: "build",
+    closeBundle() {
+      const outDir = path.resolve(import.meta.dirname, "dist/public");
+      const templatePath = path.resolve(import.meta.dirname, "scripts/sw-template.js");
+      if (!fs.existsSync(outDir) || !fs.existsSync(templatePath)) return;
+
+      const walk = (dir: string, base = ""): string[] => {
+        const out: string[] = [];
+        for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+          const rel = base ? `${base}/${entry.name}` : entry.name;
+          if (entry.isDirectory()) out.push(...walk(path.join(dir, entry.name), rel));
+          else out.push(rel);
+        }
+        return out;
+      };
+
+      const skip = /^(sw\.js|404\.html|__manus__\/|docs\/)/;
+      const files = walk(outDir)
+        .filter(f => !skip.test(f))
+        .filter(f => /\.(html|js|css|webp|png|svg|woff2?|json)$/.test(f));
+
+      // index.html musí být první – SW z něj servíruje navigace.
+      const precache = ["./index.html", ...files.filter(f => f !== "index.html").map(f => `./${f}`)];
+      const build = crypto
+        .createHash("sha256")
+        .update(precache.join("|"))
+        .digest("hex")
+        .slice(0, 12);
+
+      const sw = fs
+        .readFileSync(templatePath, "utf-8")
+        .replace("'__GD_BUILD__'", JSON.stringify(build))
+        .replace("['__GD_PRECACHE__']", JSON.stringify(precache));
+
+      fs.writeFileSync(path.join(outDir, "sw.js"), sw, "utf-8");
+      console.log(`[gymdiary-sw] sw.js · build ${build} · ${precache.length} souborů`);
+    },
+  };
+}
+
+const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginGymdiarySW()];
 
 export default defineConfig({
   plugins,

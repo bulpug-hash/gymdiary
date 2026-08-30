@@ -9,6 +9,9 @@ import { RECOVERED_HIIT_RECORDS, RECOVERED_RUN_RECORDS } from '@/lib/recoveryDat
 import type { WorkoutDataHook } from '@/lib/types';
 import * as XLSX from 'xlsx';
 import { tint, formatWeight } from '@/lib/tint';
+import { useRestTimer, startRest, pauseRest, resumeRest, resetRest, setRestDuration } from '@/lib/restTimer';
+import { loadSnapshots, markDownloaded, daysSinceDownload, formatStamp, REMIND_AFTER_DAYS } from '@/lib/backup';
+import { plural } from '@/lib/czech';
 import { Hero, Marquee } from '@/components/kit';
 
 interface Props {
@@ -531,72 +534,22 @@ function BodyWeightTracker() {
 // Rest Timer
 // ============================================================
 function RestTimer() {
-  const [duration, setDuration] = useState(90); // seconds
-  const [remaining, setRemaining] = useState(90);
-  const [running, setRunning] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Stav timeru je sdileny (lib/restTimer) - stejny odpocet vidis i v plovouci
+  // liste nad navigaci a prezije prepnuti zalozky.
+  const { running, remaining, duration } = useRestTimer();
 
   const presets = [60, 90, 120, 180, 240, 300];
 
-  // Cíl se drží jako absolutní čas, ne jako počet tiků. setInterval se na
-  // zamčeném telefonu uškrtí nebo zastaví úplně a timer se pak opozdí o celý
-  // odpočinek – tímhle po odemčení ukáže správný zbytek.
-  const deadlineRef = useRef<number | null>(null);
-
-  const tick = useCallback(() => {
-    if (deadlineRef.current == null) return;
-    const left = Math.max(0, Math.round((deadlineRef.current - Date.now()) / 1000));
-    setRemaining(left);
-    if (left === 0) {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      intervalRef.current = null;
-      deadlineRef.current = null;
-      setRunning(false);
-      toast.success('Odpočinek dokončen. Jdi na to.', { duration: 4000 });
-    }
-  }, []);
-
   const startStop = useCallback(() => {
-    if (running) {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      intervalRef.current = null;
-      deadlineRef.current = null;
-      setRunning(false);
-    } else {
-      deadlineRef.current = Date.now() + remaining * 1000;
-      setRunning(true);
-      intervalRef.current = setInterval(tick, 250);
-    }
-  }, [running, remaining, tick]);
+    if (running) pauseRest();
+    else if (remaining > 0) resumeRest();
+    else startRest(duration, 'ručně');
+  }, [running, remaining, duration]);
 
-  const reset = useCallback(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = null;
-    deadlineRef.current = null;
-    setRunning(false);
-    setRemaining(duration);
-  }, [duration]);
+  const reset = useCallback(() => resetRest(duration), [duration]);
+  const setDuration = useCallback((s: number) => setRestDuration(s), []);
 
-  useEffect(() => {
-    setRemaining(duration);
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = null;
-    deadlineRef.current = null;
-    setRunning(false);
-  }, [duration]);
-
-  // Po návratu z pozadí dopočítej zbytek okamžitě, ať se nečeká na další tik.
-  useEffect(() => {
-    const onVisible = () => { if (!document.hidden) tick(); };
-    document.addEventListener('visibilitychange', onVisible);
-    return () => document.removeEventListener('visibilitychange', onVisible);
-  }, [tick]);
-
-  useEffect(() => {
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, []);
-
-  const pct = remaining / duration;
+  const pct = duration > 0 ? remaining / duration : 0;
   const mins = Math.floor(remaining / 60);
   const secs = remaining % 60;
   const circumference = 2 * Math.PI * 54;
@@ -657,7 +610,7 @@ function RestTimer() {
             letterSpacing: '0.05em',
           }}
         >
-          {running ? '⏸ PAUZA' : '▶ START'}
+          {running ? 'PAUZA' : remaining > 0 && remaining < duration ? 'POKRAČOVAT' : 'START'}
         </button>
         <button
           onClick={reset}
@@ -672,7 +625,7 @@ function RestTimer() {
             padding: '14px',
             cursor: 'pointer',
           }}
-        >↺ Reset</button>
+        >Reset</button>
       </div>
 
       {/* Presets */}
@@ -693,8 +646,7 @@ function RestTimer() {
               cursor: 'pointer',
             }}
           >
-            {s >= 60 ? `${s / 60}min` : `${s}s`}
-            {s === 90 && ' '}
+            {s >= 60 ? `${String(s / 60).replace('.', ',')} min` : `${s} s`}
           </button>
         ))}
       </div>
@@ -736,8 +688,11 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
     link.href = url;
     link.download = `gymdiary-zaloha-${today}.json`;
     link.click();
-    URL.revokeObjectURL(url);
-    toast.success('JSON záloha stažena ✓');
+    // revokeObjectURL až po tiku – na iOS Safari může okamžité zrušení
+    // přerušit stahování.
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    markDownloaded();
+    toast.success('JSON záloha stažena');
   };
 
   const importBackup = (event: any) => {
@@ -761,6 +716,22 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
     };
     reader.readAsText(file);
     event.target.value = '';
+  };
+
+  const snapshots = loadSnapshots();
+  const sinceDownload = daysSinceDownload();
+  const stale = sinceDownload === null || sinceDownload >= REMIND_AFTER_DAYS;
+
+  const restoreSnapshot = (index: number) => {
+    const snap = snapshots[index];
+    if (!snap) return;
+    try {
+      localStorage.setItem('gymdiary_records_v3', JSON.stringify(snap.records));
+      toast.success('Záloha obnovena. Aplikace se načte znovu.');
+      setTimeout(() => window.location.reload(), 900);
+    } catch {
+      toast.error('Obnovení se nepovedlo');
+    }
   };
 
   // Helper: find exercise name and day/week info from plan
@@ -980,6 +951,45 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
             <div style={{ fontSize: 10, color: 'var(--gd-text-4)', marginTop: 2 }}>{s.label}</div>
           </div>
         ))}
+      </div>
+
+      {/* Automatická záloha */}
+      <div style={{ marginBottom: 18, border: `1px solid ${stale ? 'color-mix(in srgb, var(--gd-danger) 35%, transparent)' : 'var(--gd-line)'}`, padding: '14px 16px' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
+          <span className="gd-tag" style={{ flex: 1 }}>Automatická záloha</span>
+          <span style={{ fontSize: 10, color: 'var(--gd-text-4)' }}>
+            {snapshots.length} {plural(snapshots.length, 'otisk', 'otisky', 'otisků')}
+          </span>
+        </div>
+        <p style={{ fontSize: 12, lineHeight: 1.6, color: 'var(--gd-text-3)', margin: '0 0 10px' }}>
+          Appka si sama jednou denně ukládá otisk záznamů do prohlížeče. Je to pojistka
+          proti překlepu, ne proti vyčištění dat — na to si stáhni zálohu do souboru.
+        </p>
+        {snapshots.map((snap, i) => (
+          <div key={snap.ts} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 0', borderTop: '1px solid var(--gd-line)' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, color: 'var(--gd-text-2)' }}>{formatStamp(snap.ts)}</div>
+              <div style={{ fontSize: 10, color: 'var(--gd-text-4)' }}>
+                {snap.count} {plural(snap.count, 'záznam', 'záznamy', 'záznamů')}
+              </div>
+            </div>
+            <button
+              onClick={() => restoreSnapshot(i)}
+              style={{
+                background: 'transparent', border: '1px solid var(--gd-line)', borderRadius: 0,
+                color: 'var(--gd-text-3)', fontSize: 9, fontWeight: 700, letterSpacing: '0.16em',
+                textTransform: 'uppercase', padding: '9px 11px', cursor: 'pointer',
+              }}
+            >Obnovit</button>
+          </div>
+        ))}
+        {stale && (
+          <div style={{ marginTop: 10, paddingLeft: 10, borderLeft: '2px solid var(--gd-danger)', fontSize: 11, lineHeight: 1.6, color: 'var(--gd-danger)' }}>
+            {sinceDownload === null
+              ? 'Zálohu do souboru sis ještě nikdy nestáhl.'
+              : `Poslední stažená záloha je ${sinceDownload} ${plural(sinceDownload, 'den', 'dny', 'dní')} stará.`}
+          </div>
+        )}
       </div>
 
       {/* Export buttons */}

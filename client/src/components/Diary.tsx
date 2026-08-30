@@ -3,13 +3,15 @@
 // BUG FIX: editace záznamu správně předává date, sets, weight, reps, note
 // NOVÉ: cviky rozděleny podle tréninkových dnů (Po/Út/Čt/Pá/So)
 import { useState, useEffect } from 'react';
-import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel, formatDate, formatDateFull, getTodayISO, RUN_LOG_KEY, HIIT_LOG_KEY } from '@/lib/data';
+import { PHASE3_WEEKS, LEGACY_PLAN_WEEKS, getCategoryColor, getCategoryLabel, formatDate, formatDateFull, getTodayISO, RUN_LOG_KEY, HIIT_LOG_KEY } from '@/lib/data';
 import { RECOVERED_HIIT_RECORDS, RECOVERED_RUN_RECORDS } from '@/lib/recoveryData';
 import type { WorkoutDataHook } from '@/lib/types';
 import type { Exercise, TrainingRecord, WorkoutDay, RunRecord, HIITRecord } from '@/lib/data';
 import { nanoid } from 'nanoid';
 import { toast } from 'sonner';
 import { tint, normalizeDecimal, formatWeight } from '@/lib/tint';
+import { undoToast } from '@/lib/undo';
+import { plural } from '@/lib/czech';
 import { Hero, Marquee, SectionHead } from '@/components/kit';
 
 interface Props {
@@ -34,10 +36,67 @@ const DAY_TYPE_COLOR: Record<string, string> = {
   rest: 'var(--gd-text-4)',
 };
 
-// Get unique training days from Phase 3 week 1 (excluding rest)
+// Tréninkové dny se sjednocenou nabídkou cviků.
+//
+// Dřív se bralo jen PHASE3_WEEKS[0], takže cviky, které rotují až v blocích B a C
+// (týdny 5–13), nešlo přes Deník zapsat vůbec a jejich historie byla nedostupná.
+// Teď se pro každý den sesbírá sjednocení cviků ze VŠECH 13 týdnů, v pořadí,
+// v jakém se poprvé objeví.
 function getTrainingDays(): WorkoutDay[] {
-  const week = PHASE3_WEEKS[0];
-  return week.days.filter(d => d.type !== 'rest' && d.exercises.length > 0);
+  const byKey = new Map<string, WorkoutDay>();
+
+  for (const week of PHASE3_WEEKS) {
+    for (const day of week.days) {
+      if (day.type === 'rest' || day.exercises.length === 0) continue;
+      const existing = byKey.get(day.key);
+      if (!existing) {
+        byKey.set(day.key, { ...day, exercises: [...day.exercises] });
+        continue;
+      }
+      const seen = new Set(existing.exercises.map(e => e.id));
+      for (const ex of day.exercises) {
+        if (!seen.has(ex.id)) {
+          existing.exercises.push(ex);
+          seen.add(ex.id);
+        }
+      }
+    }
+  }
+
+  // Zachovej pořadí dnů podle prvního týdne.
+  const order = PHASE3_WEEKS[0].days.map(d => d.key);
+  return Array.from(byKey.values())
+    .sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key));
+}
+
+/** Cviky, ke kterým existují záznamy, ale v aktuálním plánu už nejsou. */
+function getLegacyExercises(records: Record<string, TrainingRecord[]>): Exercise[] {
+  const inPlan = new Set<string>();
+  for (const week of PHASE3_WEEKS) {
+    for (const day of week.days) for (const ex of day.exercises) inPlan.add(ex.id);
+  }
+
+  const known = new Map<string, Exercise>();
+  for (const week of LEGACY_PLAN_WEEKS) {
+    for (const day of week.days) for (const ex of day.exercises) {
+      if (!known.has(ex.id)) known.set(ex.id, ex);
+    }
+  }
+
+  const out: Exercise[] = [];
+  for (const id of Object.keys(records)) {
+    if (inPlan.has(id)) continue;
+    const real = (records[id] ?? []).filter(r => !r.planned);
+    if (real.length === 0) continue;
+    out.push(known.get(id) ?? {
+      id,
+      name: id,
+      category: 'accessory',
+      targetSets: '3',
+      targetReps: '8',
+    } as Exercise);
+  }
+  return out.sort((a, b) => a.name.localeCompare(b.name, 'cs'));
 }
 
 export default function Diary({ workoutData }: Props) {
@@ -48,6 +107,8 @@ export default function Diary({ workoutData }: Props) {
   const [activeTab, setActiveTab] = useState<'exercises' | 'runs' | 'hiit'>('exercises');
 
   const trainingDays = getTrainingDays();
+  const legacyExercises = getLegacyExercises(workoutData.records);
+  const [showLegacy, setShowLegacy] = useState(false);
 
   if (selectedExercise) {
     return (
@@ -215,6 +276,51 @@ export default function Diary({ workoutData }: Props) {
             </div>
           );
         })}
+
+        {/* Cviky mimo aktuální plán – historie ze starého plánu */}
+        {legacyExercises.length > 0 && (
+          <div style={{ marginTop: 14 }}>
+            <button
+              onClick={() => setShowLegacy(!showLegacy)}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                padding: '13px 14px', background: 'transparent',
+                border: '1px solid var(--gd-line)', borderRadius: 0, cursor: 'pointer',
+                textAlign: 'left',
+              }}
+            >
+              <span className="gd-tag" style={{ flex: 1 }}>Mimo aktuální plán</span>
+              <span style={{ fontSize: 11, color: 'var(--gd-text-4)' }}>
+                {legacyExercises.length} {plural(legacyExercises.length, 'cvik', 'cviky', 'cviků')}
+              </span>
+              <span style={{ color: 'var(--gd-text-4)', fontSize: 11, transform: showLegacy ? 'rotate(180deg)' : 'none' }}>▼</span>
+            </button>
+            {showLegacy && (
+              <div style={{ border: '1px solid var(--gd-line)', borderTop: 'none' }}>
+                {legacyExercises.map(ex => {
+                  const n = workoutData.getRecords(ex.id).filter(r => !r.planned).length;
+                  return (
+                    <button
+                      key={ex.id}
+                      onClick={() => setSelectedExercise(ex)}
+                      style={{
+                        width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                        padding: '12px 14px', background: 'transparent', border: 'none',
+                        borderTop: '1px solid var(--gd-line)', cursor: 'pointer', textAlign: 'left',
+                      }}
+                    >
+                      <span style={{ flex: 1, fontSize: 13, color: 'var(--gd-text-2)', minWidth: 0 }}>{ex.name}</span>
+                      <span style={{ fontSize: 11, color: 'var(--gd-text-4)', flexShrink: 0 }}>
+                        {n} {plural(n, 'záznam', 'záznamy', 'záznamů')}
+                      </span>
+                      <span style={{ color: 'var(--gd-line)', fontSize: 13 }}>›</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>}
       </div>
     </div>
@@ -242,8 +348,9 @@ function ExerciseDetail({
   const allTimePR = workoutData.getAllTimePR(exercise.id);
 
   const handleDelete = (recordId: string) => {
-    workoutData.deleteRecord(exercise.id, recordId);
-    toast.success('Záznam smazán');
+    const removed = workoutData.deleteRecord(exercise.id, recordId);
+    if (!removed) return;
+    undoToast('Záznam smazán', () => workoutData.restoreRecord(exercise.id, removed));
   };
 
   return (
@@ -482,9 +589,6 @@ function RecordRow({ record, isLatest, isPR, onEdit, onDelete }: {
   onDelete: () => void;
 }) {
   const [showActions, setShowActions] = useState(false);
-  // Mazání na dvě klepnutí. Bez toho stačí na telefonu omylem dvakrát ťuknout
-  // a reálný záznam je nenávratně pryč – žádné undo tady není.
-  const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
     <div
@@ -496,7 +600,7 @@ function RecordRow({ record, isLatest, isPR, onEdit, onDelete }: {
         marginBottom: 6,
         cursor: 'pointer',
       }}
-      onClick={() => { setShowActions(!showActions); setConfirmDelete(false); }}
+      onClick={() => setShowActions(!showActions)}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{ flex: 1 }}>
@@ -541,22 +645,17 @@ function RecordRow({ record, isLatest, isPR, onEdit, onDelete }: {
             }}
           >Upravit</button>
           <button
-            onClick={e => {
-              e.stopPropagation();
-              if (!confirmDelete) { setConfirmDelete(true); return; }
-              onDelete();
-            }}
+            onClick={e => { e.stopPropagation(); onDelete(); }}
             style={{
               flex: 1,
-              background: confirmDelete ? 'var(--gd-danger)' : 'color-mix(in srgb, var(--gd-danger) 10%, transparent)',
-              border: `1px solid ${confirmDelete ? 'var(--gd-danger)' : 'color-mix(in srgb, var(--gd-danger) 20%, transparent)'}`,
+              background: 'color-mix(in srgb, var(--gd-danger) 10%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--gd-danger) 20%, transparent)',
               borderRadius: 0,
-              color: confirmDelete ? 'var(--gd-ink)' : 'var(--gd-danger)',
-              fontSize: 12, fontWeight: confirmDelete ? 800 : 600, padding: '7px',
+              color: 'var(--gd-danger)',
+              fontSize: 12, fontWeight: 600, padding: '7px',
               cursor: 'pointer',
-              letterSpacing: confirmDelete ? '0.08em' : undefined,
             }}
-          >{confirmDelete ? 'Opravdu smazat?' : 'Smazat'}</button>
+          >Smazat</button>
         </div>
       )}
     </div>
@@ -597,8 +696,9 @@ function RunLog() {
   };
 
   const handleDelete = (id: string) => {
+    const previous = runs;
     save(runs.filter(r => r.id !== id));
-    toast.success('Běh smazán');
+    undoToast('Běh smazán', () => save(previous));
   };
 
   return (
@@ -921,10 +1021,33 @@ function HIITLog() {
   };
 
   const handleDelete = (id: string) => {
+    const previous = records;
     const updated = records.filter(r => r.id !== id);
     setRecords(updated);
     saveHIITRecords(updated);
-    toast.success('Záznam smazán');
+    undoToast('HIIT záznam smazán', () => { setRecords(previous); saveHIITRecords(previous); });
+  };
+
+  // Jedno klepnutí: vezme parametry z posledního HIITu, dá dnešní datum
+  // a rovnou uloží. Tepovka a kalorie se nekopírují – ty jsou pokaždé jiné.
+  const quickAdd = () => {
+    const last = records[0];
+    if (!last) return;
+    const previous = records;
+    const fresh: HIITRecord = {
+      ...last,
+      id: nanoid(),
+      date: getTodayISO(),
+      avgHr: '', maxHr: '', calories: '', stravaUrl: '',
+      note: '',
+    };
+    const updated = [fresh, ...records].sort((a, b) => b.date.localeCompare(a.date));
+    setRecords(updated);
+    saveHIITRecords(updated);
+    undoToast(`HIIT zapsán · ${fresh.type} ${fresh.duration} min`, () => {
+      setRecords(previous);
+      saveHIITRecords(previous);
+    });
   };
 
   // Stats
@@ -967,16 +1090,39 @@ function HIITLog() {
 
       {/* Add button */}
       {!showForm && (
-        <button
-          onClick={() => { resetForm(); setShowForm(true); }}
-          style={{
-            width: '100%', background: 'color-mix(in srgb, var(--gd-danger) 8%, transparent)', border: '1px dashed color-mix(in srgb, var(--gd-danger) 30%, transparent)',
-            borderRadius: 0, padding: '12px', color: 'var(--gd-danger)', fontSize: 13, fontWeight: 600,
-            cursor: 'pointer', marginBottom: 16,
-          }}
-        >
-          + Přidat HIIT trénink
-        </button>
+        <div style={{ marginBottom: 16 }}>
+          {/* Rychlý zápis – středa a sobota jsou pevná skupinová lekce,
+              takže se dá vyjít z minulého záznamu a uložit hned. */}
+          {records.length > 0 && (
+            <button
+              onClick={quickAdd}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+                background: 'var(--gd-accent)', color: 'var(--gd-accent-ink)',
+                border: 'none', borderRadius: 0, padding: '15px 16px',
+                cursor: 'pointer', marginBottom: 8, textAlign: 'left',
+              }}
+            >
+              <span style={{ flex: 1, fontSize: 10, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                Zapsat jako minule
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 700, opacity: 0.72 }}>
+                {records[0].type} · {records[0].duration} min
+              </span>
+            </button>
+          )}
+          <button
+            onClick={() => { resetForm(); setShowForm(true); }}
+            style={{
+              width: '100%', background: 'transparent', border: '1px solid var(--gd-line)',
+              borderRadius: 0, padding: '13px', color: 'var(--gd-text-3)',
+              fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase',
+              cursor: 'pointer',
+            }}
+          >
+            Vyplnit podrobně
+          </button>
+        </div>
       )}
 
       {/* Form */}

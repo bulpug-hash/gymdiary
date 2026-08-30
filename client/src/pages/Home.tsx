@@ -7,7 +7,7 @@ import Guide from '@/components/Guide';
 import Diary from '@/components/Diary';
 import Progress from '@/components/Progress';
 import Tools from '@/components/Tools';
-import { NavGlyph } from '@/components/kit';
+import { NavGlyph, RestBar, UpdateBar } from '@/components/kit';
 import { useWorkoutData } from '@/hooks/useWorkoutData';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getCurrentWeek } from '@/lib/data';
@@ -49,6 +49,8 @@ export default function Home() {
         </span>
       </div>
 
+      <UpdateBar />
+
       <main className="gd-main">
         <div className="gd-scroll">
           {activeTab === 'overview' && <Overview workoutData={workoutData} onNavigate={setActiveTab} />}
@@ -59,6 +61,8 @@ export default function Home() {
           {activeTab === 'tools' && <Tools workoutData={workoutData} />}
         </div>
       </main>
+
+      <RestBar />
 
       <nav className="gd-tabbar" aria-label="Hlavní navigace">
         {TABS.map(tab => (

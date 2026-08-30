@@ -172,6 +172,50 @@ background: tint(catColor, 13)   // color-mix(in srgb, <barva> 13%, transparent)
    `stroke-dasharray` a když se graf připojí mimo obrazovku, rAF se uškrtí,
    animace se nedokončí a z čáry zůstane 1 px — graf vypadá prázdný.
 
+### 4b. Deset funkcí (30. 8. 2026)
+
+| # | Funkce | Kde |
+|---|---|---|
+| 1 | Zápis série jedním tapem z Přehledu | `components/SetLogger.tsx` |
+| 2 | Timer se spustí sám po zapsání série | `lib/restTimer.ts`, `kit/RestBar.tsx` |
+| 3 | Offline režim | `scripts/sw-template.js`, plugin v `vite.config.ts`, `lib/pwa.ts`, `kit/UpdateBar.tsx` |
+| 4 | Undo po smazání (6 s) | `lib/undo.ts` + náhrobky v `useWorkoutData.ts` |
+| 5 | Deník nabízí cviky ze všech týdnů + historii | `Diary.tsx` `getTrainingDays` / `getLegacyExercises` |
+| 6 | Automatická rotující záloha | `lib/backup.ts`, panel v Nástroje → Export |
+| 7 | Porovnání s minulou expozicí | `lib/planLink.ts` `previousExposure()` |
+| 8 | Ukazatel splnění týdne | `lib/planLink.ts` `weekProgress()`, sekce 02 v Přehledu |
+| 9 | Rychlý zápis HIIT | `Diary.tsx` `quickAdd()` |
+| 10 | Varování při odskoku od plánu | `SetLogger.tsx` `deviationNote()` |
+
+**Most mezi Plánem a Deníkem je `lib/planLink.ts`.** Předepsané záznamy mají id
+`plan-w{týden}-{po|ut|pa}-{cvik}[-{index}]`. Hlavní cviky (jen `squat`, `bench`,
+`deadlift` – jediné se `setPlan`) mají jeden záznam na sérii s indexem; ostatní
+cviky mají jeden souhrnný záznam, kde pole `sets` drží počet **hotových** sérií,
+zatímco celkový počet se bere ze šablony v `PLANNED_RECORDS`.
+
+**ID se nikdy neparsuje zpátky, vždy se skládá.** `bicep-curl-2` je samostatný
+cvik, ne druhá série cviku `bicep-curl`. Kolize dnes nehrozí, protože žádný cvik
+se `setPlan` nekončí číslicí – ale kdyby takový přibyl, tohle praskne.
+
+**Odškrtnutí nikdy nezakládá nový záznam** – volá `updateRecord()` na existující
+plan-id, takže se objem nemůže započítat dvakrát.
+
+**Náhrobky (`gymdiary_deleted_v1`).** Bez nich se smazaný `plan-*` nebo
+`recovered-*` záznam po reloadu vždy vrátil, protože `loadRecords()` je pokaždé
+znovu mergne z `data.ts` / `recoveryData.ts`. Aplikují se až úplně na konci
+`loadRecords()`, po obou mergích.
+
+**Service worker se skládá až po buildu** – šablona ve `scripts/sw-template.js`
+nezná hashovaná jména assetů, plugin je dosadí v `closeBundle`. Šablona záměrně
+neleží v `client/public/`, aby se při selhání pluginu nenasadila nenahrazená.
+Navigace jede cache-first (assety mají hash, SW se aktualizuje atomicky), písma
+stale-while-revalidate. V `activate` se mažou **jen** klíče `gd-app-*`.
+
+⚠️ **Registrace SW není ověřená na reálném zařízení** – vestavěný prohlížeč
+v Claude Code odmítá zaregistrovat i jednořádkový service worker, takže se to
+nedalo otestovat. Ověř na telefonu: DevTools → Application → Service Workers,
+pak zapni letadlo a appku otevři znovu.
+
 ---
 
 ## 5. Tréninkový plán — Podzim 2026 v5.2
@@ -237,6 +281,7 @@ Viada + Schumann (concurrent training, interference běhu a síly).
 | 13 | Fotky přímo z Representu | ⛔ neuděláno — cizí autorské snímky na veřejném webu. Čeká se na jeho vlastní fotky. |
 | 14 | Ilustrovaná spodní lišta | ✅ `NavGlyph.tsx` — obtahové číslice + registrační značky u aktivní |
 | 15 | Hloubkový audit funkčnosti | ✅ 95 nálezů, 15 opraveno (viz níže), zbytek v seznamu nápadů |
+| 16 | 10 funkcí na zlepšení fungování | ✅ všech 10 nasazeno (viz sekce 4b) |
 
 ### Chyby nalezené při kontrole a opravené
 

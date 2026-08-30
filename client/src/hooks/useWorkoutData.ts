@@ -5,8 +5,48 @@
 import { useState, useEffect, useCallback } from 'react';
 import { DEFAULT_RECORDS, PLANNED_RECORDS, nanoid, type TrainingRecord, type RecordsMap } from '@/lib/data';
 import { RECOVERED_WORKOUT_RECORDS } from '@/lib/recoveryData';
+import { maybeAutoBackup } from '@/lib/backup';
 
 const STORAGE_KEY = 'gymdiary_records_v3';
+// Náhrobky smazaných záznamů. Bez nich se smazaný předepsaný (plan-*) nebo
+// obnovený (recovered-*) záznam po reloadu vždy vrátí, protože loadRecords
+// je pokaždé znovu mergne z data.ts / recoveryData.ts.
+const TOMBSTONE_KEY = 'gymdiary_deleted_v1';
+
+function tombKey(exerciseId: string, recordId: string) {
+  return `${exerciseId}::${recordId}`;
+}
+
+function loadTombstones(): Set<string> {
+  try {
+    const raw = localStorage.getItem(TOMBSTONE_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? new Set(arr as string[]) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function saveTombstones(set: Set<string>) {
+  try {
+    localStorage.setItem(TOMBSTONE_KEY, JSON.stringify(Array.from(set)));
+  } catch {
+    /* kvóta – náhrobky nejsou kritické */
+  }
+}
+
+function addTombstone(exerciseId: string, recordId: string) {
+  const set = loadTombstones();
+  set.add(tombKey(exerciseId, recordId));
+  saveTombstones(set);
+}
+
+function removeTombstone(exerciseId: string, recordId: string) {
+  const set = loadTombstones();
+  set.delete(tombKey(exerciseId, recordId));
+  saveTombstones(set);
+}
 
 function mergeUniqueRecords(base: RecordsMap, additions: RecordsMap): RecordsMap {
   const merged: RecordsMap = { ...base };
@@ -43,7 +83,17 @@ function loadRecords(): RecordsMap {
     merged[key] = (merged[key] ?? []).filter(r => !(r.planned === true && r.id.startsWith('plan-')));
   }
   // Předvyplněný plán – přidá se jen to, co uživatel ještě nemá (podle id)
-  return mergeUniqueRecords(merged, PLANNED_RECORDS);
+  const withPlan = mergeUniqueRecords(merged, PLANNED_RECORDS);
+
+  // Náhrobky se aplikují až úplně nakonec, po obou mergích – jinak by je
+  // znovu vzkřísilo přidání z data.ts.
+  const tombs = loadTombstones();
+  if (tombs.size > 0) {
+    for (const key of Object.keys(withPlan)) {
+      withPlan[key] = (withPlan[key] ?? []).filter(r => !tombs.has(tombKey(key, r.id)));
+    }
+  }
+  return withPlan;
 }
 
 function saveRecords(records: RecordsMap) {
@@ -61,6 +111,13 @@ export function useWorkoutData() {
   useEffect(() => {
     saveRecords(records);
   }, [records]);
+
+  // Tichá záloha nejvýš jednou denně – pojistka proti vyčištění dat prohlížeče.
+  useEffect(() => {
+    maybeAutoBackup(records);
+    // Záměrně jen při prvním připojení; častěji to nemá smysl.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Add a new record
   const addRecord = useCallback((
@@ -108,12 +165,39 @@ export function useWorkoutData() {
     });
   }, []);
 
-  // Delete a record
-  const deleteRecord = useCallback((exerciseId: string, recordId: string) => {
-    setRecords(prev => ({
-      ...prev,
-      [exerciseId]: (prev[exerciseId] ?? []).filter(r => r.id !== recordId),
-    }));
+  // Delete a record. Vraci smazany zaznam, aby slo nabidnout "vratit zpet".
+  const deleteRecord = useCallback((exerciseId: string, recordId: string): TrainingRecord | null => {
+    let removed: TrainingRecord | null = null;
+    setRecords(prev => {
+      const list = prev[exerciseId] ?? [];
+      removed = list.find(r => r.id === recordId) ?? null;
+      return { ...prev, [exerciseId]: list.filter(r => r.id !== recordId) };
+    });
+    addTombstone(exerciseId, recordId);
+    return removed;
+  }, []);
+
+  // Vrati zpet smazany zaznam (undo). Zachova puvodni id i priznak planned.
+  const restoreRecord = useCallback((exerciseId: string, record: TrainingRecord) => {
+    removeTombstone(exerciseId, record.id);
+    setRecords(prev => {
+      const list = prev[exerciseId] ?? [];
+      if (list.some(r => r.id === record.id)) return prev;
+      const updated = [...list, record].sort((a, b) => a.date.localeCompare(b.date));
+      return { ...prev, [exerciseId]: updated };
+    });
+  }, []);
+
+  // Odskrtnuti serie zpet na "predepsano" – vrati radek do puvodniho stavu z planu.
+  const resetToPlanned = useCallback((exerciseId: string, recordId: string) => {
+    const source = (PLANNED_RECORDS[exerciseId] ?? []).find(r => r.id === recordId);
+    if (!source) return;
+    setRecords(prev => {
+      const list = prev[exerciseId] ?? [];
+      const updated = list.map(r => (r.id === recordId ? { ...source } : r));
+      updated.sort((a, b) => a.date.localeCompare(b.date));
+      return { ...prev, [exerciseId]: updated };
+    });
   }, []);
 
   // Get records for one exercise, sorted by date ascending
@@ -166,5 +250,5 @@ export function useWorkoutData() {
     return Math.round(total);
   }, [records]);
 
-  return { records, addRecord, updateRecord, deleteRecord, getRecords, getLatestRecord, getAllTimePR, isNewPR, getWeeklyVolume };
+  return { records, addRecord, updateRecord, deleteRecord, restoreRecord, resetToPlanned, getRecords, getLatestRecord, getAllTimePR, isNewPR, getWeeklyVolume };
 }

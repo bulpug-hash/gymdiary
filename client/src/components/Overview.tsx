@@ -1,12 +1,15 @@
 // Přehled — první obrazovka. Odpovídá na jednu otázku: co dnes a s jakou vahou.
 // Kit 247: celoplošný hero s fotkou, pod ním hustá typografická data.
 import {
-  PHASE3_WEEKS, getTodayDayKey, getCurrentWeek,
+  PHASE3_WEEKS, getTodayDayKey, getTodayISO, getCurrentWeek,
   GOALS, CURRENT_MAXES, WARMUP_SERIES_BY_WEEK,
 } from '@/lib/data';
 import type { WarmupSet, Week } from '@/lib/data';
 import type { WorkoutDataHook, Tab } from '@/lib/types';
 import { Hero, Marquee, Reveal, SectionHead } from '@/components/kit';
+import SetLogger from '@/components/SetLogger';
+import { weekProgress } from '@/lib/planLink';
+import { plural } from '@/lib/czech';
 
 interface Props {
   workoutData: WorkoutDataHook;
@@ -19,13 +22,6 @@ const DAY_SHORT = ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'];
 const TYPE_LABEL: Record<string, string> = {
   lower: 'LOWER', upper: 'UPPER', fullbody: 'FULL', hiit: 'HIIT', run: 'RUN', rest: 'VOL',
 };
-
-// Česká plurálová shoda: 1 cvik / 2–4 cviky / 5+ cviků
-function plural(n: number, one: string, few: string, many: string): string {
-  if (n === 1) return one;
-  if (n >= 2 && n <= 4) return few;
-  return many;
-}
 
 type SetPlanRow = { label: string; weight: string; reps: string; rpe?: string };
 
@@ -44,8 +40,8 @@ function heroSet(day: { exercises: { category?: string; setPlan?: SetPlanRow[] }
 const dm = (iso: string) => iso.split('-').slice(1).reverse().join('.');
 
 export default function Overview({ workoutData, onNavigate }: Props) {
-  void workoutData;
   const todayKey = getTodayDayKey();
+  const todayISO = getTodayISO();
   const currentWeekNum = getCurrentWeek();
   const currentWeek: Week = PHASE3_WEEKS.find(w => w.number === currentWeekNum) || PHASE3_WEEKS[0];
   const todayDay = currentWeek.days.find(d => d.key === todayKey);
@@ -117,33 +113,76 @@ export default function Overview({ workoutData, onNavigate }: Props) {
           </div>
         </Reveal>
 
+        {/* Splnění týdne */}
+        {(() => {
+          const wp = weekProgress(currentWeek, workoutData.records);
+          if (wp.celkem === 0) return null;
+          const pct = Math.round((wp.hotovo / wp.celkem) * 100);
+          return (
+            <Reveal>
+              <SectionHead
+                n="02"
+                label="Splnění týdne"
+                right={`${wp.hotovo} / ${wp.celkem} ${plural(wp.celkem, 'série', 'série', 'sérií')}`}
+              />
+              <div style={{ padding: '0 20px 22px' }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', marginBottom: 12 }}>
+                  <span className="gd-display" style={{ fontSize: 34, color: pct === 100 ? 'var(--gd-fern)' : 'var(--gd-text)' }}>
+                    {pct}
+                  </span>
+                  <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.16em', color: 'var(--gd-text-3)', paddingBottom: 6 }}>%</span>
+                </div>
+                {wp.dny.map(d => (
+                  <div key={d.key} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderTop: '1px solid var(--gd-line)' }}>
+                    <span className="gd-tag" style={{ width: 62, flexShrink: 0 }}>{d.label}</span>
+                    <span style={{ flex: 1, display: 'flex', gap: 3, minWidth: 0 }}>
+                      {Array.from({ length: d.celkem }).map((_, i) => (
+                        <span key={i} style={{
+                          flex: 1, height: 8, minWidth: 3,
+                          background: i < d.hotovo ? 'var(--gd-accent)' : 'var(--gd-line)',
+                        }} />
+                      ))}
+                    </span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--gd-text-4)', fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
+                      {d.hotovo}/{d.celkem}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          );
+        })()}
+
         <div className="gd-cols gd-cols--2">
           {/* Dnešní trénink */}
           <Reveal>
             <SectionHead
-              n="02"
+              n="03"
               label={isTraining ? 'Dnešní trénink' : 'Dnešní den'}
               right={isTraining && todayDay ? `${todayDay.exercises.length} ${plural(todayDay.exercises.length, 'cvik', 'cviky', 'cviků')}` : 'Volno'}
             />
             {isTraining && todayDay ? (
               <div style={{ padding: '0 20px 20px' }}>
                 {todayDay.exercises.map((ex, i) => (
-                  <div key={ex.id} style={{
-                    display: 'flex', alignItems: 'baseline', gap: 12,
-                    padding: '10px 0',
-                    borderTop: i === 0 ? 'none' : '1px solid var(--gd-line)',
-                  }}>
-                    <span style={{ fontSize: 9, fontWeight: 800, color: 'var(--gd-text-4)', fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <span style={{ flex: 1, fontSize: 14, color: 'var(--gd-text)', minWidth: 0 }}>
-                      {ex.nameShort || ex.name}
-                    </span>
-                    {ex.setPlan && ex.setPlan.length > 0 && (
-                      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--gd-text-3)', letterSpacing: '0.06em', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
-                        {ex.setPlan.length}× {ex.setPlan[0].reps}
+                  <div key={ex.id} style={{ marginBottom: 18 }}>
+                    <div style={{
+                      display: 'flex', alignItems: 'baseline', gap: 10,
+                      paddingTop: i === 0 ? 0 : 6,
+                    }}>
+                      <span style={{ fontSize: 9, fontWeight: 800, color: 'var(--gd-text-4)', fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
+                        {String(i + 1).padStart(2, '0')}
                       </span>
-                    )}
+                      <span style={{ flex: 1, fontSize: 14, color: 'var(--gd-text)', minWidth: 0 }}>
+                        {ex.nameShort || ex.name}
+                      </span>
+                    </div>
+                    <SetLogger
+                      exercise={ex}
+                      week={currentWeek.number}
+                      dayKey={todayKey}
+                      date={todayISO}
+                      workoutData={workoutData}
+                    />
                   </div>
                 ))}
                 <button
@@ -183,7 +222,7 @@ export default function Overview({ workoutData, onNavigate }: Props) {
 
           {/* Maxima */}
           <Reveal delay={60}>
-            <SectionHead n="03" label="Maxima → cíl" right="1RM" />
+            <SectionHead n="04" label="Maxima → cíl" right="1RM" />
             <div style={{ padding: '0 20px 20px' }}>
               {goals.map(({ name, short, current, goal }) => {
                 const pct = Math.min(100, Math.round((current / goal) * 100));
@@ -225,7 +264,7 @@ export default function Overview({ workoutData, onNavigate }: Props) {
           const pct = (note?: string) => (note?.match(/(~?\d+%)/)?.[1] ?? '–');
           return (
             <Reveal>
-              <SectionHead n="04" label="Rozehřátí" right={`${liftLabel} · Zatsiorsky`} />
+              <SectionHead n="05" label="Rozehřátí" right={`${liftLabel} · Zatsiorsky`} />
               <div style={{ padding: '0 20px 24px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 0 }}>
                   {['Série', 'Váha', 'Reps', '% 1RM'].map(h => (
@@ -250,7 +289,7 @@ export default function Overview({ workoutData, onNavigate }: Props) {
 
         {/* Fáze */}
         <Reveal>
-          <SectionHead n="05" label="Aktuální fáze" right={currentWeek.phase} />
+          <SectionHead n="06" label="Aktuální fáze" right={currentWeek.phase} />
           <div style={{ padding: '0 20px 34px' }}>
             <p style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--gd-text-2)', margin: '0 0 18px', maxWidth: '58ch' }}>
               {currentWeek.description}
