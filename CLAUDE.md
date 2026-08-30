@@ -216,6 +216,20 @@ v Claude Code odmítá zaregistrovat i jednořádkový service worker, takže se
 nedalo otestovat. Ověř na telefonu: DevTools → Application → Service Workers,
 pak zapni letadlo a appku otevři znovu.
 
+### 4c. Citáty (`lib/quotes.ts`)
+
+Běžící pás v Plánu ukazuje výroky Jiřího Procházky, Ondřeje Vetchého a Davida
+Gogginse. Rotují po dnech (`quotesForToday`), šest naráz.
+
+⚠️ **Sem patří jen doložené výroky.** Jsou to skuteční žijící lidé a web je
+veřejný — vymyslet nebo parafrázovat větu a podepsat ji jejich jménem se nesmí.
+Všech 13 současných je dohledaných v konkrétním rozhovoru nebo knize
+(Seznam Zprávy, iSport, Deník.cz 2015, *Can't Hurt Me*, The Rich Roll Podcast),
+ne v citátové sbírce. U každého drž pole `source`.
+
+Když seznam vyprázdníš, pás spadne zpátky na popisky plánu — nikdy tam
+nezůstane díra.
+
 ---
 
 ## 5. Tréninkový plán — Podzim 2026 v5.2
@@ -282,6 +296,7 @@ Viada + Schumann (concurrent training, interference běhu a síly).
 | 14 | Ilustrovaná spodní lišta | ✅ `NavGlyph.tsx` — obtahové číslice + registrační značky u aktivní |
 | 15 | Hloubkový audit funkčnosti | ✅ 95 nálezů, 15 opraveno (viz níže), zbytek v seznamu nápadů |
 | 16 | 10 funkcí na zlepšení fungování | ✅ všech 10 nasazeno (viz sekce 4b) |
+| 17 | Citáty do běžícího pásu v Plánu | ✅ `lib/quotes.ts` — 13 ověřených výroků, rotace po dnech |
 
 ### Chyby nalezené při kontrole a opravené
 

@@ -761,3 +761,33 @@
 @media (min-width: 760px) {
   .gd-updatebar { max-width: 760px; margin-inline: auto; }
 }
+
+/* Pás s citáty – větší a pomalejší, aby se dal přečíst za chodu. */
+@layer components {
+  .gd-marquee--quotes { padding: 12px 0; }
+  .gd-marquee--quotes .gd-marquee__track {
+    /* Dvojnásobný obsah místo čtyřnásobného – posun proto o 50 %, ne 25 %. */
+    animation-name: gd-marq-quotes;
+  }
+  .gd-marquee__item--quote {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: var(--gd-text-2);
+    gap: 10px;
+  }
+  .gd-marquee__quote { white-space: nowrap; }
+  .gd-marquee__author {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gd-accent);
+    white-space: nowrap;
+  }
+  @keyframes gd-marq-quotes {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(-50%, 0, 0); }
+  }
+}
