@@ -1,0 +1,50 @@
+// Hero pás. Skládaný na telefon: plná šířka, obsah ukotvený dole,
+// titulek přes celou šířku a hlavní číslo pod linkou na vlastním řádku –
+// na 390 px se nemá s čím prát o místo.
+import type { ReactNode } from 'react';
+import Plate, { type PlateKey } from './Plate';
+
+interface Props {
+  plate: PlateKey;
+  /** Mikropopisek nahoře – „garment tag“ kitu. */
+  kicker: string;
+  /** Hlavní titulek. Zalomení řeš pomocí <br />. */
+  title: ReactNode;
+  /** Řádek úplně dole – datum, fáze, verze. */
+  meta?: ReactNode;
+  /** Velké číslo pod linkou. */
+  stat?: { label: string; value: string; unit?: string };
+  /** Obří duch číslice v pozadí desky. */
+  ghost?: string;
+  size?: 'lg' | 'sm';
+}
+
+export default function Hero({ plate, kicker, title, meta, stat, ghost, size = 'sm' }: Props) {
+  return (
+    <header className={`gd-hero ${size === 'lg' ? 'gd-hero--lg' : ''}`}>
+      <Plate variant={plate} ghost={ghost} />
+
+      <div className="gd-hero__inner">
+        <div className="gd-hero__tagline">
+          <span className="gd-lockup">247</span>
+          <span className="gd-tag">{kicker}</span>
+          <span className="gd-hero__rule" />
+        </div>
+
+        <h1 className="gd-display gd-hero__title">{title}</h1>
+
+        {stat && (
+          <div className="gd-hero__stat">
+            <span className="gd-tag">{stat.label}</span>
+            <span className="gd-hero__statwrap">
+              <span className="gd-display gd-hero__statnum">{stat.value}</span>
+              {stat.unit && <span className="gd-hero__statunit">{stat.unit}</span>}
+            </span>
+          </div>
+        )}
+
+        {meta && <div className="gd-hero__meta">{meta}</div>}
+      </div>
+    </header>
+  );
+}

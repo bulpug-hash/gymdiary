@@ -97,8 +97,26 @@ client/
 
 ## 4. Design systém — kit „247"
 
-Vizuál je postavený podle značky **Represent / 247** (representclo.com): tonální
-monochrom, ostré hrany, obří grotesková čísla, jedna signální barva, hodně vzduchu.
+Vizuál vychází ze značky **Represent / 247** (representclo.com): tonální monochrom,
+ostré hrany, obří grotesková čísla, jedna signální barva, hodně vzduchu.
+**Skládá se na telefon** — 390 px je referenční šířka, desktop je jen dorovnání.
+
+### Obrázky — pozor
+
+V appce **nejsou žádné fotky**. Původně tam byly volně licencované snímky z Unsplash,
+uživatel je odmítl a chtěl fotky přímo z Representu / jejich sítí. To jsou cizí
+autorské snímky a web běží veřejně na github.io, takže se nenasadily.
+Místo nich je **`Plate.tsx`** — grafická deska kreslená celá v CSS/SVG
+(halftone rastr, světelná louže, duch číslice, technické linky, zrno).
+Nic se nestahuje, na retině je to ostré a načte se to okamžitě.
+
+Až uživatel dodá **vlastní fotky** (nebo doloží licenci), stačí je hodit do
+`client/public/img/` a v `Hero.tsx` vyměnit `<Plate>` za `<img>`. Grade, který
+sjednotí libovolné snímky do kitu:
+```bash
+convert vstup.jpg -colorspace Gray -sigmoidal-contrast 3.5,48% -modulate 96,100,100 \
+  -resize 1600x900^ -gravity center -extent 1600x900 -quality 72 out.webp
+```
 
 ### Tokeny (`client/src/index.css`)
 
@@ -116,26 +134,43 @@ rozbil bys světlé téma.
 | `--gd-fern` | `#8C9B63` | `#4A5732` |
 | `--gd-danger` | `#C9663F` | `#9E4526` |
 
-Průhlednost se dělá přes `color-mix(in srgb, var(--gd-accent) 12%, transparent)`.
+**Průhlednost NIKDY nedělej spojováním hexu.** `` `${color}20` `` vyrobí
+`var(--gd-accent)20`, což je neplatné CSS a prohlížeč celou deklaraci zahodí —
+tinty a rámečky pak byly půl roku neviditelné. Používej `tint()` z `@/lib/tint`:
+```ts
+background: tint(catColor, 13)   // color-mix(in srgb, <barva> 13%, transparent)
+```
 
-Tailwind/shadcn tokeny (`--background`, `--primary`, …) jsou nastavené jako aliasy
-na `--gd-*`, takže se drží obou témat.
+### Kit komponenty (`client/src/components/kit/`)
+
+| Soubor | K čemu |
+|---|---|
+| `Hero.tsx` | Celoplošná hlavička záložky: lockup 247, titulek, velké číslo pod linkou, meta řádek |
+| `Plate.tsx` | Kreslená deska pod hero (halftone, světlo, duch číslice, zrno) |
+| `Marquee.tsx` | Nekonečný pás mikrotypografie mezi hero a obsahem |
+| `SectionHead.tsx` | Číslo + popisek + linka. Jednotná hlavička každé sekce |
+| `Reveal.tsx` | Odhalení při scrollu přes IntersectionObserver (bez knihovny) |
 
 ### Pravidla kitu
 
 1. **Žádné rádiusy.** `borderRadius: 0` všude; `'50%'` jen pro tečky.
-2. **Žádné stíny.** Hranu dělá barva nebo linka 1 px `var(--gd-line)`.
+2. **Žádné stíny, žádný `backdrop-filter`.** Hranu dělá barva nebo linka 1 px `var(--gd-line)`.
+   Blur na lištách žral baterku a dělal artefakty při překreslování.
 3. **Písmo:** jediná rodina **Archivo** (Google Fonts, osa `wdth 62..125`).
-   Display = `fontStretch: '118%'`, `fontWeight: 800`, záporný tracking.
-   Mikropopisky = 9 px, `fontWeight: 700`, `letterSpacing: '0.18–0.24em'`, uppercase.
-   Čísla vždy `fontVariantNumeric: 'tabular-nums'`.
+   Display = třída `.gd-display` (`fontStretch 118%`, `weight 800`, `line-height 0.92`).
+   `line-height` **nesmí pod 0.92** — ořezávalo by háčky u Ě/Ř/Č.
+   Mikropopisky = `.gd-tag` (9 px, `700`, `letterSpacing .24em`, uppercase).
 4. **Signální barva jen na:** dnešní den, aktuální týden, top/overload sérii,
    osobní rekord, aktivní záložku. Nikde jinde.
-5. **Žádné emoji v UI.** Místo ikon typografické kódy (`247`, `WU`, `DL`, `01`–`06`, `XLS`).
+5. **Žádné emoji v UI.** Místo ikon typografické kódy (`247`, `WU`, `01`–`06`, `XLS`).
    Šipky `→ ← ↑ ↓ ▼` jsou typografie, ne emoji — ty zůstávají.
-6. **Celoplošné pásy** místo karet tam, kde jde o stav „teď".
+6. **Hero je vždycky tmavý**, i ve světlém tématu — deska pod ním je černá.
+   Ve světlém kitu je jeho signálkou bílá (`--hero-hi`), ne volt.
 7. **České plurály:** `1 cvik / 2–4 cviky / 5+ cviků`.
 8. **Desetinná čárka** u vah (`sp.weight.replace('.', ',')`).
+9. **Recharts:** vždy `isAnimationActive={false}`. Animace kreslí čáru přes
+   `stroke-dasharray` a když se graf připojí mimo obrazovku, rAF se uškrtí,
+   animace se nedokončí a z čáry zůstane 1 px — graf vypadá prázdný.
 
 ---
 
@@ -198,7 +233,8 @@ Viada + Schumann (concurrent training, interference běhu a síly).
 | 9 | Nová záložka s detailním rozpisem týdne | ✅ záložka Průvodce |
 | 10 | Posunout start plánu na **31. 8. 2026** | ✅ posun o 13 dní, týdny nově Po–Ne |
 | 11 | Zkontrolovat celý web + 5 návrhů na vizuální osvěžení | ✅ artefakt s návrhy + 4 opravené chyby |
-| 12 | Předělat vizuál do stylu **Represent / 247** | 🟡 kit nasazený, dolaďuje se |
+| 12 | Předělat vizuál do stylu **Represent / 247** | ✅ hero + desky + mikrotypografie, mobile first |
+| 13 | Fotky přímo z Representu | ⛔ neuděláno — cizí autorské snímky na veřejném webu. Čeká se na jeho vlastní fotky. |
 
 ### Chyby nalezené při kontrole a opravené
 
@@ -215,6 +251,15 @@ Viada + Schumann (concurrent training, interference běhu a síly).
   UTC půlnoc). Řešeno `+ 'T00:00:00'` / `'T23:59:59'`.
 - **ALL-TIME PR odznak** se ukazoval i na předepsaných sériích.
 - **Rozpis sérií** se vykresloval uvnitř flex hlavičky a mačkal název cviku.
+- **Tinty a rámečky byly neviditelné** — 22 míst skládalo `` `${color}20` `` nad
+  `var(--gd-*)`, což je neplatné CSS. Nahrazeno `tint()` (`color-mix`).
+- **`getCategoryColor()` vracela Tailwind třídy** (`'text-yellow-400'`), které se
+  cpaly do `style={{ background }}` → proužky kategorií se nekreslily. Vrací tokeny.
+- **Graf v Progresu byl prázdný** — Recharts nedokončil `stroke-dasharray` animaci
+  a z čáry zůstal 1 px z 450. Vypnuto `isAnimationActive`.
+- **Popisek „Cíl 130"** v grafu přetékal 11 px za pravý okraj (`position: 'right'`).
+- **Globální zrno** přes `mix-blend-mode: overlay` viditelně sráželo kontrast všech
+  dat. Zrno je teď jen v desce hero.
 
 ---
 

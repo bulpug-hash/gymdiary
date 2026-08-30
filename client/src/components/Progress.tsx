@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { estimate1RM, formatDate, GOALS, CURRENT_MAXES, PLAN_START_DATE } from '@/lib/data';
 import type { WorkoutDataHook } from '@/lib/types';
+import { tint } from '@/lib/tint';
+import { Hero, Marquee, SectionHead } from '@/components/kit';
 
 interface Props {
   workoutData: WorkoutDataHook;
@@ -77,21 +79,37 @@ export default function Progress({ workoutData }: Props) {
     return { ...l, realWeight, est1RM: bestRec, pct, lastSetsReps: latestRec ? `${latestRec.sets}×${latestRec.reps}` : '' };
   });
 
-  return (
-    <div style={{ padding: '0 0 16px' }}>
-      {/* Header */}
-      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--gd-line)' }}>
-        <div style={{ color: 'var(--gd-accent)', fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>
-          PROGRES
-        </div>
-        <h2 style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: 'var(--gd-text)' }}>
-          Výkonnostní přehled
-        </h2>
-      </div>
+  const totalToGoal = Math.round(
+    allStats.reduce((a, s) => a + s.pct, 0) / (allStats.length || 1),
+  );
 
+  return (
+    <div>
+      <Hero
+        plate="progress"
+        ghost="05"
+        kicker="Progres"
+        title={<>Výkonnostní<br />přehled</>}
+        stat={{ label: 'Průměr k cíli', value: `${totalToGoal}%` }}
+        meta={
+          <>
+            <b>Bench {CURRENT_MAXES.bench}</b>
+            <span>·</span>
+            <span>Dřep {CURRENT_MAXES.squat}</span>
+            <span>·</span>
+            <span>Tah {CURRENT_MAXES.deadlift}</span>
+            <span>·</span>
+            <span>Cíle {GOALS.bench} / {GOALS.squat} / {GOALS.deadlift} kg</span>
+          </>
+        }
+      />
+
+      <Marquee items={['Odhad 1RM', 'Týdenní objem', 'Trend tělesné váhy', 'Předepsané série se do grafů nepočítají']} />
+
+      <div className="gd-body">
       {/* Summary stats */}
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--gd-line)' }}>
-        <div style={{ color: 'var(--gd-text-4)', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>AKTUÁLNÍ MAXIMA</div>
+      <SectionHead n="01" label="Aktuální maxima" right="1RM testováno" />
+      <div style={{ padding: '0 20px 20px' }}>
         <div style={{ display: 'flex', gap: 8 }}>
           {allStats.map(s => (
             <button
@@ -99,8 +117,8 @@ export default function Progress({ workoutData }: Props) {
               onClick={() => setSelectedLift(s.key)}
               style={{
                 flex: 1,
-                background: selectedLift === s.key ? `${s.color}15` : 'color-mix(in srgb, var(--gd-text) 2%, transparent)',
-                border: selectedLift === s.key ? `1px solid ${s.color}40` : '1px solid var(--gd-line)',
+                background: selectedLift === s.key ? `${tint(s.color, 8)}` : 'color-mix(in srgb, var(--gd-text) 2%, transparent)',
+                border: selectedLift === s.key ? `1px solid ${tint(s.color, 25)}` : '1px solid var(--gd-line)',
                 borderRadius: 0,
                 padding: '10px 8px',
                 textAlign: 'center',
@@ -120,15 +138,12 @@ export default function Progress({ workoutData }: Props) {
       </div>
 
       {/* Chart */}
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--gd-line)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <div style={{ color: 'var(--gd-text-4)', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-            {lift.label} – odh. 1RM
-          </div>
-          {improvement > 0 && (
-            <div style={{ fontSize: 12, color: 'var(--gd-fern)', fontWeight: 700 }}>+{improvement} kg ↑</div>
-          )}
-        </div>
+      <SectionHead
+        n="02"
+        label={`${lift.label} — odh. 1RM`}
+        right={improvement > 0 ? `+${improvement} kg ↑` : undefined}
+      />
+      <div style={{ padding: '0 20px 20px', borderBottom: '1px solid var(--gd-line)' }}>
 
         {chartData.length > 1 ? (
           <ResponsiveContainer width="100%" height={180}>
@@ -151,7 +166,9 @@ export default function Progress({ workoutData }: Props) {
                 stroke={lift.color}
                 strokeDasharray="4 4"
                 strokeOpacity={0.4}
-                label={{ value: `Cíl ${lift.goal}`, fill: lift.color, fontSize: 10, position: 'right' }}
+                // position 'right' vysazovalo popisek 11 px za pravý okraj
+                // a na 390 px se ořízl – dovnitř grafu se vejde vždy.
+                label={{ value: `Cíl ${lift.goal}`, fill: lift.color, fontSize: 10, position: 'insideTopRight' }}
               />
               <Line
                 type="monotone"
@@ -160,6 +177,11 @@ export default function Progress({ workoutData }: Props) {
                 strokeWidth={2}
                 dot={{ fill: lift.color, r: 3, strokeWidth: 0 }}
                 activeDot={{ fill: lift.color, r: 5, strokeWidth: 0 }}
+                // Recharts kreslí čáru animací přes stroke-dasharray. Když se
+                // graf připojí mimo obrazovku nebo je karta na pozadí, rAF se
+                // uškrtí, animace se nedokončí a z čáry zůstane 1 px – graf
+                // vypadá prázdný. Bez animace se vykreslí vždy a hned.
+                isAnimationActive={false}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -179,7 +201,7 @@ export default function Progress({ workoutData }: Props) {
             <div style={{
               height: '100%',
               width: `${pctToGoal}%`,
-              background: `linear-gradient(90deg, ${lift.color}88, ${lift.color})`,
+              background: `linear-gradient(90deg, ${tint(lift.color, 53)}, ${lift.color})`,
               borderRadius: 0,
               transition: 'width 0.8s ease',
             }} />
@@ -191,10 +213,8 @@ export default function Progress({ workoutData }: Props) {
       <WeeklyVolumeSection workoutData={workoutData} />
 
       {/* Recent records table */}
-      <div style={{ padding: '14px 20px' }}>
-        <div style={{ color: 'var(--gd-text-4)', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>
-          POSLEDNÍ ZÁZNAMY – {lift.label.toUpperCase()}
-        </div>
+      <SectionHead n="04" label="Poslední záznamy" right={lift.label} />
+      <div style={{ padding: '0 20px 36px' }}>
         {chartData.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--gd-text-4)', fontSize: 13 }}>
             Žádné záznamy
@@ -223,6 +243,7 @@ export default function Progress({ workoutData }: Props) {
           ))
         )}
       </div>
+      </div>
     </div>
   );
 }
@@ -250,13 +271,13 @@ function WeeklyVolumeSection({ workoutData }: { workoutData: WorkoutDataHook }) 
   const prevWeekVol = weeks[weeks.length - 2]?.volume ?? 0;
   const volChange = currentWeekVol - prevWeekVol;
   return (
-    <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--gd-line)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <div style={{ color: 'var(--gd-text-4)', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase' }}>TÝDENNÍ OBJEM (kg)</div>
-        <div style={{ fontSize: 12, fontWeight: 700, color: volChange >= 0 ? 'var(--gd-fern)' : 'var(--gd-danger)' }}>
-          {currentWeekVol.toLocaleString()} kg{volChange !== 0 ? (volChange > 0 ? ` +${volChange.toLocaleString()}` : ` ${volChange.toLocaleString()}`) : ''}
-        </div>
-      </div>
+    <>
+      <SectionHead
+        n="03"
+        label="Týdenní objem (kg)"
+        right={`${currentWeekVol.toLocaleString()} kg${volChange !== 0 ? (volChange > 0 ? ` +${volChange.toLocaleString()}` : ` ${volChange.toLocaleString()}`) : ''}`}
+      />
+      <div style={{ padding: '0 20px 20px', borderBottom: '1px solid var(--gd-line)' }}>
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 80 }}>
         {weeks.map((w, i) => {
           const isCurrentWeek = i === weeks.length - 1;
@@ -277,6 +298,7 @@ function WeeklyVolumeSection({ workoutData }: { workoutData: WorkoutDataHook }) 
           </span>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

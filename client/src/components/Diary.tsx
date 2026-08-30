@@ -9,6 +9,8 @@ import type { WorkoutDataHook } from '@/lib/types';
 import type { Exercise, TrainingRecord, WorkoutDay, RunRecord, HIITRecord } from '@/lib/data';
 import { nanoid } from 'nanoid';
 import { toast } from 'sonner';
+import { tint } from '@/lib/tint';
+import { Hero, Marquee, SectionHead } from '@/components/kit';
 
 interface Props {
   workoutData: WorkoutDataHook;
@@ -61,23 +63,31 @@ export default function Diary({ workoutData }: Props) {
     );
   }
 
-  return (
-    <div style={{ padding: '0 0 16px' }}>
-      {/* Header */}
-      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--gd-line)' }}>
-        <div style={{ color: 'var(--gd-accent)', fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>
-          TRÉNINKOVÝ DENÍK
-        </div>
-        <h2 style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: 'var(--gd-text)' }}>
-          {activeTab === 'exercises' ? 'Záznamy cviků' : activeTab === 'runs' ? 'Běžecký log' : 'HIIT log'}
-        </h2>
-        <p style={{ color: 'var(--gd-text-3)', fontSize: 12, marginTop: 6 }}>
-          {activeTab === 'exercises' ? 'Vyber tréninkový den a cvik pro zobrazení a přidání záznamů.' : activeTab === 'runs' ? 'Záznamy běhů – čas, vzdálenost, tepová zóna.' : 'HIIT tréninky – Tabata, Circuit, AMRAP, EMOM. Tepovka, kalorie, Strava.'}
-        </p>
-      </div>
+  const heroTitle = activeTab === 'exercises'
+    ? <>Záznamy<br />cviků</>
+    : activeTab === 'runs' ? <>Běžecký<br />log</> : <>HIIT<br />log</>;
 
+  return (
+    <div>
+      <Hero
+        plate="diary"
+        ghost="04"
+        kicker="Tréninkový deník"
+        title={heroTitle}
+        meta={
+          activeTab === 'exercises'
+            ? <><b>Vyber den a cvik</b><span>·</span><span>Historie, PR, přidání záznamu</span></>
+            : activeTab === 'runs'
+              ? <><b>Běhy</b><span>·</span><span>Čas, vzdálenost, tepová zóna</span></>
+              : <><b>HIIT</b><span>·</span><span>Tabata · Circuit · AMRAP · EMOM</span></>
+        }
+      />
+
+      <Marquee items={['Zapiš sérii hned po ní', 'Váha · opakování · RPE', 'PR se hlídá sám', 'Předepsané série jdou přepsat']} />
+
+      <div className="gd-body">
       {/* Tab switcher */}
-      <div style={{ display: 'flex', padding: '10px 20px', gap: 8, borderBottom: '1px solid var(--gd-line)' }}>
+      <div style={{ display: 'flex', padding: '18px 20px 14px', gap: 8, borderBottom: '1px solid var(--gd-line)' }}>
         {([
           { key: 'exercises', label: 'Cviky' },
           { key: 'runs', label: 'Běhy' },
@@ -103,7 +113,8 @@ export default function Diary({ workoutData }: Props) {
       {activeTab === 'hiit' && <HIITLog />}
 
       {/* Training days grouped */}
-      {activeTab === 'exercises' && <div style={{ padding: '14px 20px' }}>
+      {activeTab === 'exercises' && <div style={{ padding: '0 20px 36px' }}>
+        <SectionHead n="01" label="Tréninkové dny" right="Po · Út · St · Pá · So" />
         {trainingDays.map(day => {
           const isOpen = selectedDay === day.key;
           const typeColor = DAY_TYPE_COLOR[day.type] || 'var(--gd-accent)';
@@ -205,6 +216,7 @@ export default function Diary({ workoutData }: Props) {
           );
         })}
       </div>}
+      </div>
     </div>
   );
 }
@@ -749,7 +761,7 @@ function RunRow({ run, isLatest, onEdit, onDelete }: {
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 12, color: 'var(--gd-text-3)' }}>{formatDateFull(run.date)}</span>
-            <span style={{ fontSize: 9, background: `${zoneColor}20`, color: zoneColor, padding: '2px 6px', borderRadius: 0, fontWeight: 700 }}>
+            <span style={{ fontSize: 9, background: `${tint(zoneColor, 13)}`, color: zoneColor, padding: '2px 6px', borderRadius: 0, fontWeight: 700 }}>
               {run.zone.split(' ')[0]} {run.zone.split(' ')[1]}
             </span>
             {isLatest && (
@@ -949,7 +961,7 @@ function HIITLog() {
       {/* Form */}
       {showForm && (
         <div style={{
-          background: 'color-mix(in srgb, var(--gd-text) 2%, transparent)', border: `1px solid ${typeInfo.color}30`,
+          background: 'color-mix(in srgb, var(--gd-text) 2%, transparent)', border: `1px solid ${tint(typeInfo.color, 19)}`,
           borderRadius: 0, padding: '16px', marginBottom: 16,
         }}>
           <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 16, fontWeight: 700, color: typeInfo.color, marginBottom: 14 }}>
@@ -966,7 +978,7 @@ function HIITLog() {
                   onClick={() => setForm(f => ({ ...f, type: t.key as HIITRecord['type'] }))}
                   style={{
                     padding: '6px 12px', borderRadius: 0, border: `1px solid ${form.type === t.key ? t.color : 'var(--gd-line)'}`,
-                    background: form.type === t.key ? `${t.color}15` : 'transparent',
+                    background: form.type === t.key ? `${tint(t.color, 8)}` : 'transparent',
                     color: form.type === t.key ? t.color : 'var(--gd-text-3)',
                     fontSize: 12, fontWeight: 600, cursor: 'pointer',
                   }}
@@ -1105,13 +1117,13 @@ function HIITLog() {
             const typeInfo = HIIT_TYPES.find(t => t.key === r.type) || HIIT_TYPES[0];
             return (
               <div key={r.id} style={{
-                background: 'color-mix(in srgb, var(--gd-text) 2%, transparent)', border: `1px solid ${typeInfo.color}20`,
+                background: 'color-mix(in srgb, var(--gd-text) 2%, transparent)', border: `1px solid ${tint(typeInfo.color, 13)}`,
                 borderRadius: 0, padding: '14px 16px',
               }}>
                 {/* Header row */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                   <div style={{
-                    background: `${typeInfo.color}15`, border: `1px solid ${typeInfo.color}30`,
+                    background: `${tint(typeInfo.color, 8)}`, border: `1px solid ${tint(typeInfo.color, 19)}`,
                     borderRadius: 0, padding: '4px 10px',
                     fontSize: 11, fontWeight: 700, color: typeInfo.color, letterSpacing: '0.05em',
                   }}>

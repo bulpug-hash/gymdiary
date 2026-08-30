@@ -3,12 +3,13 @@
 // Features: RPE kalkulačka, tělesná váha tracker, odpočinkový timer, export XLSX, zdrojové dokumenty
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { useTheme } from '@/contexts/ThemeContext';
 import { toast } from 'sonner';
 import { nanoid, formatDate, PHASE3_WEEKS } from '@/lib/data';
 import { RECOVERED_HIIT_RECORDS, RECOVERED_RUN_RECORDS } from '@/lib/recoveryData';
 import type { WorkoutDataHook } from '@/lib/types';
 import * as XLSX from 'xlsx';
+import { tint } from '@/lib/tint';
+import { Hero, Marquee } from '@/components/kit';
 
 interface Props {
   workoutData: WorkoutDataHook;
@@ -68,7 +69,6 @@ function calc1RMFromWeight(weight: number, reps: number): number {
 // ============================================================
 export default function Tools({ workoutData }: Props) {
   const [section, setSection] = useState<'rpe' | 'bodyweight' | 'timer' | 'export' | 'nutrition' | 'autoregulation' | 'documents'>('rpe');
-  const { theme, toggleTheme, switchable } = useTheme();
 
   const sectionBtnStyle = (active: boolean) => ({
     flex: 1,
@@ -85,42 +85,31 @@ export default function Tools({ workoutData }: Props) {
     textAlign: 'center' as const,
   });
 
-  return (
-    <div style={{ padding: '0 0 16px' }}>
-      {/* Header */}
-      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--gd-line)' }}>
-        <div style={{ color: 'var(--gd-accent)', fontSize: 10, letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>
-          NÁSTROJE
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: 'var(--gd-text)' }}>
-            Fitness nástroje
-          </h2>
-          {switchable && (
-            <button
-              onClick={toggleTheme}
-              style={{
-                background: 'color-mix(in srgb, var(--gd-accent) 10%, transparent)',
-                border: '1px solid color-mix(in srgb, var(--gd-accent) 20%, transparent)',
-                borderRadius: 0,
-                padding: '7px 12px',
-                color: 'var(--gd-accent)',
-                fontSize: 9,
-                fontWeight: 800,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-              }}
-            >
-              {theme === 'dark' ? 'SVĚTLÝ' : 'TMAVÝ'}
-            </button>
-          )}
-        </div>
-      </div>
+  const SECTION_TITLE: Record<string, string> = {
+    rpe: 'RPE kalkulačka', bodyweight: 'Tělesná váha', timer: 'Timer',
+    export: 'Export dat', nutrition: 'Výživa', autoregulation: 'Autoregulace',
+    documents: 'Dokumenty',
+  };
 
+  return (
+    <div>
+      <Hero
+        plate="tools"
+        ghost="06"
+        kicker="Nástroje"
+        title={<>Fitness<br />nástroje</>}
+        meta={
+          <>
+            <b>{SECTION_TITLE[section]}</b>
+            <span>·</span>
+            <span>RPE · Váha · Timer · Export · Výživa · Autoregulace · Docs</span>
+          </>
+        }
+      />
+
+      <Marquee items={['RPE → váha', 'Váha → 1RM', 'Export do XLS', 'Plán ke stažení', 'Autoregulace podle dne']} />
+
+      <div className="gd-body">
       {/* Section tabs */}
       <div style={{ padding: '12px 20px', borderBottom: '1px solid var(--gd-line)' }}>
         <div style={{ display: 'flex', gap: 6 }}>
@@ -153,6 +142,7 @@ export default function Tools({ workoutData }: Props) {
         {section === 'nutrition' && <NutritionGuide />}
         {section === 'autoregulation' && <AutoregulationGuide />}
         {section === 'documents' && <DocumentsSection />}
+      </div>
       </div>
     </div>
   );
@@ -1236,7 +1226,7 @@ function NutritionGuide() {
             <div key={i} style={{ ...cardStyle, borderLeft: `3px solid ${s.color}` }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
                 <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 16, fontWeight: 700, color: 'var(--gd-text)' }}>{s.name}</div>
-                <span style={{ fontSize: 10, fontWeight: 700, color: s.color, background: `${s.color}18`, padding: '2px 8px', borderRadius: 0 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: s.color, background: `${tint(s.color, 9)}`, padding: '2px 8px', borderRadius: 0 }}>
                   {s.priority}
                 </span>
               </div>
@@ -1422,7 +1412,7 @@ function AutoregulationGuide() {
               background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left',
             }}
           >
-            <div style={{ width: 32, height: 32, borderRadius: 0, background: `${sec.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 0, background: `${tint(sec.color, 8)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>
               {sec.icon}
             </div>
             <div style={{ flex: 1 }}>
@@ -1433,7 +1423,7 @@ function AutoregulationGuide() {
           </button>
 
           {openSection === sec.id && (
-            <div style={{ padding: '0 14px 14px', borderTop: `1px solid ${sec.color}20` }}>
+            <div style={{ padding: '0 14px 14px', borderTop: `1px solid ${tint(sec.color, 13)}` }}>
               {sec.content.map((item, i) => (
                 <div key={i} style={{ paddingTop: 12 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: sec.color, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 3 }}>
@@ -1506,7 +1496,7 @@ function DocumentsSection() {
             onClick={() => handleDownload(doc)}
             style={{
               background: `rgba(${doc.color === 'var(--gd-accent)' ? '245,200,66' : doc.color === 'var(--gd-fern)' ? '110,231,183' : '252,76,2'},0.06)`,
-              border: `1px solid ${doc.color}30`,
+              border: `1px solid ${tint(doc.color, 19)}`,
               borderRadius: 0,
               padding: '14px 16px',
               display: 'flex',
@@ -1520,8 +1510,8 @@ function DocumentsSection() {
           >
             <div style={{
               width: 44, height: 44, borderRadius: 0,
-              background: `${doc.color}15`,
-              border: `1px solid ${doc.color}30`,
+              background: `${tint(doc.color, 8)}`,
+              border: `1px solid ${tint(doc.color, 19)}`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 22, flexShrink: 0,
             }}>
@@ -1534,8 +1524,8 @@ function DocumentsSection() {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, flexShrink: 0 }}>
               <div style={{
                 fontSize: 9, fontWeight: 700, letterSpacing: '0.1em',
-                color: doc.color, background: `${doc.color}15`,
-                border: `1px solid ${doc.color}30`,
+                color: doc.color, background: `${tint(doc.color, 8)}`,
+                border: `1px solid ${tint(doc.color, 19)}`,
                 borderRadius: 0, padding: '2px 6px',
               }}>
                 {doc.type}

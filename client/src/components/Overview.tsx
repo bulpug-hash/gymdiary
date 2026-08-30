@@ -1,10 +1,12 @@
-// Overview – Přehled tab
-// Gold Performance Design
-// Shows: today's workout, week strip, goals progress, recent PRs
-import { PHASE3_WEEKS, getTodayDayKey, getCurrentWeek, getCategoryColor, GOALS, CURRENT_MAXES, WARMUP_SERIES_BY_WEEK } from '@/lib/data';
-import type { WarmupSet } from '@/lib/data';
-import type { Week } from '@/lib/data';
+// Přehled — první obrazovka. Odpovídá na jednu otázku: co dnes a s jakou vahou.
+// Kit 247: celoplošný hero s fotkou, pod ním hustá typografická data.
+import {
+  PHASE3_WEEKS, getTodayDayKey, getCurrentWeek,
+  GOALS, CURRENT_MAXES, WARMUP_SERIES_BY_WEEK,
+} from '@/lib/data';
+import type { WarmupSet, Week } from '@/lib/data';
 import type { WorkoutDataHook, Tab } from '@/lib/types';
+import { Hero, Marquee, Reveal, SectionHead } from '@/components/kit';
 
 interface Props {
   workoutData: WorkoutDataHook;
@@ -25,8 +27,10 @@ function plural(n: number, one: string, few: string, many: string): string {
   return many;
 }
 
+type SetPlanRow = { label: string; weight: string; reps: string; rpe?: string };
+
 // Hlavní série dne – to jediné číslo, kvůli kterému se dnes jde do posilovny
-function heroSet(day: { exercises: { category?: string; setPlan?: { label: string; weight: string; reps: string; rpe?: string }[] }[] } | null | undefined) {
+function heroSet(day: { exercises: { category?: string; setPlan?: SetPlanRow[] }[] } | null | undefined): SetPlanRow | null {
   if (!day) return null;
   for (const ex of day.exercises) {
     if (ex.category !== 'main' || !ex.setPlan || ex.setPlan.length === 0) continue;
@@ -37,229 +41,238 @@ function heroSet(day: { exercises: { category?: string; setPlan?: { label: strin
   return null;
 }
 
+const dm = (iso: string) => iso.split('-').slice(1).reverse().join('.');
+
 export default function Overview({ workoutData, onNavigate }: Props) {
+  void workoutData;
   const todayKey = getTodayDayKey();
   const currentWeekNum = getCurrentWeek();
   const currentWeek: Week = PHASE3_WEEKS.find(w => w.number === currentWeekNum) || PHASE3_WEEKS[0];
   const todayDay = currentWeek.days.find(d => d.key === todayKey);
+  const isTraining = !!todayDay && todayDay.type !== 'rest';
+  const top = isTraining ? heroSet(todayDay) : null;
 
-  // Skutečná 1RM maxima z dokumentů – VŽDY zobrazujeme tato čísla, ne pracovní váhy z deníku
+  // Skutečná 1RM maxima z dokumentů – VŽDY tato čísla, ne pracovní váhy z deníku
   const goals = [
-    { name: 'Bench Press', current: CURRENT_MAXES.bench, goal: GOALS.bench, note: '1RM testováno' },
-    { name: 'Back Squat', current: CURRENT_MAXES.squat, goal: GOALS.squat, note: '1RM testováno' },
-    { name: 'Mrtvý tah', current: CURRENT_MAXES.deadlift, goal: GOALS.deadlift, note: '1RM testováno' },
+    { name: 'Bench Press', short: 'BENCH', current: CURRENT_MAXES.bench, goal: GOALS.bench },
+    { name: 'Back Squat', short: 'DŘEP', current: CURRENT_MAXES.squat, goal: GOALS.squat },
+    { name: 'Mrtvý tah', short: 'TAH', current: CURRENT_MAXES.deadlift, goal: GOALS.deadlift },
   ];
 
+  const heroTitle = isTraining && todayDay
+    ? <>{todayDay.label.toUpperCase()}<br />{todayDay.description.split('–')[0].trim().toUpperCase()}</>
+    : <>Dnes<br />volno</>;
+
   return (
-    <div style={{ padding: '0 0 16px' }}>
-      {/* Header */}
-      <div style={{ padding: '20px 20px 0', borderBottom: '1px solid var(--gd-line)', paddingBottom: 16 }}>
-        {/* Lockup ve stylu 247: kód sezóny, verze, číslo týdne */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
-          <span style={{
-            background: 'var(--gd-text)', color: 'var(--gd-ink)',
-            fontSize: 11, fontWeight: 800, letterSpacing: '0.08em',
-            padding: '3px 7px', lineHeight: 1.1,
-          }}>247</span>
-          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--gd-text-3)' }}>
-            Podzim ’26
-          </span>
-          <span style={{ flex: 1, height: 1, background: 'var(--gd-line)' }} />
-          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--gd-text-3)' }}>
-            v5.2
-          </span>
-        </div>
+    <div>
+      <Hero
+        plate="overview"
+        size="lg"
+        ghost={String(currentWeek.number).padStart(2, '0')}
+        kicker="Tréninkový deník"
+        title={heroTitle}
+        stat={top ? { label: 'Top série', value: top.weight.replace('.', ','), unit: 'kg' } : undefined}
+        meta={
+          <>
+            <b>T{String(currentWeek.number).padStart(2, '0')}</b>
+            <span>·</span>
+            <span>{currentWeek.label}</span>
+            <span>·</span>
+            <span>{dm(currentWeek.dateFrom)} – {dm(currentWeek.dateTo)}</span>
+            {top && (<><span>·</span><span>× {top.reps} {top.label}{top.rpe ? ` · RPE ${top.rpe}` : ''}</span></>)}
+            {!isTraining && (<><span>·</span><span>Regenerace, strečink, sauna</span></>)}
+          </>
+        }
+      />
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16 }}>
-          <h1 style={{
-            fontFamily: 'Archivo, sans-serif', fontStretch: '118%',
-            fontSize: 40, fontWeight: 800, letterSpacing: '-0.045em',
-            lineHeight: 0.9, margin: 0, color: 'var(--gd-text)', textTransform: 'uppercase',
-          }}>
-            Tréninkový<br />deník
-          </h1>
-          <div style={{ textAlign: 'right', flexShrink: 0 }}>
-            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--gd-text-4)', marginBottom: 4 }}>Týden</div>
-            <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 40, fontWeight: 800, color: 'var(--gd-accent)', lineHeight: 0.85, letterSpacing: '-0.04em', fontVariantNumeric: 'tabular-nums' }}>
-              {String(currentWeek.number).padStart(2, '0')}
-            </div>
-          </div>
-        </div>
+      <Marquee
+        items={['Podzim ’26', 'Peaking 13 týdnů', 'Bench 130', 'Dřep 190', 'Mrtvý tah 230', 'Vlnové zatížení']}
+      />
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14, fontSize: 9, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--gd-text-3)' }}>
-          <span>{currentWeek.label}</span>
-          <span style={{ color: 'var(--gd-text-4)' }}>/</span>
-          <span>{currentWeek.dateFrom.split('-').slice(1).reverse().join('.')} – {currentWeek.dateTo.split('-').slice(1).reverse().join('.')}</span>
-        </div>
-      </div>
-
-      {/* Week strip */}
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--gd-line)' }}>
-        <div style={{ color: 'var(--gd-text-4)', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 10 }}>TÝDENNÍ ROZVRH</div>
-        <div style={{ display: 'flex', gap: 5 }}>
-          {DAY_KEYS.map((key, i) => {
-            const day = currentWeek.days.find(d => d.key === key);
-            const isToday = key === todayKey;
-            const isRest = day?.type === 'rest';
-            return (
-              <div key={key} style={{
-                flex: 1, textAlign: 'center', padding: '8px 0',
-                borderRadius: 0,
-                background: isToday ? 'var(--gd-accent)' : 'color-mix(in srgb, var(--gd-text) 3%, transparent)',
-                border: isToday ? 'none' : '1px solid var(--gd-line)',
-                transition: 'all 0.15s ease',
-              }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: isToday ? 'var(--gd-ink)' : 'var(--gd-text-3)' }}>{DAY_SHORT[i]}</div>
-                <div style={{ fontSize: 8, color: isToday ? 'color-mix(in srgb, var(--gd-shadow) 70%, transparent)' : 'var(--gd-text-4)', marginTop: 2, fontWeight: isToday ? 700 : 400 }}>
-                  {isRest ? '–' : (day ? TYPE_LABEL[day.type] || '?' : '?')}
+      <div className="gd-body">
+        {/* Týdenní rozvrh */}
+        <Reveal>
+          <SectionHead n="01" label="Týdenní rozvrh" right="Po — Ne" />
+          <div style={{ display: 'flex', gap: 4, padding: '0 20px 20px' }}>
+            {DAY_KEYS.map((key, i) => {
+              const day = currentWeek.days.find(d => d.key === key);
+              const isToday = key === todayKey;
+              const isRest = day?.type === 'rest';
+              return (
+                <div key={key} style={{
+                  flex: 1, textAlign: 'center', padding: '10px 0 9px',
+                  background: isToday ? 'var(--gd-accent)' : 'transparent',
+                  border: isToday ? '1px solid var(--gd-accent)' : '1px solid var(--gd-line)',
+                }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.04em', color: isToday ? 'var(--gd-accent-ink)' : 'var(--gd-text-2)' }}>{DAY_SHORT[i]}</div>
+                  <div style={{
+                    fontSize: 8, marginTop: 3, fontWeight: 700, letterSpacing: '0.1em',
+                    color: isToday ? 'color-mix(in srgb, var(--gd-accent-ink) 65%, transparent)' : 'var(--gd-text-4)',
+                  }}>
+                    {isRest ? '–' : (day ? TYPE_LABEL[day.type] || '?' : '?')}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Today's workout card */}
-      <div style={{ padding: '0 0 12px', borderBottom: '1px solid var(--gd-line)' }}>
-        {todayDay && todayDay.type !== 'rest' ? (
-          <div onClick={() => onNavigate('plan')} style={{ cursor: 'pointer' }}>
-            <div style={{ background: 'var(--gd-accent)', color: 'var(--gd-accent-ink)', padding: '16px 20px 18px' }}>
-              <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', opacity: 0.6 }}>
-                Dnes trénuješ
-              </div>
-              <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1, marginTop: 8 }}>
-                {todayDay.label.toUpperCase()} – {todayDay.description.split('–')[0].trim().toUpperCase()}
-              </div>
-              {(() => {
-                const hero = heroSet(todayDay);
-                if (!hero) return null;
-                return (
-                  <div style={{ marginTop: 18, display: 'flex', alignItems: 'flex-end', gap: 10 }}>
-                    <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 76, fontWeight: 800, letterSpacing: '-0.05em', lineHeight: 0.82, fontVariantNumeric: 'tabular-nums' }}>
-                      {hero.weight.replace('.', ',')}
-                    </div>
-                    <div style={{ paddingBottom: 8, fontSize: 12, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase' }}>kg</div>
-                  </div>
-                );
-              })()}
-              {(() => {
-                const hero = heroSet(todayDay);
-                if (!hero) return null;
-                return (
-                  <div style={{ marginTop: 8, fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.72 }}>
-                    × {hero.reps} · {hero.label}{hero.rpe ? ` · RPE ${hero.rpe}` : ''}
-                  </div>
-                );
-              })()}
-            </div>
-            <div style={{ padding: '12px 20px 2px', display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'baseline' }}>
-              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--gd-text-3)' }}>
-                {todayDay.exercises.length} {plural(todayDay.exercises.length, 'cvik', 'cviky', 'cviků')}
-              </span>
-              {todayDay.exercises.slice(0, 3).map(ex => (
-                <span key={ex.id} style={{ fontSize: 11, color: 'var(--gd-text-2)' }}>
-                  · {ex.nameShort || ex.name}
-                </span>
-              ))}
-              {todayDay.exercises.length > 3 && (
-                <span style={{ fontSize: 11, color: 'var(--gd-text-4)' }}>+{todayDay.exercises.length - 3}</span>
-              )}
-            </div>
+              );
+            })}
           </div>
-        ) : (
-          <div style={{ padding: '22px 20px', borderTop: '1px solid var(--gd-line)', borderBottom: '1px solid var(--gd-line)' }}>
-            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--gd-text-4)' }}>Dnes</div>
-            <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--gd-text-2)', marginTop: 6 }}>
-              VOLNO
-            </div>
-            <div style={{ color: 'var(--gd-text-4)', fontSize: 12, marginTop: 6 }}>Aktivní regenerace, strečink, sauna</div>
-          </div>
-        )}
-      </div>
+        </Reveal>
 
-      {/* Today's warm-up series */}
-      {todayDay && (todayDay.type === 'lower' || todayDay.type === 'upper' || todayDay.type === 'fullbody') && (() => {
-        const weekData = WARMUP_SERIES_BY_WEEK[currentWeekNum];
-        const liftKey = todayDay.type === 'lower' ? 'squat' : todayDay.type === 'upper' ? 'bench' : 'deadlift';
-        const liftLabel = todayDay.type === 'lower' ? 'SQUAT' : todayDay.type === 'upper' ? 'BENCH PRESS' : 'DEADLIFT';
-        const series = weekData?.[liftKey];
-        if (!series || series.length === 0) return null;
-        const formatW = (w: number) => w === 20 ? 'Tyč' : `${w} kg`;
-        const extractPct = (note?: string) => { if (!note) return ''; const m = note.match(/(~?\d+%)/); return m ? m[1] : ''; };
-        return (
-          <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--gd-line)' }}>
-            <div style={{ color: 'var(--gd-text-4)', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 10 }}>DNEŠNÍ ROZEHŘÍVACÍ SÉRIE</div>
-            <div style={{ background: 'color-mix(in srgb, var(--gd-fern) 4%, transparent)', border: '1px solid color-mix(in srgb, var(--gd-fern) 15%, transparent)', borderRadius: 0, padding: '12px 14px' }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--gd-fern)', letterSpacing: '0.1em', marginBottom: 8 }}>{liftLabel} – W{currentWeekNum} (Zatsiorsky)</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '45px 80px 35px 45px', gap: '3px 8px' }}>
-                <div style={{ fontSize: 8, color: 'var(--gd-text-4)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>SÉRIE</div>
-                <div style={{ fontSize: 8, color: 'var(--gd-text-4)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>VÁHA</div>
-                <div style={{ fontSize: 8, color: 'var(--gd-text-4)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>REPS</div>
-                <div style={{ fontSize: 8, color: 'var(--gd-accent)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>% 1RM</div>
-                {series.map((row: WarmupSet, i: number) => (
-                  <>
-                    <div key={`s${i}`} style={{ fontSize: 11, color: 'var(--gd-text-2)', padding: '2px 0', borderTop: '1px solid color-mix(in srgb, var(--gd-text) 4%, transparent)' }}>1×{row.reps}</div>
-                    <div key={`w${i}`} style={{ fontSize: 11, color: 'var(--gd-text)', fontWeight: 600, padding: '2px 0', borderTop: '1px solid color-mix(in srgb, var(--gd-text) 4%, transparent)' }}>{formatW(row.weight)}</div>
-                    <div key={`r${i}`} style={{ fontSize: 11, color: 'var(--gd-fern)', padding: '2px 0', borderTop: '1px solid color-mix(in srgb, var(--gd-text) 4%, transparent)' }}>{row.reps}</div>
-                    <div key={`p${i}`} style={{ fontSize: 11, color: 'var(--gd-accent)', fontWeight: 600, padding: '2px 0', borderTop: '1px solid color-mix(in srgb, var(--gd-text) 4%, transparent)' }}>{extractPct(row.note) || '–'}</div>
-                  </>
+        <div className="gd-cols gd-cols--sidebar gd-cols--gap">
+          {/* Dnešní trénink */}
+          <Reveal>
+            <SectionHead
+              n="02"
+              label={isTraining ? 'Dnešní trénink' : 'Dnešní den'}
+              right={isTraining && todayDay ? `${todayDay.exercises.length} ${plural(todayDay.exercises.length, 'cvik', 'cviky', 'cviků')}` : 'Volno'}
+            />
+            {isTraining && todayDay ? (
+              <div style={{ padding: '0 20px 20px' }}>
+                {todayDay.exercises.map((ex, i) => (
+                  <div key={ex.id} style={{
+                    display: 'flex', alignItems: 'baseline', gap: 12,
+                    padding: '10px 0',
+                    borderTop: i === 0 ? 'none' : '1px solid var(--gd-line)',
+                  }}>
+                    <span style={{ fontSize: 9, fontWeight: 800, color: 'var(--gd-text-4)', fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <span style={{ flex: 1, fontSize: 14, color: 'var(--gd-text)', minWidth: 0 }}>
+                      {ex.nameShort || ex.name}
+                    </span>
+                    {ex.setPlan && ex.setPlan.length > 0 && (
+                      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--gd-text-3)', letterSpacing: '0.06em', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
+                        {ex.setPlan.length}× {ex.setPlan[0].reps}
+                      </span>
+                    )}
+                  </div>
                 ))}
+                <button
+                  onClick={() => onNavigate('plan')}
+                  style={{
+                    marginTop: 16, width: '100%', padding: '13px 16px',
+                    background: 'var(--gd-accent)', color: 'var(--gd-accent-ink)',
+                    border: 'none', borderRadius: 0, cursor: 'pointer',
+                    fontSize: 10, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase',
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  }}
+                >
+                  <span>Otevřít rozpis sérií</span><span>→</span>
+                </button>
               </div>
-              <div style={{ marginTop: 8, fontSize: 10, color: 'var(--gd-text-4)' }}>Zapisují se jen pracovní série · Více v záložce Plán</div>
-            </div>
-          </div>
-        );
-      })()}
+            ) : (
+              <div style={{ padding: '0 20px 20px' }}>
+                <p style={{ fontSize: 13, lineHeight: 1.65, color: 'var(--gd-text-3)', margin: 0 }}>
+                  Dnes se netrénuje. Aktivní regenerace, strečink, případně lehký Z2 běh.
+                  Zítřejší jednotku najdeš v Plánu.
+                </p>
+                <button
+                  onClick={() => onNavigate('plan')}
+                  style={{
+                    marginTop: 16, width: '100%', padding: '13px 16px',
+                    background: 'transparent', color: 'var(--gd-text)',
+                    border: '1px solid var(--gd-line)', borderRadius: 0, cursor: 'pointer',
+                    fontSize: 10, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase',
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  }}
+                >
+                  <span>Zobrazit plán týdne</span><span>→</span>
+                </button>
+              </div>
+            )}
+          </Reveal>
 
-      {/* Goals progress */}
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--gd-line)' }}>
-        <div style={{ color: 'var(--gd-text-4)', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>AKTUÁLNÍ MAXIMA → CÍL FÁZE 3</div>
-        {goals.map(({ name, current, goal, note }) => {
-          const pct = Math.min(100, Math.round((current / goal) * 100));
-          return (
-            <div key={name} style={{ marginBottom: 14 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                <span style={{ fontSize: 13, color: 'var(--gd-text-2)' }}>{name}</span>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 13, fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontWeight: 700 }}>
-                    <span style={{ color: 'var(--gd-accent)' }}>{current} kg</span>
-                    <span style={{ color: 'var(--gd-line)' }}> → {goal} kg</span>
+          {/* Maxima */}
+          <Reveal delay={60}>
+            <SectionHead n="03" label="Maxima → cíl" right="1RM" />
+            <div style={{ padding: '0 20px 20px' }}>
+              {goals.map(({ name, short, current, goal }) => {
+                const pct = Math.min(100, Math.round((current / goal) * 100));
+                const done = current >= goal;
+                return (
+                  <div key={name} style={{ padding: '12px 0', borderTop: '1px solid var(--gd-line)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10 }}>
+                      <span className="gd-tag" style={{ color: 'var(--gd-text-3)' }}>{short}</span>
+                      <span style={{ fontSize: 11, color: 'var(--gd-text-4)', letterSpacing: '0.05em' }}>{name}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginTop: 6 }}>
+                      <span className="gd-display" style={{ fontSize: 32, color: done ? 'var(--gd-fern)' : 'var(--gd-text)' }}>
+                        {current}
+                      </span>
+                      <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.14em', color: 'var(--gd-text-3)', paddingBottom: 5 }}>KG</span>
+                      <span style={{ flex: 1 }} />
+                      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--gd-text-4)', paddingBottom: 5, fontVariantNumeric: 'tabular-nums' }}>
+                        → {goal} kg · {pct} %
+                      </span>
+                    </div>
+                    <div style={{ height: 2, background: 'var(--gd-line)', marginTop: 8 }}>
+                      <div style={{ height: '100%', width: `${pct}%`, background: done ? 'var(--gd-fern)' : 'var(--gd-accent)', transition: 'width 0.9s cubic-bezier(0.22,0.61,0.36,1)' }} />
+                    </div>
                   </div>
-                  {note && <div style={{ fontSize: 10, color: 'var(--gd-text-4)', marginTop: 1 }}>{note}</div>}
+                );
+              })}
+            </div>
+          </Reveal>
+        </div>
+
+        {/* Rozehřívací série */}
+        {todayDay && (todayDay.type === 'lower' || todayDay.type === 'upper' || todayDay.type === 'fullbody') && (() => {
+          const weekData = WARMUP_SERIES_BY_WEEK[currentWeekNum];
+          const liftKey = todayDay.type === 'lower' ? 'squat' : todayDay.type === 'upper' ? 'bench' : 'deadlift';
+          const liftLabel = todayDay.type === 'lower' ? 'Squat' : todayDay.type === 'upper' ? 'Bench press' : 'Deadlift';
+          const series = weekData?.[liftKey];
+          if (!series || series.length === 0) return null;
+          const formatW = (w: number) => (w === 20 ? 'Tyč' : `${w} kg`);
+          const pct = (note?: string) => (note?.match(/(~?\d+%)/)?.[1] ?? '–');
+          return (
+            <Reveal>
+              <SectionHead n="04" label="Rozehřátí" right={`${liftLabel} · Zatsiorsky`} />
+              <div style={{ padding: '0 20px 24px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 0 }}>
+                  {['Série', 'Váha', 'Reps', '% 1RM'].map(h => (
+                    <div key={h} className="gd-tag" style={{ padding: '0 0 7px', color: 'var(--gd-text-4)' }}>{h}</div>
+                  ))}
+                  {series.map((row: WarmupSet, i: number) => (
+                    <div key={`row-${i}`} style={{ display: 'contents' }}>
+                      <div style={{ fontSize: 12, color: 'var(--gd-text-3)', padding: '9px 0', borderTop: '1px solid var(--gd-line)', fontVariantNumeric: 'tabular-nums' }}>1×{row.reps}</div>
+                      <div style={{ fontSize: 12, color: 'var(--gd-text)', fontWeight: 700, padding: '9px 0', borderTop: '1px solid var(--gd-line)' }}>{formatW(row.weight)}</div>
+                      <div style={{ fontSize: 12, color: 'var(--gd-text-3)', padding: '9px 0', borderTop: '1px solid var(--gd-line)', fontVariantNumeric: 'tabular-nums' }}>{row.reps}</div>
+                      <div style={{ fontSize: 12, color: 'var(--gd-fern)', fontWeight: 700, padding: '9px 0', borderTop: '1px solid var(--gd-line)' }}>{pct(row.note)}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: 10, fontSize: 11, color: 'var(--gd-text-4)' }}>
+                  Do deníku se zapisují jen pracovní série.
                 </div>
               </div>
-              <div style={{ height: 3, background: 'var(--gd-line)', borderRadius: 0, overflow: 'hidden' }}>
-                <div style={{
-                  height: '100%',
-                  width: `${pct}%`,
-                  background: pct >= 95 ? 'var(--gd-fern)' : 'linear-gradient(90deg, var(--gd-accent), var(--gd-accent))',
-                  borderRadius: 0,
-                  transition: 'width 0.8s ease',
-                }} />
-              </div>
-              <div style={{ fontSize: 10, color: 'var(--gd-text-4)', marginTop: 3, textAlign: 'right' }}>{pct}% cíle</div>
-            </div>
+            </Reveal>
           );
-        })}
-      </div>
+        })()}
 
-      {/* Phase description */}
-      <div style={{ padding: '14px 20px' }}>
-          <div style={{ color: 'var(--gd-text-4)', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 10 }}>AKTUÁLNÍ FÁZE</div>
-        <div style={{ background: 'var(--gd-surface)', border: '1px solid var(--gd-line)', borderRadius: 0, padding: '14px 16px' }}>
-          <div style={{ color: 'var(--gd-accent)', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>{currentWeek.phase}</div>
-          <div style={{ color: 'var(--gd-text-3)', fontSize: 12, lineHeight: 1.6 }}>
-            {currentWeek.description}
+        {/* Fáze */}
+        <Reveal>
+          <SectionHead n="05" label="Aktuální fáze" right={currentWeek.phase} />
+          <div style={{ padding: '0 20px 34px' }}>
+            <p style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--gd-text-2)', margin: '0 0 18px', maxWidth: '58ch' }}>
+              {currentWeek.description}
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', borderTop: '1px solid var(--gd-line)' }}>
+              {[['W1–4', 'Akumulace'], ['W5–8', 'Síla'], ['W9–11', 'Intenzif.'], ['W12–13', 'Taper / Test']].map(([w, label], i) => {
+                const on = currentWeek.number <= 4 ? i === 0 : currentWeek.number <= 8 ? i === 1 : currentWeek.number <= 11 ? i === 2 : i === 3;
+                return (
+                  <div key={w} style={{
+                    padding: '12px 8px 14px',
+                    borderRight: i < 3 ? '1px solid var(--gd-line)' : 'none',
+                    borderTop: on ? '2px solid var(--gd-accent)' : '2px solid transparent',
+                    marginTop: -1,
+                  }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: on ? 'var(--gd-accent)' : 'var(--gd-text-3)', fontVariantNumeric: 'tabular-nums' }}>{w}</div>
+                    <div style={{ fontSize: 10, color: 'var(--gd-text-4)', marginTop: 4, letterSpacing: '0.06em' }}>{label}</div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
-            {[['W1–4', 'Akumulace'], ['W5–8', 'Síla'], ['W9–11', 'Intenzif.'], ['W12–13', 'Taper/Test']].map(([weeks, label]) => (
-              <div key={weeks} style={{ flex: 1, background: 'color-mix(in srgb, var(--gd-accent) 6%, transparent)', borderRadius: 0, padding: '6px 4px', textAlign: 'center', border: '1px solid color-mix(in srgb, var(--gd-accent) 12%, transparent)' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--gd-accent)' }}>{weeks}</div>
-                <div style={{ fontSize: 10, color: 'var(--gd-text-3)', marginTop: 2 }}>{label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
+        </Reveal>
       </div>
     </div>
   );

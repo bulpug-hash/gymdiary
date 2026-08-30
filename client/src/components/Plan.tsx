@@ -5,8 +5,10 @@ import { useState } from 'react';
 import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel, WARMUP_PROTOCOL, WARMUP_SERIES_BY_WEEK } from '@/lib/data';
 import type { WarmupSet } from '@/lib/data';
 import { getExerciseInfo, CATEGORY_COLORS } from '@/lib/exerciseDescriptions';
+import { Hero, Marquee, Reveal, SectionHead } from '@/components/kit';
 import type { WorkoutDataHook } from '@/lib/types';
 import type { WorkoutDay, Exercise } from '@/lib/data';
+import { tint } from '@/lib/tint';
 
 interface Props {
   workoutData: WorkoutDataHook;
@@ -54,37 +56,56 @@ export default function Plan({ workoutData }: Props) {
   const notStarted = isBeforePlanStart();
   const week = PHASE3_WEEKS[selectedWeek];
 
+  const dm = (iso: string) => iso.split('-').slice(1).reverse().join('.');
+
   return (
-    <div style={{ padding: '0 0 16px' }}>
-      {/* Header */}
-      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--gd-line)' }}>
-        <div style={{ color: 'var(--gd-accent)', fontSize: 9, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 6 }}>
-          Tréninkový plán · v5.2
-        </div>
-        <h2 style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 34, fontWeight: 800, margin: 0, letterSpacing: '-0.035em', lineHeight: 0.95, color: 'var(--gd-text)', textTransform: 'uppercase' }}>
-          Podzim 2026
-        </h2>
-        <p style={{ color: 'var(--gd-text-3)', fontSize: 12, marginTop: 6, lineHeight: 1.5 }}>
-          13týdenní peaking program · W1–4 Akumulace · W5–8 Síla · W9–11 Intenzifikace · W12 Taper · W13 Test
-        </p>
+    <div>
+      <Hero
+        plate="plan"
+        ghost={String(week.number).padStart(2, '0')}
+        kicker="Tréninkový plán · v5.2"
+        title={<>Podzim<br />2026</>}
+        stat={{ label: 'Týden', value: String(week.number).padStart(2, '0') }}
+        meta={
+          <>
+            <b>13 týdnů</b>
+            <span>·</span>
+            <span>W1–4 Akumulace</span>
+            <span>·</span>
+            <span>W5–8 Síla</span>
+            <span>·</span>
+            <span>W9–11 Intenzifikace</span>
+            <span>·</span>
+            <span>W12 Taper</span>
+            <span>·</span>
+            <span>W13 Test</span>
+          </>
+        }
+      />
+
+      <Marquee items={['31.08 — 29.11', 'Peaking program', 'Vlnové zatížení', 'Po dřep', 'Út bench', 'Pá mrtvý tah']} />
+
+      <div className="gd-body">
         {selectedWeek !== currentWeekIndex && (
-          <button
-            onClick={() => setSelectedWeek(currentWeekIndex)}
-            style={{
-              marginTop: 14, padding: '9px 14px', borderRadius: 0, border: 'none',
-              background: 'var(--gd-accent)', color: 'var(--gd-accent-ink)',
-              fontSize: 10, fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap',
-              letterSpacing: '0.18em', textTransform: 'uppercase',
-            }}
-          >
-            ← Zpět na T{PHASE3_WEEKS[currentWeekIndex].number}
-          </button>
+          <div style={{ padding: '18px 20px 0' }}>
+            <button
+              onClick={() => setSelectedWeek(currentWeekIndex)}
+              style={{
+                padding: '11px 16px', borderRadius: 0, border: 'none',
+                background: 'var(--gd-accent)', color: 'var(--gd-accent-ink)',
+                fontSize: 10, fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap',
+                letterSpacing: '0.2em', textTransform: 'uppercase',
+              }}
+            >
+              ← Zpět na T{PHASE3_WEEKS[currentWeekIndex].number}
+            </button>
+          </div>
         )}
-      </div>
 
       {/* Week ruler – všech 13 týdnů najednou, bez rolování */}
-      <div style={{ borderBottom: '1px solid var(--gd-line)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+      <SectionHead n="01" label="Pravítko týdnů" right="01 — 13" />
+      <div style={{ borderBottom: '1px solid var(--gd-line)', margin: '0 20px' }}>
+        <div className="gd-weekruler" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
           {PHASE3_WEEKS.map((w, i) => {
             const isSelected = selectedWeek === i;
             const isCurrent = currentWeekIndex === i;
@@ -117,13 +138,14 @@ export default function Plan({ workoutData }: Props) {
             );
           })}
           {Array.from({ length: (7 - (PHASE3_WEEKS.length % 7)) % 7 }).map((_, i) => (
-            <div key={`pad-${i}`} style={{ borderTop: '1px solid var(--gd-line)' }} />
+            <div className="gd-weekruler__pad" key={`pad-${i}`} style={{ borderTop: '1px solid var(--gd-line)' }} />
           ))}
         </div>
       </div>
 
       {/* Selected week info */}
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--gd-line)' }}>
+      <SectionHead n="02" label="Vybraný týden" right={`${dm(week.dateFrom)} — ${dm(week.dateTo)}`} />
+      <div style={{ padding: '0 20px 18px', borderBottom: '1px solid var(--gd-line)' }}>
         <div style={{ borderLeft: `3px solid ${selectedWeek === currentWeekIndex ? 'var(--gd-fern)' : 'var(--gd-accent)'}`, paddingLeft: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <div style={{ color: 'var(--gd-accent)', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
@@ -159,18 +181,20 @@ export default function Plan({ workoutData }: Props) {
       <WarmupSection />
 
       {/* Days */}
-      <div style={{ padding: '14px 20px' }}>
-        <div style={{ color: 'var(--gd-text-4)', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>DENNÍ ROZVRH</div>
-        {week.days.map(day => (
-          <DayCard
-            key={day.key}
-            day={day}
-            isExpanded={expandedDay === day.key}
-            onToggle={() => setExpandedDay(expandedDay === day.key ? null : day.key)}
-            workoutData={workoutData}
-            weekNumber={week.number}
-          />
+      <SectionHead n="03" label="Denní rozvrh" right="Po — Ne" />
+      <div style={{ padding: '0 20px 36px' }}>
+        {week.days.map((day, i) => (
+          <Reveal key={day.key} delay={Math.min(i * 40, 160)}>
+            <DayCard
+              day={day}
+              isExpanded={expandedDay === day.key}
+              onToggle={() => setExpandedDay(expandedDay === day.key ? null : day.key)}
+              workoutData={workoutData}
+              weekNumber={week.number}
+            />
+          </Reveal>
         ))}
+      </div>
       </div>
     </div>
   );
@@ -257,7 +281,7 @@ function ExerciseRow({ ex, idx, total, latest }: {
               <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', color: 'var(--gd-accent)', background: 'color-mix(in srgb, var(--gd-accent) 15%, transparent)', border: '1px solid color-mix(in srgb, var(--gd-accent) 30%, transparent)', borderRadius: 0, padding: '1px 5px', textTransform: 'uppercase' }}>DROP</span>
             )}
             {info && (
-              <span style={{ fontSize: 9, color: catColor, background: `${catColor}15`, border: `1px solid ${catColor}30`, borderRadius: 0, padding: '1px 5px', letterSpacing: '0.05em' }}>{info.category}</span>
+              <span style={{ fontSize: 9, color: catColor, background: `${tint(catColor, 8)}`, border: `1px solid ${tint(catColor, 19)}`, borderRadius: 0, padding: '1px 5px', letterSpacing: '0.05em' }}>{info.category}</span>
             )}
           </div>
           {ex.setPlan && ex.setPlan.length > 0 ? (
@@ -323,7 +347,7 @@ function ExerciseRow({ ex, idx, total, latest }: {
 
       {/* Expandable description */}
       {expanded && info && (
-        <div style={{ margin: '0 0 10px 15px', padding: '12px 14px', background: 'color-mix(in srgb, var(--gd-shadow) 30%, transparent)', borderRadius: 0, border: `1px solid ${catColor}20` }}>
+        <div style={{ margin: '0 0 10px 15px', padding: '12px 14px', background: 'color-mix(in srgb, var(--gd-shadow) 30%, transparent)', borderRadius: 0, border: `1px solid ${tint(catColor, 13)}` }}>
           {/* Why */}
           <div style={{ marginBottom: 10 }}>
             <div style={{ fontSize: 10, color: catColor, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>PROČ JE V PLÁNU</div>

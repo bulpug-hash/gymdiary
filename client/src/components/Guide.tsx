@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { WEEK_GUIDE } from '@/lib/weekGuide';
 import { getCurrentWeek } from '@/lib/data';
+import { Hero, Marquee, SectionHead } from '@/components/kit';
+import { tint } from '@/lib/tint';
 
 const MODE_COLOR: Record<string, string> = {
   'objemový': 'var(--gd-text-2)', 'silový': 'var(--gd-accent)', 'deload': 'var(--gd-text-3)', 'taper': 'var(--gd-fern)', 'test': 'var(--gd-danger)',
@@ -22,20 +24,31 @@ export default function Guide() {
   };
 
   return (
-    <div style={{ padding: '20px 16px 24px' }}>
-      <div style={{ fontSize: 10, letterSpacing: '0.25em', color: 'var(--gd-accent)', fontWeight: 600, marginBottom: 4 }}>
-        PRŮVODCE PLÁNEM
-      </div>
-      <h2 style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 24, fontWeight: 800, margin: 0, color: 'var(--gd-text)' }}>
-        Detailní rozpis týdne
-      </h2>
-      <p style={{ color: 'var(--gd-text-3)', fontSize: 12, marginTop: 4, lineHeight: 1.5 }}>
-        Ke každému týdnu: co se trénuje, proč, jaké RPE a co rotuje. Vychází z dokumentu Podzim 2026 v5.2.
-      </p>
+    <div>
+      <Hero
+        plate="guide"
+        ghost={String(g.wk).padStart(2, '0')}
+        kicker="Průvodce plánem"
+        title={<>Detailní<br />rozpis týdne</>}
+        stat={{ label: 'Týden', value: String(g.wk).padStart(2, '0') }}
+        meta={
+          <>
+            <b>{g.title}</b>
+            <span>·</span>
+            <span>{g.mode}</span>
+            <span>·</span>
+            <span>{g.dates}</span>
+          </>
+        }
+      />
 
+      <Marquee items={['Co se trénuje', 'Proč právě takhle', 'Jaké RPE', 'Co rotuje', 'Podzim ’26 v5.2']} />
+
+      <div className="gd-body">
       {/* výběr týdne – pravítko, všech 13 najednou */}
-      <div style={{ margin: '14px -16px 16px', borderTop: '1px solid var(--gd-line)', borderBottom: '1px solid var(--gd-line)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+      <SectionHead n="01" label="Vyber týden" right="01 — 13" />
+      <div style={{ margin: '0 20px 22px', borderTop: '1px solid var(--gd-line)', borderBottom: '1px solid var(--gd-line)' }}>
+        <div className="gd-weekruler" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
           {WEEK_GUIDE.map((w, i) => {
             const active = i === sel;
             const isNow = w.wk === current;
@@ -70,10 +83,11 @@ export default function Guide() {
       </div>
 
       {/* hlavička týdne */}
+      <div style={{ padding: '0 20px' }}>
       <div style={{ ...card, borderLeft: `3px solid ${color}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
           <span style={{ fontSize: 11, letterSpacing: '0.1em', color, fontWeight: 700 }}>{g.title.toUpperCase()}</span>
-          <span style={{ fontSize: 9, background: `${color}20`, color, border: `1px solid ${color}40`, borderRadius: 0, padding: '2px 6px', fontWeight: 700 }}>
+          <span style={{ fontSize: 9, background: `${tint(color, 13)}`, color, border: `1px solid ${tint(color, 25)}`, borderRadius: 0, padding: '2px 6px', fontWeight: 700 }}>
             {g.mode.toUpperCase()}
           </span>
           {g.wk === current && (
@@ -87,6 +101,7 @@ export default function Guide() {
         <div style={{ fontSize: 13, color: 'var(--gd-text-2)', marginTop: 10, lineHeight: 1.55 }}>{g.focus}</div>
       </div>
 
+      <div className="gd-masonry">
       {/* proč */}
       <div style={card}>
         <div style={label}>PROČ TENHLE TÝDEN VYPADÁ TAKHLE</div>
@@ -141,8 +156,12 @@ export default function Guide() {
         <div style={{ fontSize: 12.5, color: 'var(--gd-text-2)', lineHeight: 1.55 }}>{g.cardio}</div>
       </div>
 
-      <div style={{ fontSize: 10.5, color: 'var(--gd-text-4)', textAlign: 'center', marginTop: 4, lineHeight: 1.5 }}>
+      </div>
+
+      <div style={{ fontSize: 10.5, color: 'var(--gd-text-4)', textAlign: 'center', margin: '4px 0 36px', lineHeight: 1.5 }}>
         Zdroj: Tréninkový plán Podzim 2026 v5.2 · Israetel · Tuchscherer · Smith · Zatsiorsky · Viada
+      </div>
+      </div>
       </div>
     </div>
   );

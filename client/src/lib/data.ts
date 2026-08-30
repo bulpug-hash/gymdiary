@@ -1462,16 +1462,18 @@ export function getCurrentWeek(): number {
   const diff = Math.floor((now.getTime() - start.getTime()) / (7 * 24 * 60 * 60 * 1000));
   return Math.max(1, Math.min(13, diff + 1));
 }
+// Vrací CSS barvu, ne Tailwind třídu. Výsledek se používá přímo ve style={{}},
+// takže 'text-yellow-400' se tiše zahodilo a proužky kategorií byly neviditelné.
 export function getCategoryColor(category: ExerciseCategory): string {
   switch (category) {
-    case 'main': return 'text-yellow-400';
-    case 'accessory': return 'text-orange-400';
-    case 'isolation': return 'text-blue-400';
-    case 'prevention': return 'text-green-400';
-    case 'core': return 'text-purple-400';
-    case 'run': return 'text-cyan-400';
-    case 'superset': return 'text-pink-400';
-    default: return 'text-gray-400';
+    case 'main': return 'var(--gd-accent)';
+    case 'accessory': return 'var(--gd-text-2)';
+    case 'isolation': return 'var(--gd-text-3)';
+    case 'prevention': return 'var(--gd-fern)';
+    case 'core': return 'var(--gd-text-3)';
+    case 'run': return 'var(--gd-fern)';
+    case 'superset': return 'var(--gd-text-2)';
+    default: return 'var(--gd-text-4)';
   }
 }
 export function getCategoryLabel(category: ExerciseCategory): string {
