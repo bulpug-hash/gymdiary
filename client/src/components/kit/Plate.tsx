@@ -1,7 +1,23 @@
-// Grafická deska pod hero. Kreslená celá tady — halftone rastr, světelná
-// louže, obří duch číslice a technické linky. Žádná bitmapa, takže se
-// nenačítá nic navíc a na mobilu je to okamžité a ostré na retině.
+// Grafická deska pod hero: halftone rastr, světelná louže, duch číslice,
+// technické linky — a přes to rytina.
+//
+// Rytiny jsou z Metropolitního muzea, všechny CC0 (volné dílo), takže je lze
+// použít bez uvedení autora i bez podmínek. Seznam s autory je v
+// client/public/ilu/ZDROJE.md. Jejich vlastní grafika (Fallen Angel, Noble
+// Knight) je cizí chráněné dílo a v appce být nesmí.
 export type PlateKey = 'overview' | 'plan' | 'guide' | 'diary' | 'progress' | 'tools';
+
+const BASE = import.meta.env.BASE_URL || './';
+
+/** Rytina ke každé záložce + kam ji na desce posadit. */
+const ENGRAVING: Record<PlateKey, { file: string; pos: string; size: string; op: number }> = {
+  overview: { file: 'athlete', pos: '96% 30%', size: 'auto 74%', op: 0.15 },
+  plan:     { file: 'triumph', pos: '92% 26%', size: 'auto 58%', op: 0.13 },
+  guide:    { file: 'griffin', pos: '95% 28%', size: 'auto 58%', op: 0.15 },
+  diary:    { file: 'knight',  pos: '95% 30%', size: 'auto 70%', op: 0.14 },
+  progress: { file: 'victory', pos: '94% 28%', size: 'auto 66%', op: 0.14 },
+  tools:    { file: 'eagle',   pos: '95% 28%', size: 'auto 54%', op: 0.16 },
+};
 
 interface Props {
   variant: PlateKey;
@@ -30,6 +46,17 @@ export default function Plate({ variant, ghost }: Props) {
 
       {/* halftone rastr, zeslabený maskou do ztracena */}
       <div className="gd-plate__halftone" />
+
+      {/* rytina – bílá kresba, tak jak ji značka používá na plakátech */}
+      <div
+        className="gd-plate__engraving"
+        style={{
+          backgroundImage: `url("${BASE}ilu/${ENGRAVING[variant].file}.webp")`,
+          backgroundPosition: ENGRAVING[variant].pos,
+          backgroundSize: ENGRAVING[variant].size,
+          opacity: ENGRAVING[variant].op,
+        }}
+      />
 
 
       {/* technické linky + duch číslice */}

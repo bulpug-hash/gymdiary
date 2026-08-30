@@ -127,6 +127,7 @@ export function useWorkoutData() {
     weight: string,
     reps: string,
     note: string,
+    rpe?: string,
   ) => {
     const newRecord: TrainingRecord = {
       id: nanoid(),
@@ -135,6 +136,7 @@ export function useWorkoutData() {
       weight,
       reps,
       note,
+      ...(rpe ? { rpe } : {}),
     };
     setRecords(prev => ({
       ...prev,
@@ -151,12 +153,15 @@ export function useWorkoutData() {
     weight: string,
     reps: string,
     note: string,
+    rpe?: string,
   ) => {
     setRecords(prev => {
       const list = prev[exerciseId] ?? [];
       const updated = list.map(r =>
         r.id === recordId
-          ? { ...r, date, sets, weight, reps, note, planned: false }
+          // rpe se nepředává vždy (např. hromadná editace v Deníku), takže
+          // undefined nechá původní hodnotu být.
+          ? { ...r, date, sets, weight, reps, note, planned: false, ...(rpe !== undefined ? { rpe } : {}) }
           : r
       );
       // Re-sort by date after update so list stays chronological

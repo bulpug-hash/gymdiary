@@ -12,6 +12,8 @@ import { tint, formatWeight } from '@/lib/tint';
 import { useRestTimer, startRest, pauseRest, resumeRest, resetRest, setRestDuration } from '@/lib/restTimer';
 import { loadSnapshots, markDownloaded, daysSinceDownload, formatStamp, REMIND_AFTER_DAYS } from '@/lib/backup';
 import { plural } from '@/lib/czech';
+import { plannedTemplate } from '@/lib/planLink';
+import { loadPlates, formatPerSideShort, DEFAULT_BAR } from '@/lib/plates';
 import { Hero, Marquee } from '@/components/kit';
 
 interface Props {
@@ -82,7 +84,7 @@ function calc1RMFromWeight(weight: number, reps: number): number {
 // Main Tools Component
 // ============================================================
 export default function Tools({ workoutData }: Props) {
-  const [section, setSection] = useState<'rpe' | 'bodyweight' | 'timer' | 'export' | 'nutrition' | 'autoregulation' | 'documents'>('rpe');
+  const [section, setSection] = useState<'rpe' | 'plates' | 'bodyweight' | 'timer' | 'export' | 'nutrition' | 'autoregulation' | 'documents'>('rpe');
 
   const sectionBtnStyle = (active: boolean) => ({
     flex: 1,
@@ -100,7 +102,7 @@ export default function Tools({ workoutData }: Props) {
   });
 
   const SECTION_TITLE: Record<string, string> = {
-    rpe: 'RPE kalkulačka', bodyweight: 'Tělesná váha', timer: 'Timer',
+    rpe: 'RPE kalkulačka', plates: 'Kotouče', bodyweight: 'Tělesná váha', timer: 'Timer',
     export: 'Export dat', nutrition: 'Výživa', autoregulation: 'Autoregulace',
     documents: 'Dokumenty',
   };
@@ -129,6 +131,7 @@ export default function Tools({ workoutData }: Props) {
         <div style={{ display: 'flex', gap: 6 }}>
           {[
             { key: 'rpe', label: 'RPE' },
+            { key: 'plates', label: 'Kotouče' },
             { key: 'bodyweight', label: 'Váha' },
             { key: 'timer', label: 'Timer' },
             { key: 'export', label: 'Export' },
@@ -150,6 +153,7 @@ export default function Tools({ workoutData }: Props) {
       {/* Section content */}
       <div style={{ padding: '16px 20px' }}>
         {section === 'rpe' && <RPECalculator />}
+        {section === 'plates' && <PlateCalculator />}
         {section === 'bodyweight' && <BodyWeightTracker />}
         {section === 'timer' && <RestTimer />}
         {section === 'export' && <ExportData workoutData={workoutData} />}
@@ -531,6 +535,93 @@ function BodyWeightTracker() {
 }
 
 // ============================================================
+// Kalkulačka kotoučů
+// ============================================================
+function PlateCalculator() {
+  const [target, setTarget] = useState(100);
+  const [bar, setBar] = useState(DEFAULT_BAR);
+  const res = loadPlates(target, bar);
+
+  // Váhy, které plán reálně předepisuje – ať se nemusí naklikávat od nuly.
+  const shortcuts = [60, 87.5, 100, 107.5, 130, 145, 152.5, 162.5, 180, 202.5];
+
+  return (
+    <div>
+      <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 18, fontWeight: 800, color: 'var(--gd-accent)', marginBottom: 4 }}>
+        Kalkulačka kotoučů
+      </div>
+      <p style={{ fontSize: 12, color: 'var(--gd-text-4)', marginBottom: 18 }}>
+        Kolik naložit na jednu stranu. Osa {formatWeight(String(bar))} kg.
+      </p>
+
+      <div className="gd-step" style={{ marginBottom: 14 }}>
+        <span className="gd-tag gd-step__lbl">Cíl</span>
+        <button className="gd-step__btn" onClick={() => setTarget(t => Math.max(0, +(t - 2.5).toFixed(2)))} aria-label="O 2,5 kg míň">−</button>
+        <span className="gd-display gd-step__val">{formatWeight(String(target))}</span>
+        <button className="gd-step__btn" onClick={() => setTarget(t => +(t + 2.5).toFixed(2))} aria-label="O 2,5 kg víc">+</button>
+      </div>
+
+      <div style={{
+        border: '1px solid var(--gd-line)', padding: '16px', marginBottom: 16,
+        background: 'color-mix(in srgb, var(--gd-accent) 5%, transparent)',
+      }}>
+        <div className="gd-tag" style={{ marginBottom: 8 }}>Na jednu stranu</div>
+        <div className="gd-display" style={{ fontSize: 26, color: 'var(--gd-accent)', lineHeight: 1.15 }}>
+          {res.belowBar ? 'POD VÁHOU OSY' : formatPerSideShort(res.perSide)}
+        </div>
+        {!res.belowBar && res.off !== 0 && (
+          <div style={{ fontSize: 11, color: 'var(--gd-danger)', marginTop: 8, lineHeight: 1.5 }}>
+            Přesně to naložit nejde — nejblíž je {formatWeight(String(res.achieved))} kg
+            ({res.off > 0 ? 'chybí' : 'přebývá'} {formatWeight(String(Math.abs(res.off)))} kg).
+          </div>
+        )}
+        {!res.belowBar && res.off === 0 && (
+          <div style={{ fontSize: 11, color: 'var(--gd-text-4)', marginTop: 8 }}>
+            Vyjde přesně {formatWeight(String(res.achieved))} kg.
+          </div>
+        )}
+      </div>
+
+      <div className="gd-tag" style={{ marginBottom: 8 }}>Váhy z plánu</div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 18 }}>
+        {shortcuts.map(w => (
+          <button
+            key={w}
+            onClick={() => setTarget(w)}
+            style={{
+              padding: '10px 12px', minHeight: 44,
+              background: target === w ? 'var(--gd-accent)' : 'transparent',
+              border: `1px solid ${target === w ? 'var(--gd-accent)' : 'var(--gd-line)'}`,
+              borderRadius: 0,
+              color: target === w ? 'var(--gd-accent-ink)' : 'var(--gd-text-3)',
+              fontSize: 12, fontWeight: 700, fontVariantNumeric: 'tabular-nums', cursor: 'pointer',
+            }}
+          >{formatWeight(String(w))}</button>
+        ))}
+      </div>
+
+      <div className="gd-tag" style={{ marginBottom: 8 }}>Osa</div>
+      <div style={{ display: 'flex', gap: 6 }}>
+        {[20, 15, 10].map(b => (
+          <button
+            key={b}
+            onClick={() => setBar(b)}
+            style={{
+              flex: 1, padding: '12px', minHeight: 44,
+              background: bar === b ? 'color-mix(in srgb, var(--gd-accent) 12%, transparent)' : 'transparent',
+              border: `1px solid ${bar === b ? 'var(--gd-accent)' : 'var(--gd-line)'}`,
+              borderRadius: 0,
+              color: bar === b ? 'var(--gd-accent)' : 'var(--gd-text-3)',
+              fontSize: 12, fontWeight: 700, cursor: 'pointer',
+            }}
+          >{b} kg</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
 // Rest Timer
 // ============================================================
 function RestTimer() {
@@ -774,7 +865,10 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
   };
 
   const exportXLSX = () => {
-    const allExerciseIds = Object.keys(workoutData.records).filter(id => workoutData.getRecords(id).length > 0);
+    // Export vydává jen SKUTEČNĚ odcvičené série. Předepsané (planned) by jinak
+    // nafoukly objem i souhrny o 295 řádků z plánu.
+    const realOf = (id: string) => workoutData.getRecords(id).filter(r => !r.planned);
+    const allExerciseIds = Object.keys(workoutData.records).filter(id => realOf(id).length > 0);
     const today = new Date().toISOString().split('T')[0];
 
     // ===== List 1: Záznamy =====
@@ -786,11 +880,14 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
     ]];
 
     for (const exId of allExerciseIds) {
-      const records = workoutData.getRecords(exId);
+      const records = realOf(exId);
       const info = getExerciseInfo(exId);
       for (const r of records) {
         const week = getWeekForDate(r.date);
-        const plannedWeight = parseFloat(r.weight) || 0;
+        // Plánovaná váha musí přijít z plánu, ne ze stejného záznamu –
+        // jinak je sloupec „% splnění cíle váhy" vždycky 1.
+        const tpl = plannedTemplate(exId, r.id);
+        const plannedWeight = parseFloat(tpl?.weight ?? '') || 0;
         const actualWeight = parseFloat(r.weight) || 0;
         const actualReps = parseInt(r.reps as string) || 0;
         const actualSets = parseInt(r.sets as string) || 1;
@@ -826,7 +923,7 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
     ]];
 
     for (const exId of allExerciseIds) {
-      const records = workoutData.getRecords(exId);
+      const records = realOf(exId);
       if (records.length === 0) continue;
       const info = getExerciseInfo(exId);
       const weights = records.map(r => parseFloat(r.weight) || 0);
@@ -863,7 +960,7 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
       let weekRecords = 0;
       let weekVolume = 0;
       for (const exId of allExerciseIds) {
-        const recs = workoutData.getRecords(exId).filter(r => {
+        const recs = realOf(exId).filter(r => {
           const d = new Date(r.date);
           return d >= from && d <= to;
         });
@@ -924,7 +1021,7 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
   };
 
   const totalRecords = Object.values(workoutData.records).reduce((sum, arr) => sum + arr.length, 0);
-  const exerciseCount = Object.keys(workoutData.records).filter(id => workoutData.getRecords(id).length > 0).length;
+  const exerciseCount = Object.keys(workoutData.records).filter(id => workoutData.getRecords(id).filter(r => !r.planned).length > 0).length;
   const bwCount = loadBodyWeights().length;
 
   return (

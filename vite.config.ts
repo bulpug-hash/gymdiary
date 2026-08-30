@@ -177,7 +177,7 @@ function vitePluginGymdiarySW(): Plugin {
         return out;
       };
 
-      const skip = /^(sw\.js|404\.html|__manus__\/|docs\/)/;
+      const skip = /^(sw\.js|404\.html|__manus__\/|docs\/|ilu\/)/;
       const files = walk(outDir)
         .filter(f => !skip.test(f))
         .filter(f => /\.(html|js|css|webp|png|svg|woff2?|json)$/.test(f));

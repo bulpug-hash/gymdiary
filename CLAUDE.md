@@ -230,6 +230,38 @@ ne v citátové sbírce. U každého drž pole `source`.
 Když seznam vyprázdníš, pás spadne zpátky na popisky plánu — nikdy tam
 nezůstane díra.
 
+### 4d. Grafické prvky a dalších 10 funkcí (30. 8. 2026)
+
+**Rytiny** — `client/public/ilu/`, 8 souborů, autoři a díla v `ZDROJE.md`.
+Všechny jsou **CC0 z Metropolitního muzea** (Dürer, Schongauer, Hollar…),
+takže bez podmínek a bez povinné atribuce. Sedí jako duch v desce hero
+(`Plate.tsx`, opacity 0,13–0,16, maska do ztracena) a jako vlys za spodní lištou.
+Nejsou v precache service workeru — jsou dekorativní, offline shell má zůstat malý.
+
+⛔ **Co použít nejde:** vlastní grafika Representu (Fallen Angel, Noble Knight,
+lockup TEAM 247) je jejich autorské dílo — i repozitář značky ji má označenou
+jako referenční. Kolaborace s kapelami a značkami jsou navíc cizí ochranné známky.
+Fonty **STK Bureau Sans/Serif** jsou komerční (Smuss Type Kiosk) — self-hostovat
+je na veřejném webu bez licence nejde. Fotky soch z Wikimedia Commons jsou
+většinou CC BY-SA a v dodaném CSV u nich chybí autor.
+
+| # | Funkce | Kde |
+|---|---|---|
+| 1 | Odškrtnutí i za jiný den a týden | `Overview.tsx` — klikatelný rozvrh, `dateForDay()` |
+| 2 | Skutečné RPE u série | `TrainingRecord.rpe`, čipy 6–10 v `SetLogger.tsx` |
+| 3 | Maxima z reálných dat + potvrzení | `lib/maxes.ts`, panel v Progresu |
+| 4 | Graf: bod na trénink + trend | `Progress.tsx` — agregace po dnech, lineární regrese |
+| 5 | Steppery místo klávesnice | `SetLogger.tsx`, krok 2,5 kg (bench 1,25) |
+| 6 | Vibrace, pípnutí, Wake Lock | `lib/restTimer.ts` |
+| 7 | Kalkulačka kotoučů | `lib/plates.ts` + sekce v Nástrojích |
+| 8 | Poslední tři expozice | `planLink.exerciseHistory()` |
+| 9 | Export bez předepsaných sérií | `Tools.tsx` `realOf()` ve všech třech listech |
+| 10 | Souhrn dne | `planLink.daySummary()`, panel v sekci 03 |
+
+**Pozor u bodu 3:** `CURRENT_MAXES` v `data.ts` zůstává jako výchozí hodnota
+z dokumentu. Override se drží v `gymdiary_maxes_v1` a `getCurrentMaxes()` vrací
+vyšší z obou — komponenty už nikdy nemají číst `CURRENT_MAXES` přímo.
+
 ---
 
 ## 5. Tréninkový plán — Podzim 2026 v5.2
@@ -297,6 +329,8 @@ Viada + Schumann (concurrent training, interference běhu a síly).
 | 15 | Hloubkový audit funkčnosti | ✅ 95 nálezů, 15 opraveno (viz níže), zbytek v seznamu nápadů |
 | 16 | 10 funkcí na zlepšení fungování | ✅ všech 10 nasazeno (viz sekce 4b) |
 | 17 | Citáty do běžícího pásu v Plánu | ✅ `lib/quotes.ts` — 13 ověřených výroků, rotace po dnech |
+| 18 | Grafické prvky ze značky | ✅ 8 rytin (CC0, Met) v hero deskách a za lištou |
+| 19 | Dalších 10 funkcí | ✅ všech 10 nasazeno (viz sekce 4d) |
 
 ### Chyby nalezené při kontrole a opravené
 

@@ -1,14 +1,16 @@
 // Přehled — první obrazovka. Odpovídá na jednu otázku: co dnes a s jakou vahou.
 // Kit 247: celoplošný hero s fotkou, pod ním hustá typografická data.
+import { useState } from 'react';
 import {
   PHASE3_WEEKS, getTodayDayKey, getTodayISO, getCurrentWeek,
-  GOALS, CURRENT_MAXES, WARMUP_SERIES_BY_WEEK,
+  GOALS, WARMUP_SERIES_BY_WEEK,
 } from '@/lib/data';
 import type { WarmupSet, Week } from '@/lib/data';
 import type { WorkoutDataHook, Tab } from '@/lib/types';
 import { Hero, Marquee, Reveal, SectionHead } from '@/components/kit';
 import SetLogger from '@/components/SetLogger';
-import { weekProgress } from '@/lib/planLink';
+import { weekProgress, dateForDay, daySummary } from '@/lib/planLink';
+import { getCurrentMaxes } from '@/lib/maxes';
 import { plural } from '@/lib/czech';
 
 interface Props {
@@ -43,16 +45,31 @@ export default function Overview({ workoutData, onNavigate }: Props) {
   const todayKey = getTodayDayKey();
   const todayISO = getTodayISO();
   const currentWeekNum = getCurrentWeek();
-  const currentWeek: Week = PHASE3_WEEKS.find(w => w.number === currentWeekNum) || PHASE3_WEEKS[0];
+
+  // Odškrtnout jde i jiný den než dnešek. Když se trénink přesune nebo se
+  // zapomene odškrtnout, musí se to dát dohnat – jinak ty série zůstanou
+  // „předepsané“ navždy a týdenní procento lže.
+  const [weekNum, setWeekNum] = useState(currentWeekNum);
+  const [pickedDay, setPickedDay] = useState<string | null>(null);
+
+  const currentWeek: Week = PHASE3_WEEKS.find(w => w.number === weekNum) || PHASE3_WEEKS[0];
+  const isThisWeek = weekNum === currentWeekNum;
+  const activeKey = pickedDay ?? (isThisWeek ? todayKey : 'monday');
+  const activeDay = currentWeek.days.find(d => d.key === activeKey);
+  const activeISO = dateForDay(currentWeek, activeKey);
+  const isToday = isThisWeek && activeKey === todayKey && !pickedDay;
   const todayDay = currentWeek.days.find(d => d.key === todayKey);
   const isTraining = !!todayDay && todayDay.type !== 'rest';
+  const activeTraining = !!activeDay && activeDay.type !== 'rest' && activeDay.exercises.length > 0;
   const top = isTraining ? heroSet(todayDay) : null;
 
-  // Skutečná 1RM maxima z dokumentů – VŽDY tato čísla, ne pracovní váhy z deníku
+  // Potvrzená 1RM maxima – z dokumentu, nebo vyšší, které si uživatel
+  // potvrdil v Progresu. Nikdy ne pracovní váha z deníku.
+  const maxes = getCurrentMaxes();
   const goals = [
-    { name: 'Bench Press', short: 'BENCH', current: CURRENT_MAXES.bench, goal: GOALS.bench },
-    { name: 'Back Squat', short: 'DŘEP', current: CURRENT_MAXES.squat, goal: GOALS.squat },
-    { name: 'Mrtvý tah', short: 'TAH', current: CURRENT_MAXES.deadlift, goal: GOALS.deadlift },
+    { name: 'Bench Press', short: 'BENCH', current: maxes.bench, goal: GOALS.bench },
+    { name: 'Back Squat', short: 'DŘEP', current: maxes.squat, goal: GOALS.squat },
+    { name: 'Mrtvý tah', short: 'TAH', current: maxes.deadlift, goal: GOALS.deadlift },
   ];
 
   const heroTitle = isTraining && todayDay
@@ -88,28 +105,65 @@ export default function Overview({ workoutData, onNavigate }: Props) {
       <div className="gd-body">
         {/* Týdenní rozvrh */}
         <Reveal>
-          <SectionHead n="01" label="Týdenní rozvrh" right="Po — Ne" />
-          <div style={{ display: 'flex', gap: 4, padding: '0 20px 20px' }}>
+          <SectionHead
+            n="01"
+            label="Týdenní rozvrh"
+            right={`T${String(currentWeek.number).padStart(2, '0')} · ${dm(currentWeek.dateFrom)} — ${dm(currentWeek.dateTo)}`}
+          />
+          <div style={{ display: 'flex', gap: 4, padding: '0 20px 10px' }}>
             {DAY_KEYS.map((key, i) => {
               const day = currentWeek.days.find(d => d.key === key);
-              const isToday = key === todayKey;
+              const sel = key === activeKey;
+              const isTodayCell = isThisWeek && key === todayKey;
               const isRest = day?.type === 'rest';
               return (
-                <div key={key} style={{
-                  flex: 1, textAlign: 'center', padding: '10px 0 9px',
-                  background: isToday ? 'var(--gd-accent)' : 'transparent',
-                  border: isToday ? '1px solid var(--gd-accent)' : '1px solid var(--gd-line)',
-                }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.04em', color: isToday ? 'var(--gd-accent-ink)' : 'var(--gd-text-2)' }}>{DAY_SHORT[i]}</div>
+                <button
+                  key={key}
+                  onClick={() => setPickedDay(key)}
+                  aria-pressed={sel}
+                  style={{
+                    flex: 1, textAlign: 'center', padding: '10px 0 9px', cursor: 'pointer',
+                    background: sel ? 'var(--gd-accent)' : 'transparent',
+                    border: sel
+                      ? '1px solid var(--gd-accent)'
+                      : isTodayCell ? '1px solid var(--gd-text-3)' : '1px solid var(--gd-line)',
+                    borderRadius: 0,
+                  }}
+                >
+                  <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.04em', color: sel ? 'var(--gd-accent-ink)' : 'var(--gd-text-2)' }}>{DAY_SHORT[i]}</div>
                   <div style={{
                     fontSize: 8, marginTop: 3, fontWeight: 700, letterSpacing: '0.1em',
-                    color: isToday ? 'color-mix(in srgb, var(--gd-accent-ink) 65%, transparent)' : 'var(--gd-text-4)',
+                    color: sel ? 'color-mix(in srgb, var(--gd-accent-ink) 65%, transparent)' : 'var(--gd-text-4)',
                   }}>
                     {isRest ? '–' : (day ? TYPE_LABEL[day.type] || '?' : '?')}
                   </div>
-                </div>
+                </button>
               );
             })}
+          </div>
+          <div style={{ display: 'flex', gap: 8, padding: '0 20px 20px' }}>
+            <button
+              onClick={() => { setWeekNum(w => Math.max(1, w - 1)); setPickedDay(null); }}
+              disabled={weekNum <= 1}
+              style={{
+                flex: 1, padding: '11px', background: 'transparent',
+                border: '1px solid var(--gd-line)', borderRadius: 0,
+                color: weekNum <= 1 ? 'var(--gd-text-4)' : 'var(--gd-text-3)',
+                fontSize: 9, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase',
+                cursor: weekNum <= 1 ? 'default' : 'pointer',
+              }}
+            >← Předchozí týden</button>
+            {(!isThisWeek || pickedDay) && (
+              <button
+                onClick={() => { setWeekNum(currentWeekNum); setPickedDay(null); }}
+                style={{
+                  flex: 1, padding: '11px', background: 'var(--gd-accent)',
+                  border: 'none', borderRadius: 0, color: 'var(--gd-accent-ink)',
+                  fontSize: 9, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase',
+                  cursor: 'pointer',
+                }}
+              >Zpět na dnešek</button>
+            )}
           </div>
         </Reveal>
 
@@ -158,12 +212,17 @@ export default function Overview({ workoutData, onNavigate }: Props) {
           <Reveal>
             <SectionHead
               n="03"
-              label={isTraining ? 'Dnešní trénink' : 'Dnešní den'}
-              right={isTraining && todayDay ? `${todayDay.exercises.length} ${plural(todayDay.exercises.length, 'cvik', 'cviky', 'cviků')}` : 'Volno'}
+              label={activeTraining ? (isToday ? 'Dnešní trénink' : `${activeDay!.label} · T${currentWeek.number}`) : 'Volno'}
+              right={activeTraining && activeDay ? `${activeDay.exercises.length} ${plural(activeDay.exercises.length, 'cvik', 'cviky', 'cviků')}` : dm(activeISO)}
             />
-            {isTraining && todayDay ? (
+            {!isToday && (
+              <div style={{ margin: '0 20px 12px', padding: '10px 12px', border: '1px solid var(--gd-line)', fontSize: 11, lineHeight: 1.5, color: 'var(--gd-text-3)' }}>
+                Zapisuješ do <b style={{ color: 'var(--gd-text)' }}>{activeDay?.label ?? '—'} {dm(activeISO)}</b>, ne do dneška.
+              </div>
+            )}
+            {activeTraining && activeDay ? (
               <div style={{ padding: '0 20px 20px' }}>
-                {todayDay.exercises.map((ex, i) => (
+                {activeDay.exercises.map((ex, i) => (
                   <div key={ex.id} style={{ marginBottom: 18 }}>
                     <div style={{
                       display: 'flex', alignItems: 'baseline', gap: 10,
@@ -179,18 +238,60 @@ export default function Overview({ workoutData, onNavigate }: Props) {
                     <SetLogger
                       exercise={ex}
                       week={currentWeek.number}
-                      dayKey={todayKey}
-                      date={todayISO}
+                      dayKey={activeKey}
+                      date={activeISO}
                       workoutData={workoutData}
                     />
                   </div>
                 ))}
+                {/* Souhrn dne – ukáže se, jakmile je něco odškrtnuté. */}
+                {(() => {
+                  const sum = daySummary(currentWeek, activeKey, workoutData.records);
+                  if (sum.hotovo === 0) return null;
+                  const prevWeek = PHASE3_WEEKS.find(w => w.number === currentWeek.number - 1);
+                  const prev = prevWeek ? daySummary(prevWeek, activeKey, workoutData.records) : null;
+                  const diff = prev && prev.tonaz > 0 ? sum.tonaz - prev.tonaz : null;
+                  const complete = sum.hotovo === sum.celkem;
+                  return (
+                    <div style={{
+                      marginTop: 18, padding: '14px 16px',
+                      border: `1px solid ${complete ? 'var(--gd-accent)' : 'var(--gd-line)'}`,
+                      background: complete ? 'color-mix(in srgb, var(--gd-accent) 8%, transparent)' : 'transparent',
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 10 }}>
+                        <span className="gd-tag" style={{ flex: 1, color: complete ? 'var(--gd-accent)' : 'var(--gd-text-3)' }}>
+                          {complete ? 'Trénink hotov' : 'Rozpracováno'}
+                        </span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--gd-text-4)', fontVariantNumeric: 'tabular-nums' }}>
+                          {sum.hotovo}/{sum.celkem} {plural(sum.celkem, 'série', 'série', 'sérií')}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
+                        <span className="gd-display" style={{ fontSize: 30, color: 'var(--gd-text)' }}>
+                          {sum.tonaz.toLocaleString('cs-CZ')}
+                        </span>
+                        <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', color: 'var(--gd-text-3)', paddingBottom: 5 }}>KG TONÁŽ</span>
+                      </div>
+                      {diff !== null && (
+                        <div style={{ fontSize: 11, marginTop: 6, color: diff >= 0 ? 'var(--gd-fern)' : 'var(--gd-danger)', fontWeight: 700 }}>
+                          {diff >= 0 ? '+' : ''}{diff.toLocaleString('cs-CZ')} kg proti T{prevWeek!.number}
+                        </div>
+                      )}
+                      {sum.top && (
+                        <div style={{ fontSize: 11, marginTop: 8, color: 'var(--gd-text-3)', lineHeight: 1.5 }}>
+                          Top série: <b style={{ color: 'var(--gd-text)' }}>{sum.top.weight.replace('.', ',')} × {sum.top.reps}</b> · {sum.top.exercise}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
                 <button
                   onClick={() => onNavigate('plan')}
                   style={{
                     marginTop: 16, width: '100%', padding: '13px 16px',
-                    background: 'var(--gd-accent)', color: 'var(--gd-accent-ink)',
-                    border: 'none', borderRadius: 0, cursor: 'pointer',
+                    background: 'transparent', color: 'var(--gd-text)',
+                    border: '1px solid var(--gd-line)', borderRadius: 0, cursor: 'pointer',
                     fontSize: 10, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase',
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                   }}

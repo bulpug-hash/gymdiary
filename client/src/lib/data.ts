@@ -64,6 +64,9 @@ export interface TrainingRecord {
   note: string;
   /** true = jen předvyplněný návrh z plánu (ne skutečně odcvičeno) */
   planned?: boolean;
+  /** Skutečně pociťované RPE série (6–10). Bez něj se nepozná, jestli
+   *  roste síla, nebo jen únava — 100×8 na RPE 9,5 a na RPE 7 je rozdíl. */
+  rpe?: string;
   gym?: string;
   extraActivity?: string;
 }

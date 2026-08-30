@@ -116,6 +116,113 @@ export function previousExposure(
   return null;
 }
 
+export interface Exposure {
+  date: string;
+  weight: string;
+  reps: string;
+  rpe?: string;
+}
+
+/**
+ * Poslední expozice cviku, nejnovější první. O kilu navíc se rozhoduje
+ * z trendu, ne z jednoho čísla — proto jich vracíme víc.
+ * Bere jen reálné série; předepsané se nepočítají.
+ */
+export function exerciseHistory(
+  exerciseId: string,
+  records: Record<string, TrainingRecord[]>,
+  limit = 3,
+  beforeDate?: string,
+): Exposure[] {
+  const list = (records[exerciseId] ?? []).filter(r => !r.planned);
+  const byDate = new Map<string, TrainingRecord[]>();
+  for (const r of list) {
+    if (beforeDate && r.date >= beforeDate) continue;
+    const arr = byDate.get(r.date) ?? [];
+    arr.push(r);
+    byDate.set(r.date, arr);
+  }
+  const dates = Array.from(byDate.keys()).sort((a, b) => b.localeCompare(a)).slice(0, limit);
+  return dates.map(d => {
+    const sets = byDate.get(d)!;
+    // Za expozici bereme nejtěžší sérii toho dne – ta nese informaci.
+    const top = sets.reduce((a, b) => (parseFloat(b.weight) > parseFloat(a.weight) ? b : a));
+    return { date: d, weight: top.weight, reps: top.reps, rpe: top.rpe };
+  });
+}
+
+export interface DaySummary {
+  /** Tonáž dne = váha × opakování × série, jen z odškrtnutých sérií. */
+  tonaz: number;
+  hotovo: number;
+  celkem: number;
+  /** Nejtěžší odcvičená série dne. */
+  top: { weight: string; reps: string; exercise: string } | null;
+}
+
+/** Souhrn odcvičeného dne. Bere jen skutečné (odškrtnuté) série. */
+export function daySummary(
+  week: Week,
+  dayKey: string,
+  records: Record<string, TrainingRecord[]>,
+): DaySummary {
+  const day = week.days.find(d => d.key === dayKey);
+  if (!day) return { tonaz: 0, hotovo: 0, celkem: 0, top: null };
+
+  let tonaz = 0;
+  let hotovo = 0;
+  let celkem = 0;
+  let top: DaySummary['top'] = null;
+  let topW = 0;
+
+  for (const ex of day.exercises) {
+    const list = records[ex.id] ?? [];
+    const consider = (rec: TrainingRecord | undefined, sets: number) => {
+      if (!rec || rec.planned) return;
+      const w = parseFloat(rec.weight) || 0;
+      const reps = parseInt(rec.reps, 10) || 0;
+      tonaz += w * reps * sets;
+      if (w > topW) {
+        topW = w;
+        top = { weight: rec.weight, reps: rec.reps, exercise: ex.nameShort || ex.name };
+      }
+    };
+
+    if (ex.setPlan && ex.setPlan.length > 0) {
+      for (let i = 0; i < ex.setPlan.length; i++) {
+        const rec = list.find(r => r.id === plannedId(week.number, dayKey, ex.id, i));
+        if (!rec) continue;
+        celkem++;
+        if (!rec.planned) { hotovo++; consider(rec, 1); }
+      }
+    } else {
+      const id = plannedId(week.number, dayKey, ex.id);
+      const rec = list.find(r => r.id === id);
+      if (!rec) continue;
+      const tpl = plannedTemplate(ex.id, id);
+      const total = parseInt(tpl?.sets ?? rec.sets, 10) || 1;
+      celkem += total;
+      if (!rec.planned) {
+        const done = Math.min(total, parseInt(rec.sets, 10) || 0);
+        hotovo += done;
+        consider(rec, done);
+      }
+    }
+  }
+
+  return { tonaz: Math.round(tonaz), hotovo, celkem, top };
+}
+
+/** Datum konkrétního dne v týdnu plánu (ISO). */
+export function dateForDay(week: Week, dayKey: string): string {
+  const order = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  const idx = order.indexOf(dayKey);
+  const d = new Date(week.dateFrom + 'T12:00:00');
+  if (idx > 0) d.setDate(d.getDate() + idx);
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
 /** Den v plánu podle týdne a klíče dne. */
 export function findDay(weekNumber: number, dayKey: string): { week: Week; day: WorkoutDay } | null {
   const week = PHASE3_WEEKS.find(w => w.number === weekNumber);
