@@ -98,14 +98,21 @@ export default function Guide() {
           Týden {g.wk}
         </div>
         <div style={{ fontSize: 11, color: 'var(--gd-text-3)', marginTop: 2 }}>{g.dates}</div>
-        <div style={{ fontSize: 13, color: 'var(--gd-text-2)', marginTop: 10, lineHeight: 1.55 }}>{g.focus}</div>
+        <div className="gd-serif" style={{ fontSize: 15, color: 'var(--gd-text-2)', marginTop: 10, lineHeight: 1.6 }}>{g.focus}</div>
       </div>
 
+      </div>
+
+      {/* Tiskový předěl – rytina přes celou šířku. Guide je nejdelší čtení
+          v appce, tenhle pruh ho rozdělí a drží jazyk plakátů. */}
+      <div className="gd-frieze" aria-hidden="true" />
+
+      <div style={{ padding: '0 20px' }}>
       <div className="gd-masonry">
       {/* proč */}
       <div style={card}>
         <div style={label}>PROČ TENHLE TÝDEN VYPADÁ TAKHLE</div>
-        <div style={{ fontSize: 13, color: 'var(--gd-text-2)', lineHeight: 1.6 }}>{g.why}</div>
+        <div className="gd-serif" style={{ fontSize: 15, color: 'var(--gd-text-2)', lineHeight: 1.65 }}>{g.why}</div>
       </div>
 
       {/* hlavní cviky */}

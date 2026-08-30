@@ -173,7 +173,7 @@ export default function Plan({ workoutData }: Props) {
           <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 20, fontWeight: 800, color: 'var(--gd-text)', marginTop: 2 }}>
             {week.label}
           </div>
-          <div style={{ color: 'var(--gd-text-3)', fontSize: 12, marginTop: 4, lineHeight: 1.5 }}>{week.description}</div>
+          <div className="gd-serif" style={{ color: 'var(--gd-text-2)', fontSize: 15, marginTop: 6, lineHeight: 1.6 }}>{week.description}</div>
           <div style={{ color: 'var(--gd-text-4)', fontSize: 11, marginTop: 6 }}>
             {week.dateFrom.split('-').reverse().join('.')} – {week.dateTo.split('-').reverse().join('.')}
             {selectedWeek === currentWeekIndex && (

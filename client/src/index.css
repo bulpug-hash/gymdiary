@@ -317,6 +317,17 @@
   .gd-tabbar__btn[data-on="1"] .gd-tabbar__lbl { color: var(--gd-text); font-weight: 800; }
 
   /* --- Mikrotypografie ------------------------------------------------ */
+  /* Druhý typografický registr.
+     Značka jede na dvojici sans + serif kreslené na společné kostře
+     (STK Bureau Sans / Serif). Ty jsou komerční a nasadit je nejde, ale ten
+     PRINCIP ano: grotesk drží data a displej, patkové písmo nese editorial —
+     citáty, popisy fází, delší prózu. Source Serif 4 je volný a stojí na
+     stejné myšlence: patkový workhorse s bezpatkovou kázní. */
+  .gd-serif {
+    font-family: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+    font-optical-sizing: auto;
+  }
+
   .gd-display {
     font-family: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 800;
@@ -847,12 +858,15 @@
     animation-name: gd-marq-quotes;
   }
   .gd-marquee__item--quote {
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.02em;
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-optical-sizing: auto;
+    font-size: 14px;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0;
     text-transform: none;
     color: var(--gd-text-2);
-    gap: 10px;
+    gap: 12px;
   }
   .gd-marquee__quote { white-space: nowrap; }
   .gd-marquee__author {
@@ -881,4 +895,18 @@
     -webkit-mask-image: linear-gradient(215deg, #000 0%, rgba(0,0,0,0.55) 45%, transparent 78%);
             mask-image: linear-gradient(215deg, #000 0%, rgba(0,0,0,0.55) 45%, transparent 78%);
   }
+}
+
+/* Celoplošný rytinový předěl. Rytina je CC0 (Met), viz public/ilu/ZDROJE.md. */
+@layer components {
+  .gd-frieze {
+    height: 92px;
+    margin: 6px 0 22px;
+    border-top: 1px solid var(--gd-line);
+    border-bottom: 1px solid var(--gd-line);
+    background: url("./ilu/triumph.webp") center / auto 210% repeat-x;
+    opacity: 0.22;
+    mix-blend-mode: screen;
+  }
+  :root:not(.dark) .gd-frieze { mix-blend-mode: multiply; filter: invert(1); opacity: 0.3; }
 }

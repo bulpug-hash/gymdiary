@@ -25,7 +25,15 @@ referenční, ne k použití. Totéž platí pro kolaborace s kapelami a značka
 (Metallica, Iron Maiden, Guns N' Roses, Oasis, Puma, Avenged Sevenfold),
 kde jde navíc o cizí ochranné známky.
 
-Fotografie soch z Wikimedia Commons jsou většinou CC BY-SA — vyžadují uvedení
-autora a licence. V dodaném CSV autor u nich chybí a vyhledávání podle názvu
-vracelo špatné soubory, takže nasazené nejsou. Kdyby se doplnily autoři,
-jde je použít taky.
+Fotografie soch z Wikimedia Commons: licence jsem se pokusil dohledat přes
+Commons API se **zpětnou kontrolou** — název vráceného souboru se musí shodovat
+se slugem, jinak se výsledek zahodí (bez té kontroly vyhledávání vracelo i
+naskenovaná PDF a hrozilo, že se pod obrázek napíše cizí autor).
+
+Ze 60 halftonových soch prošlo 7:
+- **3× CC0** (Met Museum): `adoring-angel-met-dp166837/838/839` — použitelné bez podmínek
+- **4× CC BY-SA 4.0**, autor *Virtual-Pano* (berlínští hřbitovní andělé) —
+  použitelné s uvedením autora a licence
+
+Nasazené nejsou: ty tři CC0 jsou blízké výřezy drapérie, jako textura hezké,
+ale jako obraz nenesou nic. Kdyby se hodily, jsou po ruce.

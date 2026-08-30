@@ -392,7 +392,7 @@ export default function Overview({ workoutData, onNavigate }: Props) {
         <Reveal>
           <SectionHead n="06" label="Aktuální fáze" right={currentWeek.phase} />
           <div style={{ padding: '0 20px 34px' }}>
-            <p style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--gd-text-2)', margin: '0 0 18px', maxWidth: '58ch' }}>
+            <p className="gd-serif" style={{ fontSize: 16, lineHeight: 1.65, color: 'var(--gd-text-2)', margin: '0 0 18px', maxWidth: '58ch' }}>
               {currentWeek.description}
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', borderTop: '1px solid var(--gd-line)' }}>

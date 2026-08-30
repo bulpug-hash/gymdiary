@@ -156,7 +156,11 @@ background: tint(catColor, 13)   // color-mix(in srgb, <barva> 13%, transparent)
 1. **Žádné rádiusy.** `borderRadius: 0` všude; `'50%'` jen pro tečky.
 2. **Žádné stíny, žádný `backdrop-filter`.** Hranu dělá barva nebo linka 1 px `var(--gd-line)`.
    Blur na lištách žral baterku a dělal artefakty při překreslování.
-3. **Písmo:** jediná rodina **Archivo** (Google Fonts, osa `wdth 62..125`).
+3. **Písmo: dva registry**, jako má značka (STK Bureau Sans + Serif na společné
+   kostře). Ty jsou komerční (Smuss Type Kiosk) a nasadit je nejde, princip ano:
+   - **Archivo** (Google Fonts, osa `wdth 62..125`) — data, displej, mikropopisky
+   - **Source Serif 4** přes třídu `.gd-serif` — editorial: citáty (kurzívou),
+     popisy fází a týdnů, delší próza v Průvodci
    Display = třída `.gd-display` (`fontStretch 118%`, `weight 800`, `line-height 0.92`).
    `line-height` **nesmí pod 0.92** — ořezávalo by háčky u Ě/Ř/Č.
    Mikropopisky = `.gd-tag` (9 px, `700`, `letterSpacing .24em`, uppercase).
