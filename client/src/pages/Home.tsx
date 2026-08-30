@@ -7,6 +7,7 @@ import Guide from '@/components/Guide';
 import Diary from '@/components/Diary';
 import Progress from '@/components/Progress';
 import Tools from '@/components/Tools';
+import { NavGlyph } from '@/components/kit';
 import { useWorkoutData } from '@/hooks/useWorkoutData';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getCurrentWeek } from '@/lib/data';
@@ -68,7 +69,7 @@ export default function Home() {
             aria-current={activeTab === tab.key ? 'page' : undefined}
             onClick={() => setActiveTab(tab.key)}
           >
-            <span className="gd-tabbar__n">{tab.icon}</span>
+            <NavGlyph n={tab.icon} active={activeTab === tab.key} />
             <span className="gd-tabbar__lbl">{tab.label}</span>
           </button>
         ))}

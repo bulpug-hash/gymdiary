@@ -208,8 +208,10 @@
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    height: 44px;
-    padding: 0 14px;
+    /* Ve standalone režimu leží lišta pod notchem – výšku i odsazení
+       proto zvětšujeme o bezpečnou zónu. Funguje až s viewport-fit=cover. */
+    height: calc(44px + env(safe-area-inset-top, 0px));
+    padding: env(safe-area-inset-top, 0px) 14px 0;
     /* Plná barva, ne blur. backdrop-filter na mobilu žere baterku
        a dělá artefakty při překreslování – hranu tady dělá linka. */
     background: var(--gd-ink);
@@ -264,12 +266,37 @@
     border-top-color: var(--gd-accent);
     background: color-mix(in srgb, var(--gd-accent) 8%, transparent);
   }
-  .gd-tabbar__n {
-    font-size: 11px; line-height: 1; font-weight: 800;
-    font-variant-numeric: tabular-nums; letter-spacing: 0.03em;
-    color: var(--gd-text-4);
+  /* Číslice lišty – obtahová, jako duch číslice na desce hero. */
+  .gd-navglyph {
+    display: block;
+    width: 44px;
+    height: 28px;
+    overflow: visible;
   }
-  .gd-tabbar__btn[data-on="1"] .gd-tabbar__n { color: var(--gd-accent); }
+  .gd-navglyph__n {
+    font-family: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 800;
+    font-stretch: 118%;
+    font-size: 21px;
+    letter-spacing: -0.05em;
+    font-variant-numeric: tabular-nums;
+    fill: none;
+    stroke: var(--gd-text-4);
+    stroke-width: 1.1;
+    paint-order: stroke fill;
+    transition: stroke 0.18s ease, fill 0.18s ease;
+  }
+  .gd-tabbar__btn[data-on="1"] .gd-navglyph__n {
+    fill: var(--gd-accent);
+    stroke: var(--gd-accent);
+    stroke-width: 0.5;
+  }
+  .gd-navglyph__ticks path {
+    fill: none;
+    stroke: var(--gd-accent);
+    stroke-width: 1.1;
+    opacity: 0.75;
+  }
   .gd-tabbar__lbl {
     font-size: 7.5px; font-weight: 700; letter-spacing: 0.08em;
     text-transform: uppercase; color: var(--gd-text-3);
@@ -353,7 +380,7 @@
   .gd-hero__inner {
     position: relative;
     width: 100%;
-    padding: 24px 20px calc(22px + env(safe-area-inset-bottom, 0px));
+    padding: 24px 20px 22px;
     color: var(--hero-fg);
   }
   .gd-hero__tagline { display: flex; align-items: center; gap: 9px; margin-bottom: 22px; }

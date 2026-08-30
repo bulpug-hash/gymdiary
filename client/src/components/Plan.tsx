@@ -8,7 +8,7 @@ import { getExerciseInfo, CATEGORY_COLORS } from '@/lib/exerciseDescriptions';
 import { Hero, Marquee, Reveal, SectionHead } from '@/components/kit';
 import type { WorkoutDataHook } from '@/lib/types';
 import type { WorkoutDay, Exercise } from '@/lib/data';
-import { tint } from '@/lib/tint';
+import { tint, formatWeight } from '@/lib/tint';
 
 interface Props {
   workoutData: WorkoutDataHook;
@@ -300,7 +300,7 @@ function ExerciseRow({ ex, idx, total, latest }: {
           {latest && (
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: 12, fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontWeight: 700, color: 'var(--gd-accent)' }}>
-                {latest.weight !== '0' ? `${latest.weight} kg` : '–'}
+                {latest.weight !== '0' ? `${formatWeight(latest.weight)} kg` : '–'}
               </div>
               <div style={{ fontSize: 10, color: 'var(--gd-text-4)' }}>poslední</div>
             </div>
@@ -442,7 +442,7 @@ function WarmupSeriesBlock({ dayType, weekNumber }: { dayType: string; weekNumbe
             </div>
           ))}
           <div style={{ marginTop: 10, padding: '7px 10px', background: 'color-mix(in srgb, var(--gd-shadow) 20%, transparent)', borderRadius: 0, borderLeft: '2px solid color-mix(in srgb, var(--gd-fern) 40%, transparent)' }}>
-            <div style={{ fontSize: 10, color: 'var(--gd-fern)', fontWeight: 700, marginBottom: 2 }}>⚠️ DO DENÍKU SE ZAPISUJÍ JEN PRACOVNÍ SÉRIE</div>
+            <div style={{ fontSize: 10, color: 'var(--gd-fern)', fontWeight: 700, marginBottom: 2 }}>POZOR · DO DENÍKU SE ZAPISUJÍ JEN PRACOVNÍ SÉRIE</div>
             <div style={{ fontSize: 10, color: 'var(--gd-text-4)', lineHeight: 1.5 }}>Rozehřívací série slouží jen jako příprava CNS a pohybového vzorce. Nepočítej je jako objem.</div>
           </div>
         </div>

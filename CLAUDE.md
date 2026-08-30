@@ -235,6 +235,8 @@ Viada + Schumann (concurrent training, interference běhu a síly).
 | 11 | Zkontrolovat celý web + 5 návrhů na vizuální osvěžení | ✅ artefakt s návrhy + 4 opravené chyby |
 | 12 | Předělat vizuál do stylu **Represent / 247** | ✅ hero + desky + mikrotypografie, mobile first |
 | 13 | Fotky přímo z Representu | ⛔ neuděláno — cizí autorské snímky na veřejném webu. Čeká se na jeho vlastní fotky. |
+| 14 | Ilustrovaná spodní lišta | ✅ `NavGlyph.tsx` — obtahové číslice + registrační značky u aktivní |
+| 15 | Hloubkový audit funkčnosti | ✅ 95 nálezů, 15 opraveno (viz níže), zbytek v seznamu nápadů |
 
 ### Chyby nalezené při kontrole a opravené
 
@@ -260,6 +262,45 @@ Viada + Schumann (concurrent training, interference běhu a síly).
 - **Popisek „Cíl 130"** v grafu přetékal 11 px za pravý okraj (`position: 'right'`).
 - **Globální zrno** přes `mix-blend-mode: overlay` viditelně sráželo kontrast všech
   dat. Zrno je teď jen v desce hero.
+
+### Audit 30. 8. 2026 — opravené vady
+
+- **KRITICKÉ: `RecordForm` přepisoval cizí záznam.** State se plnil jen v `useState`
+  initializeru, ale komponenta se při přepnutí na jiný záznam nepřemountovala
+  (podmínka `showAddForm || editingRecord` zůstala pravdivá). Kliknutí na Upravit
+  u záznamu A a pak u B uložilo do B hodnoty A. Řešeno `key={editingRecord.id}`
+  na `<RecordForm>` i `<RunForm>`. **Ověřeno živě před i po opravě.**
+- **Týdenní objem počítal předepsané série.** `getWeeklyVolume` jako jediná
+  z helperů nefiltrovala `planned`. Týden 31. 8.–6. 9. hlásil 14 830 kg
+  z 25 předepsaných záznamů, než se vůbec šlo trénovat. Teď 0.
+- **Dlaždice „Aktuální maxima" braly odhad 1RM z plánu.** `Progress.tsx` u grafu
+  filtroval, u dlaždic ne — dřep hlásil 1RM 195 z tréninku plánovaného na listopad.
+- **Desetinná čárka se tiše ořezávala.** „152,5" se uložilo doslova a `parseFloat`
+  z toho udělal 152 ve všech výpočtech. Nově `normalizeDecimal()` při ukládání
+  (kanonicky s tečkou) a `formatWeight()` při zobrazení (česky s čárkou).
+  Váha má `inputMode="decimal"`.
+- **Mazání bez potvrzení.** Reálný záznam šel smazat dvěma klepnutími bez undo.
+  Nově dvoukrokové („Smazat" → „Opravdu smazat?").
+- **PWA se instalovala rozbitá.** `start_url: "/"` vedlo na kořen github.io = 404,
+  ikony `/icon-192.png` neexistovaly. Cesty jsou relativní, ikony vygenerované
+  (černá + volt „247" v registračních značkách).
+- **Problikávání tématu.** `class="dark"` viselo natvrdo v HTML → při uloženém
+  světlém tématu každý start blikl černou. Nově inline skript v `<head>`.
+  `theme-color` se mění s tématem (ThemeContext).
+- **Chyběl `viewport-fit=cover`** → všechny `env(safe-area-inset-*)` byly nulové.
+  Horní lišta navíc neměla `safe-area-inset-top` a ve standalone ležela pod notchem.
+  Zároveň odstraněno `user-scalable=no` (blokovalo přiblížení).
+- **Timer odpočítával tiky `setInterval`.** Na zamčeném telefonu se zastavil.
+  Nově se drží absolutní deadline (`Date.now()`) + dopočet na `visibilitychange`.
+- **RPE kalkulačka:** při 1 opakování ignorovala identitu (130 kg → 126),
+  popisek pod výsledkem vypisoval nezclampovaný vstup („99 opakování" u čísla
+  spočítaného z 20) a směr Váha→1RM neměl strop vůbec (100 kg × 99 = 430 kg).
+  Meze jsou teď v `clampReps/clampRpe/clampRM` a popisky je používají.
+- **297 emoji v `data.ts`** (📋 v poznámkách předepsaných sérií) a 17 v Nástrojích
+  — proti pravidlu kitu č. 5. Nahrazeno typografickými kódy (`PLÁN ·`, `AM`, `BÍL`…).
+- **Mrtvý kód:** `Map.tsx` a `ManusDialog.tsx` nikdo neimportoval, smazáno.
+  `Overview.tsx` odkazoval na třídy `.gd-cols--sidebar` / `--gap`, které
+  v mobile-first CSS už neexistují.
 
 ---
 

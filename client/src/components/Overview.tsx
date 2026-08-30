@@ -117,7 +117,7 @@ export default function Overview({ workoutData, onNavigate }: Props) {
           </div>
         </Reveal>
 
-        <div className="gd-cols gd-cols--sidebar gd-cols--gap">
+        <div className="gd-cols gd-cols--2">
           {/* Dnešní trénink */}
           <Reveal>
             <SectionHead

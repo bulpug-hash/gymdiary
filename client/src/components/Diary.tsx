@@ -9,7 +9,7 @@ import type { WorkoutDataHook } from '@/lib/types';
 import type { Exercise, TrainingRecord, WorkoutDay, RunRecord, HIITRecord } from '@/lib/data';
 import { nanoid } from 'nanoid';
 import { toast } from 'sonner';
-import { tint } from '@/lib/tint';
+import { tint, normalizeDecimal, formatWeight } from '@/lib/tint';
 import { Hero, Marquee, SectionHead } from '@/components/kit';
 
 interface Props {
@@ -201,7 +201,7 @@ export default function Diary({ workoutData }: Props) {
                         {latest && (
                           <div style={{ textAlign: 'right', flexShrink: 0 }}>
                             <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 16, fontWeight: 800, color: 'var(--gd-accent)' }}>
-                              {latest.weight !== '0' ? `${latest.weight} kg` : latest.reps + ' min'}
+                              {latest.weight !== '0' ? `${formatWeight(latest.weight)} kg` : latest.reps + ' min'}
                             </div>
                             <div style={{ fontSize: 10, color: 'var(--gd-text-4)' }}>{latest.sets}×{latest.reps}</div>
                           </div>
@@ -287,6 +287,10 @@ function ExerciseDetail({
       {/* Add / Edit Form */}
       {(showAddForm || editingRecord) && (
         <RecordForm
+          // Bez key se formulář při přepnutí na jiný záznam nepřemountuje,
+          // useState initializery se znovu nespustí a Uložit změny přepíše
+          // cílový záznam hodnotami toho předchozího.
+          key={editingRecord ? editingRecord.id : 'new'}
           exercise={exercise}
           workoutData={workoutData}
           editingRecord={editingRecord}
@@ -342,12 +346,15 @@ function RecordForm({
       return;
     }
 
+    // Váhu i série ukládáme kanonicky s tečkou – viz normalizeDecimal.
+    const w = normalizeDecimal(weight) || '0';
+    const st = normalizeDecimal(sets);
+
     if (editingRecord) {
-      // BUG FIX: správně předáváme všechny parametry v správném pořadí
-      workoutData.updateRecord(exercise.id, editingRecord.id, date, sets, weight || '0', reps, note);
+      workoutData.updateRecord(exercise.id, editingRecord.id, date, st, w, reps, note);
       toast.success('Záznam upraven');
     } else {
-      workoutData.addRecord(exercise.id, date, sets, weight || '0', reps, note);
+      workoutData.addRecord(exercise.id, date, st, w, reps, note);
       toast.success('Záznam přidán');
     }
     onClose();
@@ -362,7 +369,7 @@ function RecordForm({
     fontSize: 14,
     width: '100%',
     outline: 'none',
-    fontFamily: 'Inter, sans-serif',
+    fontFamily: 'inherit',
     boxSizing: 'border-box' as const,
   };
 
@@ -411,6 +418,7 @@ function RecordForm({
           <label style={labelStyle}>Váha (kg)</label>
           <input
             type="text"
+            inputMode="decimal"
             value={weight}
             onChange={e => setWeight(e.target.value)}
             placeholder="0"
@@ -474,6 +482,9 @@ function RecordRow({ record, isLatest, isPR, onEdit, onDelete }: {
   onDelete: () => void;
 }) {
   const [showActions, setShowActions] = useState(false);
+  // Mazání na dvě klepnutí. Bez toho stačí na telefonu omylem dvakrát ťuknout
+  // a reálný záznam je nenávratně pryč – žádné undo tady není.
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
     <div
@@ -485,7 +496,7 @@ function RecordRow({ record, isLatest, isPR, onEdit, onDelete }: {
         marginBottom: 6,
         cursor: 'pointer',
       }}
-      onClick={() => setShowActions(!showActions)}
+      onClick={() => { setShowActions(!showActions); setConfirmDelete(false); }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{ flex: 1 }}>
@@ -513,7 +524,7 @@ function RecordRow({ record, isLatest, isPR, onEdit, onDelete }: {
         </div>
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 18, fontWeight: 800, color: 'var(--gd-accent)' }}>
-            {record.weight !== '0' ? `${record.weight} kg` : '–'}
+            {record.weight !== '0' ? `${formatWeight(record.weight)} kg` : '–'}
           </div>
           <div style={{ fontSize: 11, color: 'var(--gd-text-4)' }}>{record.sets}×{record.reps}</div>
         </div>
@@ -530,13 +541,22 @@ function RecordRow({ record, isLatest, isPR, onEdit, onDelete }: {
             }}
           >Upravit</button>
           <button
-            onClick={e => { e.stopPropagation(); onDelete(); }}
-            style={{
-              flex: 1, background: 'color-mix(in srgb, var(--gd-danger) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--gd-danger) 20%, transparent)',
-              borderRadius: 0, color: 'var(--gd-danger)', fontSize: 12, fontWeight: 600, padding: '7px',
-              cursor: 'pointer',
+            onClick={e => {
+              e.stopPropagation();
+              if (!confirmDelete) { setConfirmDelete(true); return; }
+              onDelete();
             }}
-          >Smazat</button>
+            style={{
+              flex: 1,
+              background: confirmDelete ? 'var(--gd-danger)' : 'color-mix(in srgb, var(--gd-danger) 10%, transparent)',
+              border: `1px solid ${confirmDelete ? 'var(--gd-danger)' : 'color-mix(in srgb, var(--gd-danger) 20%, transparent)'}`,
+              borderRadius: 0,
+              color: confirmDelete ? 'var(--gd-ink)' : 'var(--gd-danger)',
+              fontSize: 12, fontWeight: confirmDelete ? 800 : 600, padding: '7px',
+              cursor: 'pointer',
+              letterSpacing: confirmDelete ? '0.08em' : undefined,
+            }}
+          >{confirmDelete ? 'Opravdu smazat?' : 'Smazat'}</button>
         </div>
       )}
     </div>
@@ -598,6 +618,7 @@ function RunLog() {
       {/* Form */}
       {(showForm || editingRun) && (
         <RunForm
+          key={editingRun ? editingRun.id : 'new'}
           editingRun={editingRun}
           onClose={() => { setShowForm(false); setEditingRun(null); }}
           onSave={(run) => {

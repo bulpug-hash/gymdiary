@@ -18,7 +18,7 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({
   children,
-  defaultTheme = "light",
+  defaultTheme = "dark",
   switchable = false,
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
@@ -36,6 +36,11 @@ export function ThemeProvider({
     } else {
       root.classList.remove("dark");
     }
+
+    // Barva stavového řádku na telefonu musí jít s tématem, jinak zůstane
+    // v světlém režimu černý pruh nad appkou.
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", theme === "dark" ? "#0E0E0E" : "#FFFFFF");
 
     if (switchable) {
       localStorage.setItem("theme", theme);

@@ -114,3 +114,5 @@ client/public/__manus__/version.json
 
 # Private recovery exports — retained outside source control
 gymdiary-recovery-exports/
+
+.claude/

@@ -154,6 +154,9 @@ export function useWorkoutData() {
     for (const exerciseId of Object.keys(records)) {
       const list = records[exerciseId] ?? [];
       for (const r of list) {
+        // Predepsane serie se do odtrenovaneho objemu nepocitaji - jinak graf
+        // ukazuje tisice kg driv, nez uzivatel vejde do posilovny.
+        if (r.planned) continue;
         const d = new Date(r.date);
         if (d >= start && d <= end) {
           total += (parseFloat(r.weight) || 0) * (parseInt(r.reps as string) || 0) * (parseInt(r.sets as string) || 1);

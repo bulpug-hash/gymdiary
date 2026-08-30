@@ -8,7 +8,7 @@ import { nanoid, formatDate, PHASE3_WEEKS } from '@/lib/data';
 import { RECOVERED_HIIT_RECORDS, RECOVERED_RUN_RECORDS } from '@/lib/recoveryData';
 import type { WorkoutDataHook } from '@/lib/types';
 import * as XLSX from 'xlsx';
-import { tint } from '@/lib/tint';
+import { tint, formatWeight } from '@/lib/tint';
 import { Hero, Marquee } from '@/components/kit';
 
 interface Props {
@@ -52,16 +52,27 @@ function rpeToPercent(rpe: number): number {
   return (100 - (10 - clamped) * 4) / 100;
 }
 
+// Meze vstupu drzime na jednom miste, aby se popisky pod vysledkem shodovaly
+// s tim, s cim se opravdu pocitalo. Driv label vypisoval syrovy vstup
+// ("99 opakovani") u vysledku spocitaneho z oriznute hodnoty.
+export const clampReps = (r: number) => Math.min(20, Math.max(1, Math.round(r) || 1));
+export const clampRpe = (r: number) => Math.min(10, Math.max(6, r || 8));
+export const clampRM = (v: number) => Math.min(500, Math.max(1, v || 0));
+
 function calcWeightFromRPE(oneRM: number, reps: number, rpe: number): number {
   if (!Number.isFinite(oneRM) || !Number.isFinite(reps) || !Number.isFinite(rpe)) return 0;
-  const r = Math.min(20, Math.max(1, reps));
-  // Epley pozpátku: strop pro dnešek je 1RM x RPE %, z toho váha na r opakování
-  const weight = (oneRM * rpeToPercent(rpe)) / (1 + r / 30);
+  const r = clampReps(reps);
+  const ceiling = oneRM * rpeToPercent(rpe);
+  // Na jedno opakovani je strop primo ta vaha – Epleyho delitel plati az od dvou.
+  const weight = r === 1 ? ceiling : ceiling / (1 + r / 30);
   return Math.round(weight * 2) / 2; // zaokrouhleno na 0,5 kg
 }
 
 function calc1RMFromWeight(weight: number, reps: number): number {
-  return Math.round(weight * (1 + reps / 30));
+  const r = clampReps(reps);
+  // Shodne s estimate1RM v lib/data.ts – jedno opakovani UZ je 1RM.
+  if (r === 1) return Math.round(weight);
+  return Math.round(weight * (1 + r / 30));
 }
 
 // ============================================================
@@ -159,16 +170,17 @@ function RPECalculator() {
   const [weight, setWeight] = useState('');
   const [repsForRM, setRepsForRM] = useState('5');
 
+  // Hodnoty po oriznuti drzime zvlast, aby se s nimi vypsal i popisek pod vysledkem.
+  const usedReps = clampReps(parseInt(reps));
+  const usedRpe = clampRpe(parseFloat(rpe));
+  const usedRepsForRM = clampReps(parseInt(repsForRM));
+
   const suggestedWeight = oneRM && reps && rpe
-    ? calcWeightFromRPE(
-        Math.min(500, Math.max(1, parseFloat(oneRM) || 0)),
-        Math.min(20, Math.max(1, parseInt(reps) || 1)),
-        Math.min(10, Math.max(6, parseFloat(rpe) || 8)),
-      )
+    ? calcWeightFromRPE(clampRM(parseFloat(oneRM)), usedReps, usedRpe)
     : null;
 
   const estimated1RM = weight && repsForRM
-    ? calc1RMFromWeight(parseFloat(weight), parseInt(repsForRM))
+    ? calc1RMFromWeight(clampRM(parseFloat(weight)), usedRepsForRM)
     : null;
 
   const inputStyle = {
@@ -250,9 +262,9 @@ function RPECalculator() {
             }}>
               <div style={{ fontSize: 11, color: 'var(--gd-text-3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Doporučená váha</div>
               <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 48, fontWeight: 900, color: 'var(--gd-accent)', lineHeight: 1 }}>
-                {suggestedWeight}
+                {formatWeight(String(suggestedWeight))}
               </div>
-              <div style={{ fontSize: 14, color: 'var(--gd-text-3)', marginTop: 4 }}>kg · {reps} opakování @ RPE {rpe}</div>
+              <div style={{ fontSize: 14, color: 'var(--gd-text-3)', marginTop: 4 }}>kg · {usedReps} opakování @ RPE {usedRpe}</div>
             </div>
           )}
 
@@ -314,7 +326,7 @@ function RPECalculator() {
                     {pct === 100 ? '1 rep' : pct >= 90 ? '2-3 reps' : pct >= 85 ? '4-5 reps' : pct >= 80 ? '5-6 reps' : pct >= 75 ? '8-10 reps' : '12-15 reps'}
                   </div>
                   <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 18, fontWeight: 800, color: 'var(--gd-text)' }}>
-                    {Math.round(estimated1RM * pct / 100 * 2) / 2} kg
+                    {formatWeight(String(Math.round(estimated1RM * pct / 100 * 2) / 2))} kg
                   </div>
                 </div>
               ))}
@@ -404,7 +416,7 @@ function BodyWeightTracker() {
           </div>
           {latest && (
             <div style={{ fontSize: 12, color: 'var(--gd-text-3)', marginTop: 2 }}>
-              Poslední: {latest.weight} kg · {formatDate(latest.date)}
+              Poslední: {formatWeight(String(latest.weight))} kg · {formatDate(latest.date)}
               {change !== null && (
                 <span style={{ color: change < 0 ? 'var(--gd-fern)' : 'var(--gd-danger)', marginLeft: 8, fontWeight: 600 }}>
                   {change > 0 ? '+' : ''}{change.toFixed(1)} kg
@@ -501,7 +513,7 @@ function BodyWeightTracker() {
                 {entry.note && <div style={{ fontSize: 11, color: 'var(--gd-text-4)', marginTop: 1 }}>{entry.note}</div>}
               </div>
               <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 20, fontWeight: 800, color: 'var(--gd-accent)' }}>
-                {entry.weight} kg
+                {formatWeight(String(entry.weight))} kg
               </div>
               <button
                 onClick={() => deleteEntry(entry.id)}
@@ -526,28 +538,41 @@ function RestTimer() {
 
   const presets = [60, 90, 120, 180, 240, 300];
 
+  // Cíl se drží jako absolutní čas, ne jako počet tiků. setInterval se na
+  // zamčeném telefonu uškrtí nebo zastaví úplně a timer se pak opozdí o celý
+  // odpočinek – tímhle po odemčení ukáže správný zbytek.
+  const deadlineRef = useRef<number | null>(null);
+
+  const tick = useCallback(() => {
+    if (deadlineRef.current == null) return;
+    const left = Math.max(0, Math.round((deadlineRef.current - Date.now()) / 1000));
+    setRemaining(left);
+    if (left === 0) {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      intervalRef.current = null;
+      deadlineRef.current = null;
+      setRunning(false);
+      toast.success('Odpočinek dokončen. Jdi na to.', { duration: 4000 });
+    }
+  }, []);
+
   const startStop = useCallback(() => {
     if (running) {
       if (intervalRef.current) clearInterval(intervalRef.current);
+      intervalRef.current = null;
+      deadlineRef.current = null;
       setRunning(false);
     } else {
+      deadlineRef.current = Date.now() + remaining * 1000;
       setRunning(true);
-      intervalRef.current = setInterval(() => {
-        setRemaining(prev => {
-          if (prev <= 1) {
-            clearInterval(intervalRef.current!);
-            setRunning(false);
-            toast.success('⏱️ Odpočinek dokončen! Jdi na to!', { duration: 4000 });
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+      intervalRef.current = setInterval(tick, 250);
     }
-  }, [running]);
+  }, [running, remaining, tick]);
 
   const reset = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = null;
+    deadlineRef.current = null;
     setRunning(false);
     setRemaining(duration);
   }, [duration]);
@@ -555,8 +580,17 @@ function RestTimer() {
   useEffect(() => {
     setRemaining(duration);
     if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = null;
+    deadlineRef.current = null;
     setRunning(false);
   }, [duration]);
+
+  // Po návratu z pozadí dopočítej zbytek okamžitě, ať se nečeká na další tik.
+  useEffect(() => {
+    const onVisible = () => { if (!document.hidden) tick(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [tick]);
 
   useEffect(() => {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
@@ -660,7 +694,7 @@ function RestTimer() {
             }}
           >
             {s >= 60 ? `${s / 60}min` : `${s}s`}
-            {s === 90 && ' ⭐'}
+            {s === 90 && ' '}
           </button>
         ))}
       </div>
@@ -1141,7 +1175,7 @@ function NutritionGuide() {
           {[
             {
               time: '07:00 – Ráno',
-              icon: '🌅',
+              icon: 'AM',
               color: 'var(--gd-accent)',
               items: [
                 '300–400 kcal · sacharidy + bílkoviny',
@@ -1151,7 +1185,7 @@ function NutritionGuide() {
             },
             {
               time: 'Pre-workout (60–90 min před)',
-              icon: '⚡',
+              icon: 'PRE',
               color: 'var(--gd-accent)',
               items: [
                 '40–60g sacharidů (rýže, banán, ovesné vločky)',
@@ -1161,7 +1195,7 @@ function NutritionGuide() {
             },
             {
               time: 'Intra-workout',
-              icon: '🏋️',
+              icon: 'INT',
               color: 'var(--gd-text-2)',
               items: [
                 'Voda 500–750 ml',
@@ -1171,7 +1205,7 @@ function NutritionGuide() {
             },
             {
               time: 'Post-workout (do 30–60 min)',
-              icon: '🔄',
+              icon: 'PST',
               color: 'var(--gd-fern)',
               items: [
                 '40–60g sacharidů (rýže, brambory, ovoce)',
@@ -1181,7 +1215,7 @@ function NutritionGuide() {
             },
             {
               time: 'Večeře (2–3h před spaním)',
-              icon: '🌙',
+              icon: 'PM',
               color: 'var(--gd-text-2)',
               items: [
                 '30–40g bílkovin (kasein, tvaroh, vejce)',
@@ -1251,37 +1285,37 @@ function NutritionGuide() {
           {[
             {
               title: '80/20 pravidlo',
-              icon: '🎯',
+              icon: '80/20',
               color: 'var(--gd-accent)',
               text: '80% jídla z celých, minimálně zpracovaných potravin. 20% flexibilita – pizza, dezert, restaurace. Perfekcionismus vede k selhání.',
             },
             {
               title: 'Bílkoviny jako základ',
-              icon: '🥩',
+              icon: 'BÍL',
               color: 'var(--gd-danger)',
               text: 'Každé jídlo = zdroj bílkovin. Kuřecí, hovězí, vejce, tvaroh, ryby, luštěniny. Cíl: 180–200g denně. Bez dostatku bílkovin nerostou svaly.',
             },
             {
               title: 'Sacharidy = palivo',
-              icon: '⚡',
+              icon: 'SAC',
               color: 'var(--gd-text-2)',
               text: 'Nejvíce sacharidů kolem tréninku (pre + post). Rýže, brambory, ovesné vločky, ovoce. Snižuj sacharidy ve dnech odpočinku.',
             },
             {
               title: 'Spánek = suplement #1',
-              icon: '😴',
+              icon: 'SPÁ',
               color: 'var(--gd-text-2)',
               text: '7–9 hodin denně. Bez spánku nefunguje žádný trénink ani výživa. GH se vylučuje primárně v noci. Prioritizuj spánek nad vším ostatním.',
             },
             {
               title: 'Konzistence > Perfekce',
-              icon: '📅',
+              icon: 'KON',
               color: 'var(--gd-fern)',
               text: '1 špatný den nezničí výsledky. 1 měsíc špatných návyků ano. Zaměř se na průměr za týden, ne na každý den zvlášť.',
             },
             {
               title: 'Deload = jez stejně',
-              icon: '🔄',
+              icon: 'DL',
               color: 'var(--gd-accent)',
               text: 'V deload týdnu (W4, W8, W12, W16) nesniž příjem kalorií. Tělo potřebuje živiny pro regeneraci a superkompenzaci.',
             },
@@ -1310,7 +1344,7 @@ function AutoregulationGuide() {
     {
       id: 'rpe-autoregulation',
       title: 'RPE Autoregulace (Tuchscherer)',
-      icon: '🎯',
+      icon: 'RPE',
       color: 'var(--gd-accent)',
       summary: 'Pokud RPE > cílové o 1+ → sniž váhu o 5%. Pokud RPE < cílové o 1+ → přidej 2.5 kg.',
       content: [
@@ -1323,7 +1357,7 @@ function AutoregulationGuide() {
     {
       id: 'double-progression',
       title: 'Double Progression (Fáze 1–2)',
-      icon: '📈',
+      icon: 'DP',
       color: 'var(--gd-fern)',
       summary: 'Nejprve přidej rep (6→8→10), pak přidej váhu (+2.5 kg) a vrať se na 6 repů.',
       content: [
@@ -1335,7 +1369,7 @@ function AutoregulationGuide() {
     {
       id: 'ramp-topset',
       title: 'RAMP / TOP SET / BACK-OFF (Fáze 2–4)',
-      icon: '🏔️',
+      icon: 'RMP',
       color: 'var(--gd-text-2)',
       summary: 'Ramp = příprava na top set. Top set = maximální úsilí. Back-off = −8% pro objem.',
       content: [
@@ -1348,7 +1382,7 @@ function AutoregulationGuide() {
     {
       id: 'fatigue-management',
       title: 'Fatigue Management (Israetel)',
-      icon: '⚡',
+      icon: 'FTG',
       color: 'var(--gd-danger)',
       summary: 'Únava maskuje fitness. Deload odstraní únavu a odhalí skutečnou sílu.',
       content: [
@@ -1361,7 +1395,7 @@ function AutoregulationGuide() {
     {
       id: 'run-interference',
       title: 'Běh & Interference (Viada)',
-      icon: '🏃',
+      icon: 'RUN',
       color: 'var(--gd-text-2)',
       summary: 'Min. 24h buffer mezi během a deadliftem. HIIT ve středu/sobotu = optimální načasování.',
       content: [
@@ -1374,7 +1408,7 @@ function AutoregulationGuide() {
     {
       id: 'sleep-nutrition',
       title: 'Spánek & Výživa pro sílu',
-      icon: '😴',
+      icon: 'SPÁ',
       color: 'var(--gd-fern)',
       summary: '8+ h spánku. 2.2 g/kg bílkovin. Sacharidy kolem tréninku. Kreatin 5g/den.',
       content: [

@@ -1,10 +1,24 @@
 <!doctype html>
-<html lang="cs" class="dark">
+<html lang="cs">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+    <script>
+      // Tema se musi nastavit pred prvnim vykreslenim. Kdyz trida visela
+      // natvrdo v HTML, pri ulozenem svetlem tematu kazdy start problikl cernou.
+      (function () {
+        try {
+          var t = localStorage.getItem('theme') || 'dark';
+          if (t === 'dark') document.documentElement.classList.add('dark');
+        } catch (e) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0E0E0E" />
-    <link rel="manifest" href="/manifest.json" />
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="icon" href="./icon-192.png" type="image/png" />
     <meta name="apple-mobile-web-app-title" content="GymDiary" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

@@ -3,9 +3,9 @@
 // Shows: progress charts for main lifts, estimated 1RM over time, body weight trend
 import { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { estimate1RM, formatDate, GOALS, CURRENT_MAXES, PLAN_START_DATE } from '@/lib/data';
+import { estimate1RM, formatDate, GOALS, CURRENT_MAXES } from '@/lib/data';
 import type { WorkoutDataHook } from '@/lib/types';
-import { tint } from '@/lib/tint';
+import { tint, formatWeight } from '@/lib/tint';
 import { Hero, Marquee, SectionHead } from '@/components/kit';
 
 interface Props {
@@ -66,7 +66,9 @@ export default function Progress({ workoutData }: Props) {
     deadlift: CURRENT_MAXES.deadlift,
   };
   const allStats = LIFTS.map(l => {
-    const recs = workoutData.getRecords(l.exerciseId);
+    // Stejny filtr jako u grafu vys - bez nej dlazdice ukazovaly "posledni serii"
+    // a odhad 1RM z treninku, ktery se ma odehrat az v listopadu.
+    const recs = workoutData.getRecords(l.exerciseId).filter(r => !r.planned);
     const latestRec = recs.length > 0 ? recs[recs.length - 1] : null;
     // realWeight = confirmed 1RM from documents, not working weight from diary
     const realWeight = realMaxes[l.key];
@@ -234,7 +236,7 @@ export default function Progress({ workoutData }: Props) {
               </div>
               <div style={{ textAlign: 'right' }}>
                 <span style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 16, fontWeight: 700, color: lift.color }}>
-                  {d.weight} kg
+                  {formatWeight(String(d.weight))} kg
                 </span>
                 <span style={{ fontSize: 11, color: 'var(--gd-text-4)', marginLeft: 8 }}>{d.sets}×{d.reps}</span>
                 <span style={{ fontSize: 10, color: 'var(--gd-text-4)', marginLeft: 6 }}>≈{d.est1RM}kg</span>
