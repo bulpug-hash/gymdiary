@@ -166,7 +166,10 @@ background: tint(catColor, 13)   // color-mix(in srgb, <barva> 13%, transparent)
    Mikropopisky = `.gd-tag` (9 px, `700`, `letterSpacing .24em`, uppercase).
 4. **Signální barva jen na:** dnešní den, aktuální týden, top/overload sérii,
    osobní rekord, aktivní záložku. Nikde jinde.
-5. **Žádné emoji v UI.** Místo ikon typografické kódy (`247`, `WU`, `01`–`06`, `XLS`).
+5. **Žádné emoji v UI.** Místo ikon typografické kódy (`247`, `WU`, `XLS`) nebo
+   kreslené heraldické ikony (`NavIcon.tsx`). Rytiny z knihovny se do lišty
+   nehodí — na 28 px se z nich stane kaše a griffina nerozeznáš od rytíře,
+   ověřeno renderem. Ikony jsou proto kreslené pro tu velikost.
    Šipky `→ ← ↑ ↓ ▼` jsou typografie, ne emoji — ty zůstávají.
 6. **Hero je vždycky tmavý**, i ve světlém tématu — deska pod ním je černá.
    Ve světlém kitu je jeho signálkou bílá (`--hero-hi`), ne volt.
@@ -329,7 +332,7 @@ Viada + Schumann (concurrent training, interference běhu a síly).
 | 11 | Zkontrolovat celý web + 5 návrhů na vizuální osvěžení | ✅ artefakt s návrhy + 4 opravené chyby |
 | 12 | Předělat vizuál do stylu **Represent / 247** | ✅ hero + desky + mikrotypografie, mobile first |
 | 13 | Fotky přímo z Representu | ⛔ neuděláno — cizí autorské snímky na veřejném webu. Čeká se na jeho vlastní fotky. |
-| 14 | Ilustrovaná spodní lišta | ✅ `NavGlyph.tsx` — obtahové číslice + registrační značky u aktivní |
+| 14 | Ilustrovaná spodní lišta | ✅ `NavIcon.tsx` — heraldické ikony + registrační značky u aktivní |
 | 15 | Hloubkový audit funkčnosti | ✅ 95 nálezů, 15 opraveno (viz níže), zbytek v seznamu nápadů |
 | 16 | 10 funkcí na zlepšení fungování | ✅ všech 10 nasazeno (viz sekce 4b) |
 | 17 | Citáty do běžícího pásu v Plánu | ✅ `lib/quotes.ts` — 13 ověřených výroků, rotace po dnech |

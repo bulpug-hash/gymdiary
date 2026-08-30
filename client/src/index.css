@@ -278,37 +278,6 @@
     border-top-color: var(--gd-accent);
     background: color-mix(in srgb, var(--gd-accent) 8%, transparent);
   }
-  /* Číslice lišty – obtahová, jako duch číslice na desce hero. */
-  .gd-navglyph {
-    display: block;
-    width: 44px;
-    height: 28px;
-    overflow: visible;
-  }
-  .gd-navglyph__n {
-    font-family: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-weight: 800;
-    font-stretch: 118%;
-    font-size: 21px;
-    letter-spacing: -0.05em;
-    font-variant-numeric: tabular-nums;
-    fill: none;
-    stroke: var(--gd-text-4);
-    stroke-width: 1.1;
-    paint-order: stroke fill;
-    transition: stroke 0.18s ease, fill 0.18s ease;
-  }
-  .gd-tabbar__btn[data-on="1"] .gd-navglyph__n {
-    fill: var(--gd-accent);
-    stroke: var(--gd-accent);
-    stroke-width: 0.5;
-  }
-  .gd-navglyph__ticks path {
-    fill: none;
-    stroke: var(--gd-accent);
-    stroke-width: 1.1;
-    opacity: 0.75;
-  }
   .gd-tabbar__lbl {
     font-size: 7.5px; font-weight: 700; letter-spacing: 0.08em;
     text-transform: uppercase; color: var(--gd-text-3);
@@ -909,4 +878,24 @@
     mix-blend-mode: screen;
   }
   :root:not(.dark) .gd-frieze { mix-blend-mode: multiply; filter: invert(1); opacity: 0.3; }
+}
+
+/* Ikony spodní lišty – obtahové, ve stejném jazyce jako duch číslice. */
+@layer components {
+  .gd-navicon { display: block; width: 26px; height: 26px; overflow: visible; }
+  .gd-navicon__art {
+    fill: none;
+    stroke: var(--gd-text-4);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke 0.18s ease;
+  }
+  .gd-tabbar__btn[data-on="1"] .gd-navicon__art { stroke: var(--gd-accent); stroke-width: 1.7; }
+  .gd-navicon__ticks path {
+    fill: none;
+    stroke: var(--gd-accent);
+    stroke-width: 1.2;
+    opacity: 0.75;
+  }
 }
