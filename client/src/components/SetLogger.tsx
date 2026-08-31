@@ -15,6 +15,7 @@ import type { WorkoutDataHook } from '@/lib/types';
 import { plannedId, labelFromNote, plannedTemplate, exerciseHistory } from '@/lib/planLink';
 import { formatWeight, normalizeDecimal } from '@/lib/tint';
 import { startRest, restForCategory } from '@/lib/restTimer';
+import { ulozeno, tap } from '@/lib/haptics';
 import { loadPlates, formatPerSideShort } from '@/lib/plates';
 import { Tick } from '@/components/kit';
 
@@ -102,11 +103,13 @@ export default function SetLogger({ exercise, week, dayKey, date, workoutData }:
     } else {
       workoutData.updateRecord(exercise.id, row.id, date, row.sets, w, reps, note, rpe);
     }
+    ulozeno();
     setOpenRow(null);
     startRest(restForCategory(exercise.category), exercise.nameShort || exercise.name);
   };
 
   const undoSet = (row: Row) => {
+    tap();
     if (row.summaryIndex !== undefined && row.summaryIndex > 0) {
       const rec = byId(row.id);
       if (rec) {

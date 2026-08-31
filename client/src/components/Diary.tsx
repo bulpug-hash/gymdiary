@@ -109,6 +109,38 @@ export default function Diary({ workoutData }: Props) {
   const trainingDays = getTrainingDays();
   const legacyExercises = getLegacyExercises(workoutData.records);
   const [showLegacy, setShowLegacy] = useState(false);
+  const [hledani, setHledani] = useState('');
+
+  // Cviků je přes šedesát a jsou schované ve dnech. Apple dává vyhledávání nad
+  // každý seznam delší než pár desítek položek – rozbalovat pět dnů a hledat
+  // očima je zbytečná práce. Hledání skládá hierarchii naplocho.
+  // Bez skládání diakritiky by „drep" nenašel „dřep" – a na telefonu se háčky
+  // píšou nerady. NFD rozloží písmeno na základ + diakritické znaménko a to
+  // se pak zahodí.
+  const bezDiakritiky = (t: string) =>
+    t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const dotaz = bezDiakritiky(hledani.trim());
+  const nalezene = dotaz
+    ? (() => {
+        const videno = new Set<string>();
+        const out: { ex: Exercise; kde: string }[] = [];
+        for (const den of trainingDays) {
+          for (const ex of den.exercises) {
+            if (videno.has(ex.id)) continue;
+            if (!bezDiakritiky(`${ex.name} ${ex.nameShort ?? ''}`).includes(dotaz)) continue;
+            videno.add(ex.id);
+            out.push({ ex, kde: den.label });
+          }
+        }
+        for (const ex of legacyExercises) {
+          if (videno.has(ex.id)) continue;
+          if (!bezDiakritiky(`${ex.name} ${ex.nameShort ?? ''}`).includes(dotaz)) continue;
+          videno.add(ex.id);
+          out.push({ ex, kde: 'Mimo aktuální plán' });
+        }
+        return out;
+      })()
+    : [];
 
   if (selectedExercise) {
     return (
@@ -177,6 +209,68 @@ export default function Diary({ workoutData }: Props) {
       {/* Training days grouped */}
       {activeTab === 'exercises' && <div className="gd-wmhost" style={{ padding: '0 20px 36px' }}>
         <Watermark name="helm" position="104% 12%" size="auto 46%" opacity={0.07} />
+
+        {/* Hledání cviku napříč všemi dny i historií. */}
+        <div style={{ position: 'relative', margin: '18px 0 4px' }}>
+          <input
+            type="text"
+            value={hledani}
+            onChange={e => setHledani(e.target.value)}
+            placeholder="Hledat cvik"
+            aria-label="Hledat cvik"
+            enterKeyHint="search"
+            autoCapitalize="none"
+            autoCorrect="off"
+            style={{ paddingRight: hledani ? 40 : undefined }}
+          />
+          {hledani && (
+            <button
+              onClick={() => setHledani('')}
+              aria-label="Zrušit hledání"
+              style={{
+                position: 'absolute', right: 0, top: 0, height: '100%', width: 40,
+                background: 'none', border: 'none', color: 'var(--gd-text-3)',
+                fontSize: 18, lineHeight: 1, cursor: 'pointer',
+              }}
+            >×</button>
+          )}
+        </div>
+
+        {dotaz && (
+          <div style={{ marginBottom: 28 }}>
+            <div className="gd-tag" style={{ display: 'block', margin: '12px 0 8px', color: 'var(--gd-text-3)' }}>
+              {nalezene.length === 0
+                ? 'Nic nenalezeno'
+                : `${nalezene.length} ${plural(nalezene.length, 'nález', 'nálezy', 'nálezů')}`}
+            </div>
+            {nalezene.map(({ ex, kde }) => {
+              const pocet = workoutData.getRecords(ex.id).filter(r => !r.planned).length;
+              return (
+                <button
+                  key={ex.id}
+                  onClick={() => setSelectedExercise(ex)}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '12px 14px', marginBottom: 6, textAlign: 'left', cursor: 'pointer',
+                    background: 'color-mix(in srgb, var(--gd-text) 2%, transparent)',
+                    border: '1px solid var(--gd-line)', borderRadius: 0,
+                  }}
+                >
+                  <div style={{ width: 3, alignSelf: 'stretch', minHeight: 30, background: getCategoryColor(ex.category), flexShrink: 0 }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--gd-text)' }}>{ex.name}</div>
+                    <div style={{ fontSize: 11, color: 'var(--gd-text-3)', marginTop: 2 }}>
+                      {kde} · {pocet} {plural(pocet, 'záznam', 'záznamy', 'záznamů')}
+                    </div>
+                  </div>
+                  <span style={{ color: 'var(--gd-line)', fontSize: 15, flexShrink: 0 }}>›</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {!dotaz && <>
         <SectionHead n="01" label="Tréninkové dny" right="Po · Út · St · Pá · So" />
         {trainingDays.map(day => {
           const isOpen = selectedDay === day.key;
@@ -323,6 +417,7 @@ export default function Diary({ workoutData }: Props) {
             )}
           </div>
         )}
+        </>}
       </div>}
       </div>
     </div>

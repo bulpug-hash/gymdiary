@@ -1,6 +1,6 @@
 // Shell aplikace — kit 247, skládaný na telefon.
 // Horní lišta drží značku a stav týdne, spodní navigace je v dosahu palce.
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Overview from '@/components/Overview';
 import Plan from '@/components/Plan';
 import Guide from '@/components/Guide';
@@ -29,9 +29,40 @@ export default function Home() {
   const workoutData = useWorkoutData();
   const { theme, toggleTheme } = useTheme();
 
-  // Přepnutí záložky vždy začíná nahoře – jinak přistaneš uprostřed cizí stránky.
+  // Každá záložka si drží, kde jsi v ní skončil. Dřív se skákalo natvrdo
+  // nahoru, takže odskok z půlky Plánu na Deník a zpátky znamenal rolovat
+  // znovu od začátku. Návrat do rozdělaného je to, co dělají appky od Applu.
+  const pozice = useRef<Partial<Record<Tab, number>>>({});
+  const predchozi = useRef<Tab>(activeTab);
+
+  const prepni = (tab: Tab) => {
+    if (tab === activeTab) {
+      // Druhý tap na aktivní záložku vyroluje nahoru – stejné gesto jako
+      // tap na stavový řádek v iOSu.
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      pozice.current[tab] = 0;
+      return;
+    }
+    pozice.current[activeTab] = window.scrollY;
+    setActiveTab(tab);
+  };
+
+  // Proklik z Přehledu ("ukaž mi plán tohohle dne") má přistát nahoře, ne tam,
+  // kde jsi cílovou záložku naposled opustil – proto se uložená pozice nuluje.
+  const prejdiNa = (tab: Tab) => {
+    pozice.current[activeTab] = window.scrollY;
+    pozice.current[tab] = 0;
+    setActiveTab(tab);
+  };
+
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    if (predchozi.current === activeTab) return;
+    predchozi.current = activeTab;
+    // Obsah se musí stihnout vykreslit, jinak není kam rolovat.
+    const id = requestAnimationFrame(() => {
+      window.scrollTo({ top: pozice.current[activeTab] ?? 0, behavior: 'auto' });
+    });
+    return () => cancelAnimationFrame(id);
   }, [activeTab]);
 
   const week = getCurrentWeek();
@@ -55,7 +86,7 @@ export default function Home() {
 
       <main className="gd-main">
         <div className="gd-scroll">
-          {activeTab === 'overview' && <Overview workoutData={workoutData} onNavigate={setActiveTab} />}
+          {activeTab === 'overview' && <Overview workoutData={workoutData} onNavigate={prejdiNa} />}
           {activeTab === 'plan' && <Plan workoutData={workoutData} />}
           {activeTab === 'guide' && <Guide />}
           {activeTab === 'diary' && <Diary workoutData={workoutData} />}
@@ -73,7 +104,7 @@ export default function Home() {
             className="gd-tabbar__btn"
             data-on={activeTab === tab.key ? '1' : '0'}
             aria-current={activeTab === tab.key ? 'page' : undefined}
-            onClick={() => setActiveTab(tab.key)}
+            onClick={() => prepni(tab.key)}
           >
             <NavIcon name={tab.key as NavIconKey} active={activeTab === tab.key} />
             <span className="gd-tabbar__lbl">{tab.label}</span>

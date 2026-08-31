@@ -54,7 +54,7 @@
   --gd-text:       #0A0A0A;   /* jet black */
   --gd-text-2:     #3A3A38;   /* graphite */
   --gd-text-3:     #71716C;   /* washed grey */
-  --gd-text-4:     #A3A39E;   /* ash grey */
+  --gd-text-4:     #8A8A85;   /* ash grey — 3,5:1 na bílé, čitelné i zpocenýma očima */
   --gd-invert-bg:  #0A0A0A;
   --gd-invert-fg:  #FFFFFF;
   --gd-accent:     #0A0A0A;   /* ve světlém kitu je signálem inverze, ne barva */
@@ -73,7 +73,7 @@
   --gd-text:       #E6E3D9;
   --gd-text-2:     #A8A59A;
   --gd-text-3:     #726F66;
-  --gd-text-4:     #4C4A44;
+  --gd-text-4:     #6B6862;   /* 3,4:1 na jetu; původní #4C4A44 mělo jen 2,2:1 */
   --gd-invert-bg:  #F1EFE8;
   --gd-invert-fg:  #0E0E0E;
   --gd-accent:     #D9F24B;
@@ -331,8 +331,10 @@
     font-variant-numeric: tabular-nums;
     margin: 0;
   }
+  /* 10 px je spodní mez, na které je 0,24em prostrkání ještě čitelné na délku
+     paže. Pod tím se z popisku stane textura. */
   .gd-tag {
-    font-size: 9px; font-weight: 700; letter-spacing: 0.24em;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.24em;
     text-transform: uppercase; color: var(--gd-text-3); white-space: nowrap;
   }
   .gd-lockup {
@@ -927,15 +929,15 @@
 
 /* Ikony spodní lišty – obtahové, ve stejném jazyce jako duch číslice. */
 @layer components {
-  .gd-navicon { display: block; width: 26px; height: 26px; overflow: visible; }
-  /* Plné siluety, ne obrysy – jazyk jejich vlastní grafiky a zároveň
-     jediné, co v 26 px spolehlivě drží tvar. */
-  .gd-navicon__art {
-    fill: var(--gd-text-4);
-    stroke: none;
-    transition: fill 0.18s ease;
+  /* Varianta 42 „číslo · scanline“. Rastr uvnitř číslice je nakreslený
+     přes `currentColor`, takže se barva řídí `color`, NE `fill` — kdyby se
+     tu nechalo fill, vzorek by zůstal černý a ikona zmizela. */
+  .gd-navicon {
+    display: block; width: 26px; height: 26px; overflow: visible;
+    color: var(--gd-text-3);
+    transition: color 0.18s ease;
   }
-  .gd-tabbar__btn[data-on="1"] .gd-navicon__art { fill: var(--gd-accent); }
+  .gd-tabbar__btn[data-on="1"] .gd-navicon { color: var(--gd-accent); }
   .gd-navicon__ticks path {
     fill: none;
     stroke: var(--gd-accent);

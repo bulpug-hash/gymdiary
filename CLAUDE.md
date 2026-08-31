@@ -183,10 +183,16 @@ background: tint(catColor, 13)   // color-mix(in srgb, <barva> 13%, transparent)
 5. **Žádné emoji v UI.** Místo ikon typografické kódy (`247`, `WU`, `XLS`) nebo
    kreslené ikony (`NavIcon.tsx`).
 
-   Ikony jsou **plné siluety, ne obrysy** — to je jazyk jejich vlastní grafiky
-   (Noble Knight, Fallen Angel jsou plné černé siluety, ne linky) a zároveň
-   jediné, co v 26 px drží tvar. Motivy: helm, korouhev, kodex, brk, křídlo,
-   zkřížená kladiva.
+   Ikony spodní lišty jsou **varianta 42 „číslo · scanline"** (vybraná z 50
+   návrhů v `~/Desktop/GymDiary_lista_50/`): číslo záložky 01–06 vysazené
+   Archivem 800 a vyplněné vodorovným rastrem 3 × 2,4 px přes masku.
+   Barva jde přes `color` (vzorek kreslí `currentColor`), **ne přes `fill`** —
+   kdyby se nechalo `fill`, vzorek zůstane černý a ikona zmizí.
+   ⚠️ ID vzorku a masky musí být unikátní per instance (`useId()`). V předloze
+   tři z šesti souborů sdílejí `sc42pr`; samostatně to nevadí, ale v jednom
+   dokumentu se masky přepíšou a zobrazí se špatná číslice.
+   Předchozí verze byly plné siluety (helm, korouhev, kodex, brk, křídlo,
+   kladiva) — v gitu, kdyby se k nim chtěl vrátit.
 
    Rytiny z knihovny se do lišty použít **nedají** — ověřeno dvakrát: přímo
    i přes prahování na siluetu. Jsou to kresby čarou, ne masa, takže v téhle
@@ -298,6 +304,35 @@ většinou CC BY-SA a v dodaném CSV u nich chybí autor.
 **Pozor u bodu 3:** `CURRENT_MAXES` v `data.ts` zůstává jako výchozí hodnota
 z dokumentu. Override se drží v `gymdiary_maxes_v1` a `getCurrentMaxes()` vrací
 vyšší z obou — komponenty už nikdy nemají číst `CURRENT_MAXES` přímo.
+
+### 4f. Chování podle Apple HIG (31. 8. 2026)
+
+| Co | Kde |
+|---|---|
+| Paměť pozice scrollu per záložka + dvojí tap = nahoru | `pages/Home.tsx` `prepni()` / `prejdiNa()` |
+| Hledání cviku napříč dny i historií, bez ohledu na diakritiku | `Diary.tsx` `bezDiakritiky()` |
+| Hmatová odezva na zapsanou sérii | `lib/haptics.ts` |
+| Inputy 16 px + `inputMode` | `index.css`, pravidlo 9 |
+| Dotykové cíle 44 px | `.gd-topbar__btn` |
+
+**Haptika je jen bonus, nikdy na ní nesmí viset logika** — iOS Safari
+`navigator.vibrate` nepodporuje vůbec (Apple ho záměrně neimplementoval),
+takže na jeho telefonu se nic nestane. Na Androidu a v Chrome ano.
+
+**Hledání skládá diakritiku přes NFD.** Bez toho „drep" nenajde „dřep"
+a na telefonu se háčky píšou nerady. Ověřeno obojím směrem.
+
+**Kontrast:** `--gd-text-4` byl `#4C4A44` = 2,2:1 na jetu, což je pod hranicí
+čitelnosti pro informační popisky. Nově `#6B6862` (3,4:1) a ve světlém
+`#8A8A85` (3,5:1). `.gd-tag` zvednut z 9 na 10 px. Není to plná AA (4,5:1) —
+to by tonální hierarchii kitu rozbilo; je to měřený kompromis.
+
+⛔ **Co se vědomě NEudělalo:** sloučení šesti záložek na pět a rozpuštění
+„Nástrojů" do Nastavení. Apple drží maximum pět a Nástroje jsou šuplík
+osmi nesouvisejících sekcí — ale struktura záložek je v sekci 7 na seznamu
+věcí, které se bez jeho výslovného souhlasu nemění. Stejně tak přechod
+z vložených formulářů na sheety: velký zásah do `Diary.tsx` i `Tools.tsx`
+s reálným rizikem, že se něco rozbije. Obojí čeká na jeho rozhodnutí.
 
 ### 4e. Záchranná obrazovka (`components/ErrorBoundary.tsx`)
 
