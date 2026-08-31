@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 import { tint, normalizeDecimal, formatWeight } from '@/lib/tint';
 import { undoToast } from '@/lib/undo';
 import { plural } from '@/lib/czech';
-import { Hero, Marquee, SectionHead, Watermark } from '@/components/kit';
+import { Hero, SectionHead, Watermark } from '@/components/kit';
 
 interface Props {
   workoutData: WorkoutDataHook;
@@ -144,7 +144,6 @@ export default function Diary({ workoutData }: Props) {
         }
       />
 
-      <Marquee items={['Zapiš sérii hned po ní', 'Váha · opakování · RPE', 'PR se hlídá sám', 'Předepsané série jdou přepsat']} />
 
       <div className="gd-body">
       {/* Tab switcher */}

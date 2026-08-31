@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { WEEK_GUIDE } from '@/lib/weekGuide';
 import { getCurrentWeek } from '@/lib/data';
-import { Hero, Marquee, SectionHead } from '@/components/kit';
+import { Hero, SectionHead } from '@/components/kit';
 import { tint } from '@/lib/tint';
 
 const MODE_COLOR: Record<string, string> = {
@@ -42,7 +42,6 @@ export default function Guide() {
         }
       />
 
-      <Marquee items={['Co se trénuje', 'Proč právě takhle', 'Jaké RPE', 'Co rotuje', 'Podzim ’26 v5.2']} />
 
       <div className="gd-body">
       {/* výběr týdne – pravítko, všech 13 najednou */}

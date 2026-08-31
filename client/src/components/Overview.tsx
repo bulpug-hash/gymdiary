@@ -7,7 +7,7 @@ import {
 } from '@/lib/data';
 import type { WarmupSet, Week } from '@/lib/data';
 import type { WorkoutDataHook, Tab } from '@/lib/types';
-import { Hero, Marquee, Reveal, SectionHead, Watermark } from '@/components/kit';
+import { Hero, Reveal, SectionHead, Watermark } from '@/components/kit';
 import SetLogger from '@/components/SetLogger';
 import { weekProgress, dateForDay, daySummary } from '@/lib/planLink';
 import { getCurrentMaxes } from '@/lib/maxes';
@@ -98,9 +98,6 @@ export default function Overview({ workoutData, onNavigate }: Props) {
         ]}
       />
 
-      <Marquee
-        items={['Podzim ’26', 'Peaking 13 týdnů', 'Bench 130', 'Dřep 190', 'Mrtvý tah 230', 'Vlnové zatížení']}
-      />
 
       <div className="gd-body">
         {/* Týdenní rozvrh */}

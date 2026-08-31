@@ -78,6 +78,51 @@ export function daysSinceDownload(): number | null {
   }
 }
 
+/**
+ * Požádá prohlížeč o trvalé úložiště.
+ *
+ * CO TO ŘEŠÍ: iOS maže data webů, se kterými uživatel týden nepracoval
+ * (ITP). Tohle tomu zabrání — data zmizí jen když je smaže sám.
+ *
+ * CO TO NEŘEŠÍ: „Vymazat historii a data webů" v Safari. Tam nepomůže NIC
+ * z prohlížeče — ani localStorage, ani IndexedDB, ani service worker.
+ * Je to záměr, ochrana soukromí. Jediná pojistka je záloha mimo prohlížeč.
+ */
+export async function requestPersistence(): Promise<boolean> {
+  try {
+    if (!navigator.storage?.persist) return false;
+    if (await navigator.storage.persisted?.()) return true;
+    return await navigator.storage.persist();
+  } catch {
+    return false;
+  }
+}
+
+export async function isPersisted(): Promise<boolean> {
+  try {
+    return (await navigator.storage?.persisted?.()) ?? false;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Kolik místa appka zabírá a kolik jí prohlížeč dovolí.
+ * Když se blíží ke stropu, zápisy začnou tiše selhávat.
+ */
+export async function storageEstimate(): Promise<{ usedMB: number; quotaMB: number } | null> {
+  try {
+    const e = await navigator.storage?.estimate?.();
+    if (!e || e.usage == null || e.quota == null) return null;
+    return {
+      usedMB: Math.round((e.usage / 1048576) * 10) / 10,
+      quotaMB: Math.round(e.quota / 1048576),
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function formatStamp(ts: number): string {
   const d = new Date(ts);
   const p = (n: number) => String(n).padStart(2, '0');

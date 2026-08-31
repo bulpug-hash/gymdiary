@@ -62,9 +62,6 @@
   --gd-fern:       #4A5732;
   --gd-danger:     #9E4526;
   --gd-shadow:     #0A0A0A;
-  /* Displejová modrá z plakátů 247 RUN. Používá se JEN na obří posterový
-     titulek — stavy (dnešek, aktivní týden, PR) si dál drží volt. */
-  --gd-poster:     #2B7FFF;
 }
 
 :root.dark {
@@ -84,7 +81,6 @@
   --gd-fern:       #8C9B63;
   --gd-danger:     #C9663F;
   --gd-shadow:     #000000;
-  --gd-poster:     #2B7FFF;
 }
 
 :root {
@@ -370,7 +366,6 @@
     --hero-dim: #8A877F;
     --hero-hi: #D9F24B;
   }
-  :root:not(.dark) .gd-hero { --hero-hi: #FFFFFF; }
   .gd-hero--lg { min-height: 74svh; }
 
   .gd-hero__inner {
@@ -962,12 +957,12 @@
 
 /* ============================================================
    Posterový režim hera — podle plakátů 247 RUN.
-   Obří titulek v displejové modré přes desku, pod ním mřížka
+   Obří titulek v signální barvě přes desku, pod ním mřížka
    popisek → hodnota zarovnaná doprava.
    ============================================================ */
 @layer components {
   .gd-hero--poster .gd-hero__title {
-    color: var(--gd-poster);
+    color: var(--hero-hi);
     /* Na plakátech je nápis širší a těsnější než běžný titulek.
        Velikost je ale krotká: „PONDĚLÍ" a „PRŮVODCE" jsou dlouhá slova
        a na 390 px se při 19vw lámala uprostřed. */

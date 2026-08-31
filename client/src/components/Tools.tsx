@@ -10,11 +10,11 @@ import type { WorkoutDataHook } from '@/lib/types';
 import * as XLSX from 'xlsx';
 import { tint, formatWeight } from '@/lib/tint';
 import { useRestTimer, startRest, pauseRest, resumeRest, resetRest, setRestDuration } from '@/lib/restTimer';
-import { loadSnapshots, markDownloaded, daysSinceDownload, formatStamp, REMIND_AFTER_DAYS } from '@/lib/backup';
+import { loadSnapshots, markDownloaded, daysSinceDownload, formatStamp, REMIND_AFTER_DAYS, isPersisted, storageEstimate } from '@/lib/backup';
 import { plural } from '@/lib/czech';
 import { plannedTemplate } from '@/lib/planLink';
 import { loadPlates, formatPerSideShort, DEFAULT_BAR } from '@/lib/plates';
-import { Hero, Marquee } from '@/components/kit';
+import { Hero } from '@/components/kit';
 
 interface Props {
   workoutData: WorkoutDataHook;
@@ -123,7 +123,6 @@ export default function Tools({ workoutData }: Props) {
         }
       />
 
-      <Marquee items={['RPE → váha', 'Váha → 1RM', 'Export do XLS', 'Plán ke stažení', 'Autoregulace podle dne']} />
 
       <div className="gd-body">
       {/* Section tabs */}
@@ -773,11 +772,32 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
       hiitRecords: getStoredArray('__hiit_log__', RECOVERED_HIIT_RECORDS),
       bodyWeightRecords: loadBodyWeights(),
     };
-    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const json = JSON.stringify(backup, null, 2);
+    const name = `gymdiary-zaloha-${today}.json`;
+
+    // Na iOS je stažení souboru přes odkaz nešikovné a snadno skončí někde,
+    // kde ho nenajdeš. Share sheet umí „Uložit do souborů" → iCloud Drive,
+    // a to je jediné místo, které přežije vymazání dat Safari.
+    const file = new File([json], name, { type: 'application/json' });
+    const nav = navigator as Navigator & {
+      canShare?: (d: ShareData) => boolean;
+      share?: (d: ShareData) => Promise<void>;
+    };
+    if (nav.share && nav.canShare?.({ files: [file] })) {
+      nav.share({ files: [file], title: 'Záloha GymDiary' })
+        .then(() => {
+          markDownloaded();
+          toast.success('Záloha odeslána — ulož ji do Souborů / iCloudu');
+        })
+        .catch(() => { /* uživatel share zrušil, nic se neděje */ });
+      return;
+    }
+
+    const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `gymdiary-zaloha-${today}.json`;
+    link.download = name;
     link.click();
     // revokeObjectURL až po tiku – na iOS Safari může okamžité zrušení
     // přerušit stahování.
@@ -812,6 +832,13 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
   const snapshots = loadSnapshots();
   const sinceDownload = daysSinceDownload();
   const stale = sinceDownload === null || sinceDownload >= REMIND_AFTER_DAYS;
+
+  const [persisted, setPersisted] = useState<boolean | null>(null);
+  const [space, setSpace] = useState<{ usedMB: number; quotaMB: number } | null>(null);
+  useEffect(() => {
+    void isPersisted().then(setPersisted);
+    void storageEstimate().then(setSpace);
+  }, []);
 
   const restoreSnapshot = (index: number) => {
     const snap = snapshots[index];
@@ -1048,6 +1075,33 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
             <div style={{ fontSize: 10, color: 'var(--gd-text-4)', marginTop: 2 }}>{s.label}</div>
           </div>
         ))}
+      </div>
+
+      {/* Kde data doopravdy jsou */}
+      <div style={{ marginBottom: 18, border: '1px solid var(--gd-line)', padding: '14px 16px' }}>
+        <div className="gd-tag" style={{ marginBottom: 8 }}>Kde jsou tvoje data</div>
+        <p style={{ fontSize: 12, lineHeight: 1.65, color: 'var(--gd-text-3)', margin: '0 0 10px' }}>
+          Záznamy leží v úložišti prohlížeče na tomhle telefonu. Nikde jinde.
+          <b style={{ color: 'var(--gd-text)' }}> „Vymazat historii a data webů" v Safari je smaže</b> —
+          a nepomůže proti tomu nic, co appka umí. Jediná pojistka je záloha do souboru.
+        </p>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, padding: '8px 0', borderTop: '1px solid var(--gd-line)' }}>
+          <span className="gd-tag" style={{ flex: 1 }}>Trvalé úložiště</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: persisted ? 'var(--gd-fern)' : 'var(--gd-text-4)' }}>
+            {persisted === null ? '…' : persisted ? 'zapnuté' : 'nezapnuté'}
+          </span>
+        </div>
+        <div style={{ fontSize: 10.5, lineHeight: 1.55, color: 'var(--gd-text-4)' }}>
+          Když je zapnuté, iOS data nesmaže jen proto, žes appku týden neotevřel.
+        </div>
+        {space && (
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, padding: '8px 0 0', marginTop: 8, borderTop: '1px solid var(--gd-line)' }}>
+            <span className="gd-tag" style={{ flex: 1 }}>Zabráno</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--gd-text-3)', fontVariantNumeric: 'tabular-nums' }}>
+              {String(space.usedMB).replace('.', ',')} z {space.quotaMB} MB
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Automatická záloha */}

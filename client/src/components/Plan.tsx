@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel, WARMUP_PROTOCOL, WARMUP_SERIES_BY_WEEK } from '@/lib/data';
 import type { WarmupSet } from '@/lib/data';
 import { getExerciseInfo, CATEGORY_COLORS } from '@/lib/exerciseDescriptions';
-import { Hero, Marquee, Reveal, SectionHead } from '@/components/kit';
+import { Hero, Reveal, SectionHead } from '@/components/kit';
 import type { WorkoutDataHook } from '@/lib/types';
 import type { WorkoutDay, Exercise } from '@/lib/data';
 import { tint, formatWeight } from '@/lib/tint';
@@ -83,8 +83,6 @@ export default function Plan({ workoutData }: Props) {
         }
       />
 
-      {/* Citáty běží globálně v shellu (QuoteBar), tady zůstávají popisky plánu. */}
-      <Marquee items={['31.08 — 29.11', 'Peaking program', 'Vlnové zatížení', 'Po dřep', 'Út bench', 'Pá mrtvý tah']} />
 
       <div className="gd-body">
         {selectedWeek !== currentWeekIndex && (

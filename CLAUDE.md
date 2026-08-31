@@ -133,12 +133,11 @@ rozbil bys světlé téma.
 | `--gd-accent-ink` | `#0E0E0E` | `#FFFFFF` |
 | `--gd-fern` | `#8C9B63` | `#4A5732` |
 | `--gd-danger` | `#C9663F` | `#9E4526` |
-| `--gd-poster` | `#2B7FFF` displejová modrá | `#2B7FFF` |
 
-**`--gd-poster` je výjimka z pravidla jedné signální barvy.** Používá se
-**jen** na obří posterový titulek v heru (`gd-hero--poster`) podle plakátů
-247 RUN. Stavy — dnešek, aktuální týden, PR, aktivní záložka — si dál drží
-volt. Kdyby to mělo vadit, stačí v `Hero` vypnout prop `poster`.
+**Jedna signální barva, volt.** Zkoušela se displejová modrá z plakátů
+247 RUN na posterový titulek, ale appka pak měla dvě signálky. Sjednoceno
+zpátky na volt: `--hero-hi` je `#D9F24B` v OBOU tématech (deska pod herem
+je vždycky černá, takže volt drží i ve světlém režimu).
 
 **Průhlednost NIKDY nedělej spojováním hexu.** `` `${color}20` `` vyrobí
 `var(--gd-accent)20`, což je neplatné CSS a prohlížeč celou deklaraci zahodí —
@@ -153,7 +152,8 @@ background: tint(catColor, 13)   // color-mix(in srgb, <barva> 13%, transparent)
 |---|---|
 | `Hero.tsx` | Celoplošná hlavička záložky: lockup 247, titulek, velké číslo pod linkou, meta řádek |
 | `Plate.tsx` | Kreslená deska pod hero (halftone, světlo, duch číslice, zrno) |
-| `Marquee.tsx` | Nekonečný pás mikrotypografie mezi hero a obsahem |
+| `Marquee.tsx` | Nekonečný pás. Používá ho už jen `QuoteBar` — popiskové pásy v záložkách jsou pryč |
+| `QuoteBar.tsx` | Citáty pod horní lištou, běží na každé záložce |
 | `SectionHead.tsx` | Číslo + popisek + linka. Jednotná hlavička každé sekce |
 | `Reveal.tsx` | Odhalení při scrollu přes IntersectionObserver (bez knihovny) |
 

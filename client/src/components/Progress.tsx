@@ -8,7 +8,7 @@ import type { WorkoutDataHook } from '@/lib/types';
 import { tint, formatWeight } from '@/lib/tint';
 import { getCurrentMaxes, setMax, bestRecent, type LiftKey as MaxLift } from '@/lib/maxes';
 import { toast } from 'sonner';
-import { Hero, Marquee, SectionHead, Watermark } from '@/components/kit';
+import { Hero, SectionHead, Watermark } from '@/components/kit';
 
 interface Props {
   workoutData: WorkoutDataHook;
@@ -133,7 +133,6 @@ export default function Progress({ workoutData }: Props) {
         }
       />
 
-      <Marquee items={['Odhad 1RM', 'Týdenní objem', 'Trend tělesné váhy', 'Předepsané série se do grafů nepočítají']} />
 
       <div className="gd-body">
       {/* Summary stats */}
