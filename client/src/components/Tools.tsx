@@ -14,7 +14,7 @@ import { loadSnapshots, markDownloaded, daysSinceDownload, formatStamp, REMIND_A
 import { plural } from '@/lib/czech';
 import { plannedTemplate } from '@/lib/planLink';
 import { loadPlates, formatPerSideShort, DEFAULT_BAR } from '@/lib/plates';
-import { Hero } from '@/components/kit';
+import { Hero, QuoteBar } from '@/components/kit';
 
 interface Props {
   workoutData: WorkoutDataHook;
@@ -122,6 +122,8 @@ export default function Tools({ workoutData }: Props) {
           </>
         }
       />
+
+      <QuoteBar />
 
 
       <div className="gd-body">

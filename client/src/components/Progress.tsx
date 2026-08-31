@@ -8,7 +8,7 @@ import type { WorkoutDataHook } from '@/lib/types';
 import { tint, formatWeight } from '@/lib/tint';
 import { getCurrentMaxes, setMax, bestRecent, type LiftKey as MaxLift } from '@/lib/maxes';
 import { toast } from 'sonner';
-import { Hero, SectionHead, Watermark } from '@/components/kit';
+import { Hero, QuoteBar, SectionHead, Watermark } from '@/components/kit';
 
 interface Props {
   workoutData: WorkoutDataHook;
@@ -132,6 +132,8 @@ export default function Progress({ workoutData }: Props) {
           </>
         }
       />
+
+      <QuoteBar />
 
 
       <div className="gd-body">

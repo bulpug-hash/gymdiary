@@ -7,7 +7,7 @@ import Guide from '@/components/Guide';
 import Diary from '@/components/Diary';
 import Progress from '@/components/Progress';
 import Tools from '@/components/Tools';
-import { NavIcon, QuoteBar, RestBar, UpdateBar } from '@/components/kit';
+import { NavIcon, RestBar, UpdateBar } from '@/components/kit';
 import type { NavIconKey } from '@/components/kit';
 import { useWorkoutData } from '@/hooks/useWorkoutData';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -50,7 +50,6 @@ export default function Home() {
         </span>
       </div>
 
-      <QuoteBar />
 
       <UpdateBar />
 

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel, WARMUP_PROTOCOL, WARMUP_SERIES_BY_WEEK } from '@/lib/data';
 import type { WarmupSet } from '@/lib/data';
 import { getExerciseInfo, CATEGORY_COLORS } from '@/lib/exerciseDescriptions';
-import { Hero, Reveal, SectionHead } from '@/components/kit';
+import { Hero, QuoteBar, Reveal, SectionHead } from '@/components/kit';
 import type { WorkoutDataHook } from '@/lib/types';
 import type { WorkoutDay, Exercise } from '@/lib/data';
 import { tint, formatWeight } from '@/lib/tint';
@@ -82,6 +82,8 @@ export default function Plan({ workoutData }: Props) {
           </>
         }
       />
+
+      <QuoteBar />
 
 
       <div className="gd-body">

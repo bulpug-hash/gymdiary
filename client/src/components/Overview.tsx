@@ -7,7 +7,7 @@ import {
 } from '@/lib/data';
 import type { WarmupSet, Week } from '@/lib/data';
 import type { WorkoutDataHook, Tab } from '@/lib/types';
-import { Hero, Reveal, SectionHead, Watermark } from '@/components/kit';
+import { Hero, QuoteBar, Reveal, SectionHead, Watermark } from '@/components/kit';
 import SetLogger from '@/components/SetLogger';
 import { weekProgress, dateForDay, daySummary } from '@/lib/planLink';
 import { getCurrentMaxes } from '@/lib/maxes';
@@ -97,6 +97,8 @@ export default function Overview({ workoutData, onNavigate }: Props) {
           { label: 'Termín', value: `${dm(currentWeek.dateFrom)} — ${dm(currentWeek.dateTo)}` },
         ]}
       />
+
+      <QuoteBar />
 
 
       <div className="gd-body">

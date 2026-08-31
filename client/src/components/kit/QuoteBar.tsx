@@ -1,15 +1,19 @@
 // Pás s citáty pro celou appku.
 //
-// Dřív visel jen v Plánu. Teď sedí v shellu (Home.tsx), takže běží na každé
-// záložce — je to jediný prvek, který je v appce pořád, a drží tón.
+// Sedí hned pod herem v každé záložce — přesně tam, kde dřív běžely popiskové
+// pásy („Podzim ’26 · Bench 130“). Ty jsou pryč, citáty je nahradily.
 //
-// Lepí se pod horní lištu, ne pod obsah: citát se má dát přečíst kdykoli,
-// ne jen na začátku stránky. Výška je záměrně malá, aby to nekradlo obsah.
+// Neleze do shellu ani se nelepí pod horní lištu: v tomhle místě dělí hero
+// od obsahu a nekrade pozornost, když scrolluješ dolů k číslům.
 //
-// Text jede groteskem (Archivo), ne serifem — viz index.css, .gd-marquee--quotes.
-// Důvod: sedí to k technickému tónu 247, kdežto kurzivní serif působil jako
-// citace z knížky. Archivo je tady jediný legální stand-in za jejich Bureau Sans,
-// který je komerční a na veřejný web ho nasadit nejde.
+// Text jede LOMENÝM písmem (Pirata One) — viz index.css, .gd-marquee--quotes.
+// Je to tentýž rejstřík jako gotické číslice „2 4 7" na jejich triku
+// Fallen Angel. Ověřeno, že má plnou českou diakritiku (ě ř ů č š ž ď ť ň),
+// takže se citáty nerozpadnou na půl gotiku a půl fallback.
+//
+// Lomené písmo se čte hůř než groteska, proto je tu větší stupeň.
+// Kdyby to vadilo, stačí v .gd-marquee__item--quote přepnout font-family
+// zpátky na 'Archivo'.
 import Marquee from './Marquee';
 import { quotesForToday } from '@/lib/quotes';
 
