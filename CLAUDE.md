@@ -382,6 +382,40 @@ paměti — telefon mezi sériemi běžně usne. Odstup mimo 15 s – 30 min se 
 a nic dál. Z aktuálního týdne tak nešlo nahlédnout na žádný další.
 Doplněno „Další týden →".
 
+### 4h. Export do XLSX (`Tools.tsx` `exportXLSX`)
+
+**Šest listů:** Záznamy, Souhrn cviků, Souhrn týdnů, Metadata, Běhy, HIIT.
+Vydává jen **skutečně odcvičené** série (`realOf()` filtruje `planned`) —
+z 661 záznamů v úložišti jich do souboru jde 366.
+
+Opravené vady (31. 8. 2026), ověřené rozebráním vyexportovaného souboru:
+
+- **Běhy a HIIT v exportu vůbec nebyly.** Čtou se z `__run_log__` /
+  `__hiit_log__`, a `exportXLSX` procházel jen `workoutData.records`.
+  HIIT je přitom v plánu napevno dvakrát týdně — export tvrdil „všechna data"
+  a tiše je vynechával.
+- **`getExerciseInfo` hledal jen v `PHASE3_WEEKS`.** Půlka jeho historie jsou
+  cviky ze starého plánu (`rdl`, `bench-top`, `deadlift-set3`…), které tam
+  nejsou → do Excelu se místo názvu psalo holé id. **180 z 366 řádků.**
+  Teď se hledá i v `LEGACY_PLAN_WEEKS`; zbývá 15 řádků (`front-squat`,
+  `larsen`, `run-thu`), které nejsou ani v jednom plánu.
+- **Datum bylo text**, takže Excel řadil abecedně („1. 2." před „10. 3.")
+  a filtr podle období nefungoval. Teď skutečná datová buňka
+  (`aoa_to_sheet(..., { cellDates: true })` + `cell.z = 'd. m. yyyy'`).
+  ⚠️ Bez `cellDates` by se z `Date` stalo serialové číslo (46054) a uživatel
+  by v Excelu viděl pětimístné číslo.
+- **Tlačítko slibovalo 661 záznamů**, ale exportovalo 366. Popisek teď říká
+  „odcvičených sérií" a počítá `!r.planned`.
+
+Datum se všude parsuje jako `new Date(iso + 'T12:00:00')` — poledne, aby posun
+časové zóny nepřehodil den.
+
+**Zatím prázdné sloupce:** `Týden č.`, `Fáze`, `Plánovaná váha`,
+`% splnění cíle váhy` jsou u všech 366 řádků prázdné, protože jeho historie je
+únor–červenec 2026, tedy **před** začátkem plánu (31. 8.). Naplní se samy, jak
+bude odškrtávat podle plánu. `Fitko` a `Extra aktivita` nevyplňuje nic v celé
+appce — ta dvě pole existují jen v typu.
+
 ### 4e. Záchranná obrazovka (`components/ErrorBoundary.tsx`)
 
 Když appka spadne, tohle je jediné, co uživatel uvidí. Schválně **nemá žádné

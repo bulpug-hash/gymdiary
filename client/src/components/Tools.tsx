@@ -4,7 +4,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { toast } from 'sonner';
-import { nanoid, formatDate, PHASE3_WEEKS } from '@/lib/data';
+import { nanoid, formatDate, PHASE3_WEEKS, LEGACY_PLAN_WEEKS, RUN_LOG_KEY, HIIT_LOG_KEY } from '@/lib/data';
+import type { RunRecord, HIITRecord } from '@/lib/data';
+
+/** Popisky typů HIIT pro export – stejné jako v Deníku. */
+const HIIT_LABEL: Record<string, string> = {
+  tabata: 'Tabata', circuit: 'Circuit', amrap: 'AMRAP', emom: 'EMOM', other: 'Jiný',
+};
 import { RECOVERED_HIIT_RECORDS, RECOVERED_RUN_RECORDS } from '@/lib/recoveryData';
 import type { WorkoutDataHook } from '@/lib/types';
 import { tint, formatWeight } from '@/lib/tint';
@@ -854,6 +860,9 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
   };
 
   // Helper: find exercise name and day/week info from plan
+  // Hledá se v OBOU plánech. Půlka jeho historie jsou cviky ze starého plánu
+  // (rdl, bench-top, deadlift-set3…) a ty v PHASE3_WEEKS nejsou — bez tohohle
+  // se do Excelu místo názvu vypsalo holé id a 180 z 366 řádků bylo nečitelných.
   const getExerciseInfo = (exId: string) => {
     for (const week of PHASE3_WEEKS) {
       for (const day of week.days) {
@@ -861,12 +870,18 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
         if (ex) return { name: ex.name, dayLabel: day.label, dayType: day.type, weekNum: week.number, phase: week.phase, category: ex.category };
       }
     }
+    for (const week of LEGACY_PLAN_WEEKS) {
+      for (const day of week.days) {
+        const ex = day.exercises.find(e => e.id === exId);
+        if (ex) return { name: ex.name, dayLabel: day.label, dayType: day.type, weekNum: 0, phase: 'Starý plán', category: ex.category };
+      }
+    }
     return { name: exId, dayLabel: '–', dayType: '–', weekNum: 0, phase: '–', category: 'accessory' };
   };
 
   // Helper: get week for a date
   const getWeekForDate = (dateStr: string) => {
-    const d = new Date(dateStr);
+    const d = new Date(dateStr + 'T12:00:00');
     for (const week of PHASE3_WEEKS) {
       const from = new Date(week.dateFrom);
       const to = new Date(week.dateTo);
@@ -878,9 +893,14 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
 
   // Helper: format date CZ style
   const fmtDate = (iso: string) => {
-    const d = new Date(iso);
+    const d = new Date(iso + 'T12:00:00');
     return `${d.getDate()}. ${d.getMonth()+1}. ${d.getFullYear()}`;
   };
+
+  // Do buňky patří skutečné datum, ne text — jako text Excel řadí abecedně
+  // („1. 2. 2026" před „26. 7. 2026" i „10. 3. 2026") a filtr podle období
+  // nefunguje vůbec. Poledne, aby posun časové zóny nepřehodil den.
+  const dateCell = (iso: string) => new Date(iso + 'T12:00:00');
 
   // Helper: day of week CZ
   const dayNames = ['neděle','pondělí','úterý','středa','čtvrtek','pátek','sobota'];
@@ -903,7 +923,7 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
     const today = new Date().toISOString().split('T')[0];
 
     // ===== List 1: Záznamy =====
-    const zaznamy: (string | number | null)[][] = [[
+    const zaznamy: (string | number | Date | null)[][] = [[
       'Datum', 'Den v týdnu', 'Trénink', 'Cvik', 'Kategorie',
       'Týden č.', 'Fáze', 'Plánovaná váha (kg)', 'Plánovaný záznam (celý)',
       'Skutečná váha (kg)', 'Skutečná opakování', 'Objem (kg × op)',
@@ -925,7 +945,7 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
         const volume = actualWeight * actualReps * actualSets;
         const pctGoal = plannedWeight > 0 ? Math.round((actualWeight / plannedWeight) * 100) / 100 : null;
         zaznamy.push([
-          fmtDate(r.date),
+          dateCell(r.date),
           getDayName(r.date),
           info.dayLabel + ' – ' + info.dayType.toUpperCase(),
           info.name,
@@ -1032,13 +1052,78 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
 
     // Build workbook
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(zaznamy), 'Záznamy');
+    // cellDates: bez toho by se z Date udělalo serialové číslo (45 000)
+    // a uživatel by v Excelu viděl místo data pětimístné číslo.
+    const listZaznamy = XLSX.utils.aoa_to_sheet(zaznamy, { cellDates: true });
+    for (let i = 2; i <= zaznamy.length; i++) {
+      const c = listZaznamy[`A${i}`];
+      if (c) c.z = 'd. m. yyyy';
+    }
+    listZaznamy['!cols'] = [{ wch: 12 }, { wch: 11 }, { wch: 18 }, { wch: 30 }, { wch: 15 }];
+    XLSX.utils.book_append_sheet(wb, listZaznamy, 'Záznamy');
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(souhrn), 'Souhrn cviků');
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(souhrntydnu), 'Souhrn týdnů');
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(metadata), 'Metadata');
 
+    // ===== Listy 5 a 6: Běhy a HIIT =====
+    // Do XLSX se dřív nedostaly vůbec, přestože HIIT je v plánu napevno
+    // dvakrát týdně (St + So). Export tvrdil „všechna data" a tiše je vynechal.
+    const nactiLog = <T,>(klic: string): T[] => {
+      try {
+        const raw = localStorage.getItem(klic);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      } catch { return []; }
+    };
+
+    const behy = nactiLog<RunRecord>(RUN_LOG_KEY)
+      .slice()
+      .sort((a, b) => a.date.localeCompare(b.date));
+    const listBehy: (string | number | Date | null)[][] = [[
+      'Datum', 'Den v týdnu', 'Délka (min)', 'Vzdálenost (km)',
+      'Zóna', 'Průměrné tempo', 'Průměrný TF', 'Poznámka',
+    ]];
+    for (const b of behy) {
+      listBehy.push([
+        dateCell(b.date), getDayName(b.date),
+        parseFloat(b.duration) || null, parseFloat(b.distance) || null,
+        b.zone || '–', b.avgPace || null, parseInt(b.avgHr ?? '', 10) || null, b.note || null,
+      ]);
+    }
+
+    const hiit = nactiLog<HIITRecord>(HIIT_LOG_KEY)
+      .slice()
+      .sort((a, b) => a.date.localeCompare(b.date));
+    const listHiit: (string | number | Date | null)[][] = [[
+      'Datum', 'Den v týdnu', 'Typ', 'Délka (min)', 'Kola',
+      'Práce (s)', 'Odpočinek (s)', 'Zóna', 'Průměrný TF', 'Max TF',
+      'Kalorie', 'Cviky', 'Poznámka',
+    ]];
+    for (const h of hiit) {
+      listHiit.push([
+        dateCell(h.date), getDayName(h.date), HIIT_LABEL[h.type] ?? h.type,
+        parseFloat(h.duration) || null, parseInt(h.rounds ?? '', 10) || null,
+        parseInt(h.workInterval ?? '', 10) || null, parseInt(h.restInterval ?? '', 10) || null,
+        h.zone || '–', parseInt(h.avgHr ?? '', 10) || null, parseInt(h.maxHr ?? '', 10) || null,
+        parseInt(h.calories ?? '', 10) || null, h.exercises || null, h.note || null,
+      ]);
+    }
+
+    // Datové sloupce i tady, ať jde řadit.
+    // XLSX se importuje dynamicky, takže jeho typy nejsou v dosahu jako
+    // namespace — list se popíše strukturálně.
+    const sDatem = <L extends Record<string, { z?: string }>>(rows: unknown[][], list: L) => {
+      for (let i = 2; i <= rows.length; i++) {
+        const c = list[`A${i}`];
+        if (c) c.z = 'd. m. yyyy';
+      }
+      return list;
+    };
+    XLSX.utils.book_append_sheet(wb, sDatem(listBehy, XLSX.utils.aoa_to_sheet(listBehy, { cellDates: true })), 'Běhy');
+    XLSX.utils.book_append_sheet(wb, sDatem(listHiit, XLSX.utils.aoa_to_sheet(listHiit, { cellDates: true })), 'HIIT');
+
     XLSX.writeFile(wb, `treninkovy-denik-${today}.xlsx`);
-    toast.success('XLSX exportováno – 4 listy ✓');
+    toast.success('XLSX exportováno – 6 listů ✓');
   };
 
   const exportBodyWeight = async () => {
@@ -1053,6 +1138,10 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
   };
 
   const totalRecords = Object.values(workoutData.records).reduce((sum, arr) => sum + arr.length, 0);
+  // Export vydává jen skutečně odcvičené série. Tlačítko dřív slibovalo 661
+  // (včetně 295 předepsaných z plánu), ale v souboru jich bylo 366.
+  const exportovatelnych = Object.values(workoutData.records)
+    .reduce((sum, arr) => sum + arr.filter(r => !r.planned).length, 0);
   const exerciseCount = Object.keys(workoutData.records).filter(id => workoutData.getRecords(id).filter(r => !r.planned).length > 0).length;
   const bwCount = loadBodyWeights().length;
 
@@ -1062,7 +1151,7 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
         Export dat
       </div>
       <p style={{ fontSize: 12, color: 'var(--gd-text-4)', marginBottom: 20 }}>
-        Stáhni svá data jako XLSX soubor – 4 listy identické se starým deníkem.
+        Stáhni svá data jako XLSX soubor – 6 listů: série, souhrny, běhy i HIIT.
       </p>
 
       {/* Stats */}
@@ -1168,7 +1257,7 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
           <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', color: 'var(--gd-accent)' }}>XLS</span>
           <div style={{ flex: 1 }}>
             <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 16, fontWeight: 700, color: 'var(--gd-accent)' }}>Export tréninků (XLSX)</div>
-            <div style={{ fontSize: 11, color: 'var(--gd-text-3)', marginTop: 2 }}>{totalRecords} záznamů · 4 listy: Záznamy, Souhrn cviků, Souhrn týdnů, Metadata</div>
+            <div style={{ fontSize: 11, color: 'var(--gd-text-3)', marginTop: 2 }}>{exportovatelnych} odcvičených sérií · 6 listů: Záznamy, Souhrn cviků, Souhrn týdnů, Metadata, Běhy, HIIT</div>
           </div>
           <div style={{ color: 'var(--gd-accent)', fontSize: 16 }}>↓</div>
         </button>
