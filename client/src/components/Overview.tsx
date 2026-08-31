@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import {
   PHASE3_WEEKS, getTodayDayKey, getTodayISO, getCurrentWeek,
-  GOALS, WARMUP_SERIES_BY_WEEK,
+  GOALS,
 } from '@/lib/data';
-import type { WarmupSet, Week } from '@/lib/data';
+import type { Week } from '@/lib/data';
 import type { WorkoutDataHook, Tab } from '@/lib/types';
 import { Hero, QuoteBar, Reveal, SectionHead, Watermark } from '@/components/kit';
+import WarmupTable from '@/components/WarmupTable';
 import SetLogger from '@/components/SetLogger';
 import { weekProgress, dateForDay, daySummary } from '@/lib/planLink';
 import { getCurrentMaxes } from '@/lib/maxes';
@@ -152,6 +153,19 @@ export default function Overview({ workoutData, onNavigate }: Props) {
                 cursor: weekNum <= 1 ? 'default' : 'pointer',
               }}
             >← Předchozí týden</button>
+            {/* Dopředu se dřív jít nedalo vůbec — byla tu jen šipka zpět.
+                Z aktuálního týdne tak nešlo nahlédnout na žádný další. */}
+            <button
+              onClick={() => { setWeekNum(w => Math.min(PHASE3_WEEKS.length, w + 1)); setPickedDay(null); }}
+              disabled={weekNum >= PHASE3_WEEKS.length}
+              style={{
+                flex: 1, padding: '11px', background: 'transparent',
+                border: '1px solid var(--gd-line)', borderRadius: 0,
+                color: weekNum >= PHASE3_WEEKS.length ? 'var(--gd-text-4)' : 'var(--gd-text-3)',
+                fontSize: 9, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase',
+                cursor: weekNum >= PHASE3_WEEKS.length ? 'default' : 'pointer',
+              }}
+            >Další týden →</button>
             {(!isThisWeek || pickedDay) && (
               <button
                 onClick={() => { setWeekNum(currentWeekNum); setPickedDay(null); }}
@@ -226,6 +240,10 @@ export default function Overview({ workoutData, onNavigate }: Props) {
                     se odskrtavaji serie. Blok je vysoky, takze rytina drzi
                     u horniho okraje a nemusi se roztahovat pres celou vysku. */}
                 <Watermark name="athlete" position="103% 4%" size="auto 52%" opacity={0.075} />
+                {/* Rozehřátí patří k tréninku, ne do vlastní sekce na konci
+                    stránky — je vidět rovnou a řídí se VYBRANÝM dnem a týdnem,
+                    stejně jako série pod ním. */}
+                <WarmupTable dayType={activeDay.type} weekNumber={weekNum} />
                 {activeDay.exercises.map((ex, i) => (
                   <div key={ex.id} style={{ marginBottom: 18 }}>
                     <div style={{
@@ -359,43 +377,9 @@ export default function Overview({ workoutData, onNavigate }: Props) {
           </Reveal>
         </div>
 
-        {/* Rozehřívací série */}
-        {todayDay && (todayDay.type === 'lower' || todayDay.type === 'upper' || todayDay.type === 'fullbody') && (() => {
-          const weekData = WARMUP_SERIES_BY_WEEK[currentWeekNum];
-          const liftKey = todayDay.type === 'lower' ? 'squat' : todayDay.type === 'upper' ? 'bench' : 'deadlift';
-          const liftLabel = todayDay.type === 'lower' ? 'Squat' : todayDay.type === 'upper' ? 'Bench press' : 'Deadlift';
-          const series = weekData?.[liftKey];
-          if (!series || series.length === 0) return null;
-          const formatW = (w: number) => (w === 20 ? 'Tyč' : `${w} kg`);
-          const pct = (note?: string) => (note?.match(/(~?\d+%)/)?.[1] ?? '–');
-          return (
-            <Reveal>
-              <SectionHead n="05" label="Rozehřátí" right={`${liftLabel} · Zatsiorsky`} />
-              <div style={{ padding: '0 20px 24px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 0 }}>
-                  {['Série', 'Váha', 'Reps', '% 1RM'].map(h => (
-                    <div key={h} className="gd-tag" style={{ padding: '0 0 7px', color: 'var(--gd-text-4)' }}>{h}</div>
-                  ))}
-                  {series.map((row: WarmupSet, i: number) => (
-                    <div key={`row-${i}`} style={{ display: 'contents' }}>
-                      <div style={{ fontSize: 12, color: 'var(--gd-text-3)', padding: '9px 0', borderTop: '1px solid var(--gd-line)', fontVariantNumeric: 'tabular-nums' }}>1×{row.reps}</div>
-                      <div style={{ fontSize: 12, color: 'var(--gd-text)', fontWeight: 700, padding: '9px 0', borderTop: '1px solid var(--gd-line)' }}>{formatW(row.weight)}</div>
-                      <div style={{ fontSize: 12, color: 'var(--gd-text-3)', padding: '9px 0', borderTop: '1px solid var(--gd-line)', fontVariantNumeric: 'tabular-nums' }}>{row.reps}</div>
-                      <div style={{ fontSize: 12, color: 'var(--gd-fern)', fontWeight: 700, padding: '9px 0', borderTop: '1px solid var(--gd-line)' }}>{pct(row.note)}</div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ marginTop: 10, fontSize: 11, color: 'var(--gd-text-4)' }}>
-                  Do deníku se zapisují jen pracovní série.
-                </div>
-              </div>
-            </Reveal>
-          );
-        })()}
-
         {/* Fáze */}
         <Reveal>
-          <SectionHead n="06" label="Aktuální fáze" right={currentWeek.phase} />
+          <SectionHead n="05" label="Aktuální fáze" right={currentWeek.phase} />
           <div className="gd-wmhost" style={{ padding: '0 20px 34px' }}>
             <Watermark name="knight" position="104% 30%" size="auto 118%" opacity={0.065} />
             <p className="gd-serif" style={{ fontSize: 16, lineHeight: 1.65, color: 'var(--gd-text-2)', margin: '0 0 18px', maxWidth: '58ch' }}>

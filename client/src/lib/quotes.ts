@@ -78,37 +78,49 @@ export const QUOTES: Quote[] = [
  * po sobě jdoucích znamenalo šest Gogginsů za sebou — takhle je v pásu
  * pokaždé mix.
  */
-const INTERLEAVED: Quote[] = (() => {
-  const byAuthor = new Map<string, Quote[]>();
+/** Výroky rozdělené po autorech, v pořadí, v jakém jsou v QUOTES. */
+const PODLE_AUTORU: Quote[][] = (() => {
+  const map = new Map<string, Quote[]>();
   for (const q of QUOTES) {
-    const arr = byAuthor.get(q.author) ?? [];
+    const arr = map.get(q.author) ?? [];
     arr.push(q);
-    byAuthor.set(q.author, arr);
+    map.set(q.author, arr);
   }
-  const lists = Array.from(byAuthor.values());
-  const out: Quote[] = [];
-  for (let i = 0; out.length < QUOTES.length; i++) {
-    for (const list of lists) {
-      if (i < list.length) out.push(list[i]);
-    }
-  }
-  return out;
+  return Array.from(map.values());
 })();
 
 /**
  * Deterministický výběr na den. Pořadí se drží celý den stejné (ať to
  * nepřeskakuje při každém překreslení), ale mezi dny se posouvá.
+ *
+ * ⚠️ KAŽDÝ AUTOR MUSÍ BÝT V KAŽDÉM DNI ZASTOUPENÝ. Původní verze skládala
+ * jeden společný seznam střídavě po autorech a pak z něj brala okno šesti
+ * po sobě jdoucích. Protože Vetchý má jen tři výroky, seděl v tom seznamu
+ * na pozicích 1, 4 a 7 — a okno ho na 10 z 22 dní minulo úplně.
+ * Teď se bere kolo po autorech: dokud má autor co nabídnout, dostane slovo.
  */
 export function quotesForToday(count = 6): Quote[] {
-  if (INTERLEAVED.length === 0) return [];
+  if (QUOTES.length === 0) return [];
   const now = new Date();
   const dayIndex = Math.floor(
     Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000,
   );
-  const offset = ((dayIndex % INTERLEAVED.length) + INTERLEAVED.length) % INTERLEAVED.length;
+
   const out: Quote[] = [];
-  for (let i = 0; i < Math.min(count, INTERLEAVED.length); i++) {
-    out.push(INTERLEAVED[(offset + i) % INTERLEAVED.length]);
+  const limit = Math.min(count, QUOTES.length);
+  // Kolo po autorech: v každém kole si každý autor vezme další svůj výrok,
+  // posunutý o den. Tím je i tříprvkový autor vidět vždycky.
+  for (let kolo = 0; out.length < limit; kolo++) {
+    let pridano = false;
+    for (const list of PODLE_AUTORU) {
+      if (out.length >= limit) break;
+      if (kolo >= list.length) continue;
+      const idx = (((dayIndex + kolo) % list.length) + list.length) % list.length;
+      const q = list[idx];
+      if (!out.includes(q)) { out.push(q); pridano = true; }
+    }
+    // Pojistka proti nekonečné smyčce, kdyby se výroky vyčerpaly.
+    if (!pridano) break;
   }
   return out;
 }

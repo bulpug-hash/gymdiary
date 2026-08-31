@@ -16,6 +16,7 @@ import { plannedId, labelFromNote, plannedTemplate, exerciseHistory } from '@/li
 import { formatWeight, normalizeDecimal } from '@/lib/tint';
 import { startRest, restForCategory } from '@/lib/restTimer';
 import { ulozeno, tap } from '@/lib/haptics';
+import { pauzaOdPosledni, oznacSeriiHotovou, formatPauzu } from '@/lib/setClock';
 import { loadPlates, formatPerSideShort } from '@/lib/plates';
 import { Tick } from '@/components/kit';
 
@@ -98,11 +99,15 @@ export default function SetLogger({ exercise, week, dayKey, date, workoutData }:
     const rec = byId(row.id);
     const note = rec?.note ?? `PLÁN · T${week} · ${row.label}`;
     const w = normalizeDecimal(weight);
+    // Skutečná pauza od minulé odškrtnuté série. Čte se PŘED zapsáním nové
+    // značky, jinak by vyšla nula.
+    const pauza = pauzaOdPosledni();
     if (!rec) {
-      workoutData.addRecord(exercise.id, date, row.sets, w, reps, note, rpe);
+      workoutData.addRecord(exercise.id, date, row.sets, w, reps, note, rpe, pauza ?? undefined);
     } else {
-      workoutData.updateRecord(exercise.id, row.id, date, row.sets, w, reps, note, rpe);
+      workoutData.updateRecord(exercise.id, row.id, date, row.sets, w, reps, note, rpe, pauza ?? undefined);
     }
+    oznacSeriiHotovou();
     ulozeno();
     setOpenRow(null);
     startRest(restForCategory(exercise.category), exercise.nameShort || exercise.name);
@@ -161,7 +166,14 @@ export default function SetLogger({ exercise, week, dayKey, date, workoutData }:
               <span className="gd-set__tick" aria-hidden="true">{done && <Tick />}</span>
               <span className="gd-set__lbl">
                 {row.index !== undefined ? (labelFromNote(rec?.note) ?? row.label) : row.label}
-                {done && rec?.rpe && <span className="gd-set__prev">zapsáno na RPE {rec.rpe}</span>}
+                {done && (rec?.rpe || rec?.gapSec) && (
+                  <span className="gd-set__prev">
+                    {rec.rpe && `zapsáno na RPE ${rec.rpe}`}
+                    {rec.rpe && rec.gapSec ? ' · ' : ''}
+                    {/* Naměřená pauza, ne předpis z RestBaru. */}
+                    {rec.gapSec ? `pauza ${formatPauzu(rec.gapSec)}` : ''}
+                  </span>
+                )}
               </span>
               <span className="gd-set__num">
                 {row.weight !== '0' ? `${formatWeight(shownW)} × ${shownR}` : `${row.sets} × ${shownR}`}

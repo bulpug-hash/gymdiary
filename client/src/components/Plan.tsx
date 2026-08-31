@@ -2,8 +2,8 @@
 // Gold Performance Design
 // Shows: 13-week peaking plan v5.2, exercise details per day with dropset badges
 import { useState } from 'react';
-import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel, WARMUP_PROTOCOL, WARMUP_SERIES_BY_WEEK } from '@/lib/data';
-import type { WarmupSet } from '@/lib/data';
+import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel, WARMUP_PROTOCOL } from '@/lib/data';
+import WarmupTable, { warmupLiftLabel } from '@/components/WarmupTable';
 import { getExerciseInfo, CATEGORY_COLORS } from '@/lib/exerciseDescriptions';
 import { Hero, QuoteBar, Reveal, SectionHead } from '@/components/kit';
 import type { WorkoutDataHook } from '@/lib/types';
@@ -376,78 +376,23 @@ function ExerciseRow({ ex, idx, total, latest }: {
   );
 }
 
-// Dynamic warm-up series block – uses WARMUP_SERIES_BY_WEEK from data.ts
+// Rozehřívací série v kartě dne. Tabulku kreslí sdílená WarmupTable, aby
+// Plán i Přehled ukazovaly totéž.
+//
+// Dřív byl blok složený (`useState(false)`) s popiskem „Klikněte pro zobrazení".
+// Rozcvička má být vidět rovnou — uživatel ji čte před sérií, ne po dvou tapech.
 function WarmupSeriesBlock({ dayType, weekNumber }: { dayType: string; weekNumber: number }) {
-  const [open, setOpen] = useState(false);
-
-  const weekData = WARMUP_SERIES_BY_WEEK[weekNumber];
-
-  const lifts = dayType === 'lower'
-    ? [{ key: 'squat' as const, label: 'SQUAT – Rozehřívací série', icon: 'SQ', series: weekData?.squat }]
-    : dayType === 'upper'
-    ? [{ key: 'bench' as const, label: 'BENCH PRESS – Rozehřívací série', icon: 'BP', series: weekData?.bench }]
-    : [
-        { key: 'deadlift' as const, label: 'DEADLIFT – Rozehřívací série', icon: 'DL', series: weekData?.deadlift },
-      ];
-
-  const formatWeight = (w: number) => w === 20 ? 'Tyč (20 kg)' : `${w} kg`;
-  const extractPct = (note?: string) => {
-    if (!note) return '–';
-    const m = note.match(/(~?\d+%)/);
-    return m ? m[1] : '–';
-  };
-  const extractNote = (note?: string) => {
-    if (!note) return '–';
-    return note.replace(/~?\d+%/, '').replace(/^\s*[–-]\s*/, '').trim() || '–';
-  };
-
+  if (!warmupLiftLabel(dayType)) return null;
   return (
-    <div style={{ marginBottom: 12, borderRadius: 0, border: '1px solid color-mix(in srgb, var(--gd-fern) 20%, transparent)', background: 'color-mix(in srgb, var(--gd-fern) 3%, transparent)', overflow: 'hidden' }}>
-      <button
-        onClick={() => setOpen(!open)}
-        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left' }}
-      >
-        <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', color: 'var(--gd-fern)' }}>WU</div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--gd-fern)', letterSpacing: '0.08em' }}>ROZEHŘÍVACÍ SÉRIE (Zatsiorsky) – W{weekNumber}</div>
-          <div style={{ fontSize: 10, color: 'var(--gd-text-4)', marginTop: 1 }}>Klikněte pro zobrazení · Zapisují se jen pracovní série</div>
-        </div>
-        <div style={{ color: 'var(--gd-text-4)', fontSize: 11, transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }}>▼</div>
-      </button>
-
-      {open && (
-        <div style={{ padding: '0 12px 12px', borderTop: '1px solid color-mix(in srgb, var(--gd-fern) 10%, transparent)' }}>
-          {lifts.map(lift => (
-            <div key={lift.key} style={{ marginTop: 10 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--gd-fern)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>{lift.icon} {lift.label}</div>
-              {lift.series && lift.series.length > 0 ? (
-                <div style={{ display: 'grid', gridTemplateColumns: '50px 100px 40px 50px 1fr', gap: '4px 8px' }}>
-                  <div style={{ fontSize: 9, color: 'var(--gd-text-4)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>SÉRIE</div>
-                  <div style={{ fontSize: 9, color: 'var(--gd-text-4)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>VÁHA</div>
-                  <div style={{ fontSize: 9, color: 'var(--gd-text-4)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>REPS</div>
-                  <div style={{ fontSize: 9, color: 'var(--gd-accent)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>% 1RM</div>
-                  <div style={{ fontSize: 9, color: 'var(--gd-text-4)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>POZNÁMKA</div>
-                  {lift.series.map((row: WarmupSet, i: number) => (
-                    <>
-                      <div key={`s${i}`} style={{ fontSize: 11, color: 'var(--gd-text-2)', padding: '3px 0', borderTop: '1px solid color-mix(in srgb, var(--gd-text) 4%, transparent)' }}>1×{row.reps}</div>
-                      <div key={`w${i}`} style={{ fontSize: 11, color: 'var(--gd-text)', fontWeight: 600, padding: '3px 0', borderTop: '1px solid color-mix(in srgb, var(--gd-text) 4%, transparent)' }}>{formatWeight(row.weight)}</div>
-                      <div key={`r${i}`} style={{ fontSize: 11, color: 'var(--gd-fern)', padding: '3px 0', borderTop: '1px solid color-mix(in srgb, var(--gd-text) 4%, transparent)' }}>{row.reps}</div>
-                      <div key={`p${i}`} style={{ fontSize: 11, color: 'var(--gd-accent)', fontWeight: 600, padding: '3px 0', borderTop: '1px solid color-mix(in srgb, var(--gd-text) 4%, transparent)' }}>{extractPct(row.note)}</div>
-                      <div key={`n${i}`} style={{ fontSize: 10, color: 'var(--gd-text-3)', padding: '3px 0', borderTop: '1px solid color-mix(in srgb, var(--gd-text) 4%, transparent)', lineHeight: 1.4 }}>{extractNote(row.note) !== '–' ? extractNote(row.note) : (row.weight === 20 ? 'Pohybový vzorec' : '–')}</div>
-                    </>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ fontSize: 11, color: 'var(--gd-text-4)' }}>Data pro tento týden nejsou k dispozici.</div>
-              )}
-            </div>
-          ))}
-          <div style={{ marginTop: 10, padding: '7px 10px', background: 'color-mix(in srgb, var(--gd-shadow) 20%, transparent)', borderRadius: 0, borderLeft: '2px solid color-mix(in srgb, var(--gd-fern) 40%, transparent)' }}>
-            <div style={{ fontSize: 10, color: 'var(--gd-fern)', fontWeight: 700, marginBottom: 2 }}>POZOR · DO DENÍKU SE ZAPISUJÍ JEN PRACOVNÍ SÉRIE</div>
-            <div style={{ fontSize: 10, color: 'var(--gd-text-4)', lineHeight: 1.5 }}>Rozehřívací série slouží jen jako příprava CNS a pohybového vzorce. Nepočítej je jako objem.</div>
-          </div>
-        </div>
-      )}
+    <div style={{
+      marginBottom: 12, padding: '10px 12px 4px',
+      border: '1px solid color-mix(in srgb, var(--gd-fern) 20%, transparent)',
+      background: 'color-mix(in srgb, var(--gd-fern) 3%, transparent)',
+    }}>
+      <WarmupTable dayType={dayType} weekNumber={weekNumber} />
+      <div style={{ fontSize: 10, color: 'var(--gd-text-4)', lineHeight: 1.5, paddingBottom: 8 }}>
+        Příprava CNS a pohybového vzorce. Nepočítej je jako objem.
+      </div>
     </div>
   );
 }

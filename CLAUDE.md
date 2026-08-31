@@ -265,8 +265,15 @@ pak zapni letadlo a appku otevři znovu.
 
 ### 4c. Citáty (`lib/quotes.ts`)
 
-Běžící pás v Plánu ukazuje výroky Jiřího Procházky (11), Davida Gogginse (8)
+Běžící pás ukazuje výroky Jiřího Procházky (11), Davida Gogginse (8)
 a Ondřeje Vetchého (3). Rotují po dnech (`quotesForToday`), šest naráz.
+
+⚠️ **Výběr jede kolo po autorech, ne oknem ze společného seznamu.** Původní
+verze skládala jeden střídavý seznam a brala z něj šest po sobě jdoucích.
+Protože Vetchý má jen tři výroky, seděl v tom seznamu na pozicích 1, 4 a 7
+a okno ho **na 10 z 22 dní minulo úplně** — vypadalo to, že v appce chybí.
+Teď dostane v každém kole slovo každý autor, dokud má co nabídnout.
+Ověřeno na 400 dnech: 0 dní bez kteréhokoli ze tří.
 
 Vetchý jich má nejmíň schválně — k tématu odhodlání a disciplíny toho má
 doloženého podstatně míň než zbylí dva. Radši tři jisté než osm vymyšlených.
@@ -347,6 +354,33 @@ osmi nesouvisejících sekcí — ale struktura záložek je v sekci 7 na seznam
 věcí, které se bez jeho výslovného souhlasu nemění. Stejně tak přechod
 z vložených formulářů na sheety: velký zásah do `Diary.tsx` i `Tools.tsx`
 s reálným rizikem, že se něco rozbije. Obojí čeká na jeho rozhodnutí.
+
+### 4g. Rozcvička a měření pauzy (31. 8. 2026)
+
+**Rozehřívací série** kreslí jediná komponenta `components/WarmupTable.tsx`,
+kterou používá Přehled i Plán. Dřív to byly dvě různé tabulky a ta v Přehledu
+se řídila **dnešním** dnem, zatímco zápis sérií vedle ní běžel podle
+**vybraného** — po proklikání jiného dne nebo týdne ukazovala váhy k jinému
+tréninku. Sekce „05 Rozehřátí" v Přehledu zanikla, tabulka je teď nahoře
+v bloku zápisu (sekce 03) a čísla sekcí jdou souvisle 01–05.
+
+V Plánu byl blok složený (`useState(false)`) s popiskem „Klikněte pro
+zobrazení". Rozcvička se čte **před** sérií, ne po dvou tapech — je rozbalená
+vždycky.
+
+⚠️ **Rozehřívací série nejdou odškrtnout a je to záměr**, ne opomenutí:
+do deníku se zapisují jen pracovní série, jinak by se nafoukl objem.
+Tabulka to říká přímo popiskem „Nezapisuje se".
+
+**Měření pauzy** — `lib/setClock.ts`, ukládá se do `TrainingRecord.gapSec`.
+RestBar odpočítává **předpis**; tohle je **skutečnost**: kolik uplynulo od
+odškrtnutí jedné série do odškrtnutí další. Značka jde do localStorage, ne do
+paměti — telefon mezi sériemi běžně usne. Odstup mimo 15 s – 30 min se zahodí
+(překlep / oprava / jiný den), radši nic než nesmysl v datech.
+
+**Přehled uměl listovat týdny jen dozadu** — bylo tam „← Předchozí týden"
+a nic dál. Z aktuálního týdne tak nešlo nahlédnout na žádný další.
+Doplněno „Další týden →".
 
 ### 4e. Záchranná obrazovka (`components/ErrorBoundary.tsx`)
 
