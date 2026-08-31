@@ -7,7 +7,6 @@ import { toast } from 'sonner';
 import { nanoid, formatDate, PHASE3_WEEKS } from '@/lib/data';
 import { RECOVERED_HIIT_RECORDS, RECOVERED_RUN_RECORDS } from '@/lib/recoveryData';
 import type { WorkoutDataHook } from '@/lib/types';
-import * as XLSX from 'xlsx';
 import { tint, formatWeight } from '@/lib/tint';
 import { useRestTimer, startRest, pauseRest, resumeRest, resetRest, setRestDuration } from '@/lib/restTimer';
 import { loadSnapshots, markDownloaded, daysSinceDownload, formatStamp, REMIND_AFTER_DAYS, isPersisted, storageEstimate } from '@/lib/backup';
@@ -197,7 +196,7 @@ function RPECalculator() {
     borderRadius: 0,
     color: 'var(--gd-text)',
     padding: '10px 12px',
-    fontSize: 14,
+    fontSize: 16,
     width: '100%',
     outline: 'none',
     boxSizing: 'border-box' as const,
@@ -400,7 +399,7 @@ function BodyWeightTracker() {
     borderRadius: 0,
     color: 'var(--gd-text)',
     padding: '10px 12px',
-    fontSize: 14,
+    fontSize: 16,
     width: '100%',
     outline: 'none',
     boxSizing: 'border-box' as const,
@@ -893,7 +892,10 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
     prevention: 'Prevence', core: 'Core', run: 'Běh', superset: 'Superset',
   };
 
-  const exportXLSX = () => {
+  // xlsx váží přes půl megabajtu a export se používá jednou za čas – natahuje
+  // se proto až při kliknutí, ne při startu appky na telefonu.
+  const exportXLSX = async () => {
+    const XLSX = await import('xlsx');
     // Export vydává jen SKUTEČNĚ odcvičené série. Předepsané (planned) by jinak
     // nafoukly objem i souhrny o 295 řádků z plánu.
     const realOf = (id: string) => workoutData.getRecords(id).filter(r => !r.planned);
@@ -1039,9 +1041,10 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
     toast.success('XLSX exportováno – 4 listy ✓');
   };
 
-  const exportBodyWeight = () => {
+  const exportBodyWeight = async () => {
     const entries = loadBodyWeights();
     if (entries.length === 0) { toast.error('Žádné záznamy tělesné váhy'); return; }
+    const XLSX = await import('xlsx');
     const data = [['Datum', 'Váha (kg)', 'Poznámka'], ...entries.map(e => [e.date, e.weight, e.note || ''])];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), 'Tělesná váha');

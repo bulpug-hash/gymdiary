@@ -22,6 +22,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm rebuild @tailwindcss/oxide esbuild
+      # Typová kontrola musí běžet i tady, ne jen lokálně – jinak se rozbitý
+      # typ nasadí ve chvíli, kdy se na ni před pushem zapomene.
+      - run: pnpm check
       - run: pnpm exec vite build --base=./
       - run: cp dist/public/index.html dist/public/404.html
       - uses: actions/configure-pages@v5

@@ -96,26 +96,6 @@ export function weekProgress(week: Week, records: Record<string, TrainingRecord[
   return { hotovo, celkem, dny };
 }
 
-/**
- * Stejná série z minulé expozice téhož cviku – tj. stejný index série
- * o týden zpět. Vrací nejbližší dřívější týden, kde záznam existuje a je odškrtnutý.
- */
-export function previousExposure(
-  currentWeek: number,
-  dayKey: string,
-  exerciseId: string,
-  setIndex: number | undefined,
-  records: Record<string, TrainingRecord[]>,
-): TrainingRecord | null {
-  const list = records[exerciseId] ?? [];
-  for (let w = currentWeek - 1; w >= 1; w--) {
-    const id = plannedId(w, dayKey, exerciseId, setIndex);
-    const rec = list.find(r => r.id === id);
-    if (rec && !rec.planned) return rec;
-  }
-  return null;
-}
-
 export interface Exposure {
   date: string;
   weight: string;
@@ -221,14 +201,6 @@ export function dateForDay(week: Week, dayKey: string): string {
   if (idx > 0) d.setDate(d.getDate() + idx);
   const p = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
-}
-
-/** Den v plánu podle týdne a klíče dne. */
-export function findDay(weekNumber: number, dayKey: string): { week: Week; day: WorkoutDay } | null {
-  const week = PHASE3_WEEKS.find(w => w.number === weekNumber);
-  if (!week) return null;
-  const day = week.days.find(d => d.key === dayKey);
-  return day ? { week, day } : null;
 }
 
 export type { Exercise };

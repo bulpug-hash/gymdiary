@@ -143,6 +143,9 @@
   html {
     color-scheme: light;
     background: var(--gd-ink);
+    /* Safari na iOSu jinak sám zvětšuje písmo při otočení na šířku. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
   html.dark { color-scheme: dark; }
   body {
@@ -175,7 +178,10 @@
     border-radius: 0;
     font-family: inherit;
     padding: 0.5rem 0.75rem;
-    font-size: 0.9rem;
+    /* 16 px je dolní mez, pod kterou Safari na iOSu při fokusu samo přiblíží
+       stránku a uživatel ji musí odštípnout zpátky. Nesnižovat kvůli vzhledu –
+       appka se ovládá jednou rukou mezi sériemi. */
+    font-size: 16px;
     outline: none;
     width: 100%;
   }
@@ -234,9 +240,14 @@
     color: var(--gd-text);
     padding-left: 0.32em;
   }
+  /* Popisek je drobný záměrně, ale dotykový cíl musí zůstat 44 px (Apple HIG).
+     Řeší se zápornými okraji, aby se rozšířený cíl nepromítl do rozvržení lišty. */
   .gd-topbar__btn {
-    background: none; border: none; padding: 6px 0; cursor: pointer;
+    background: none; border: none; cursor: pointer;
     font: inherit; color: inherit; letter-spacing: inherit;
+    min-height: 44px; min-width: 44px;
+    padding: 6px 10px; margin: -6px -10px;
+    display: inline-flex; align-items: center; justify-content: flex-end;
   }
 
   /* --- Spodní navigace ------------------------------------------------ */

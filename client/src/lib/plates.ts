@@ -56,12 +56,6 @@ export function loadPlates(
   };
 }
 
-/** „25 + 25 + 15 + 2,5" — na jednu stranu, s českou čárkou. */
-export function formatPerSide(perSide: number[]): string {
-  if (perSide.length === 0) return 'jen osa';
-  return perSide.map(p => String(p).replace('.', ',')).join(' + ');
-}
-
 /** Zkrácený zápis se závorkou pro opakované kotouče: „2× 25 + 15". */
 export function formatPerSideShort(perSide: number[]): string {
   if (perSide.length === 0) return 'jen osa';

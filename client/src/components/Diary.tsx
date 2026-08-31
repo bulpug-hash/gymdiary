@@ -475,7 +475,7 @@ function RecordForm({
     borderRadius: 0,
     color: 'var(--gd-text)',
     padding: '10px 12px',
-    fontSize: 14,
+    fontSize: 16,
     width: '100%',
     outline: 'none',
     fontFamily: 'inherit',
@@ -536,8 +536,11 @@ function RecordForm({
         </div>
         <div>
           <label style={labelStyle}>Opakování / min</label>
+          {/* Zůstává text, protože sem patří i „8-10" nebo „8/6". inputMode ale
+              musí být numeric, jinak iOS nabídne písmenkovou klávesnici. */}
           <input
             type="text"
+            inputMode="numeric"
             value={reps}
             onChange={e => setReps(e.target.value)}
             placeholder="8"
@@ -797,8 +800,8 @@ function RunForm({ editingRun, onClose, onSave }: {
 
   const inputStyle = {
     background: 'var(--gd-surface)', border: '1px solid var(--gd-line)', borderRadius: 0,
-    color: 'var(--gd-text)', padding: '10px 12px', fontSize: 14, width: '100%',
-    outline: 'none', fontFamily: 'Inter, sans-serif', boxSizing: 'border-box' as const,
+    color: 'var(--gd-text)', padding: '10px 12px', fontSize: 16, width: '100%',
+    outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' as const,
   };
   const labelStyle = {
     fontSize: 11, color: 'var(--gd-text-3)', letterSpacing: '0.1em', textTransform: 'uppercase' as const,
@@ -1061,7 +1064,7 @@ function HIITLog() {
 
   const inputStyle = {
     width: '100%', background: 'color-mix(in srgb, var(--gd-text) 4%, transparent)', border: '1px solid var(--gd-line)',
-    borderRadius: 0, padding: '9px 12px', color: 'var(--gd-text)', fontSize: 13,
+    borderRadius: 0, padding: '9px 12px', color: 'var(--gd-text)', fontSize: 16,
     outline: 'none', boxSizing: 'border-box' as const,
   };
   const labelStyle = { fontSize: 10, color: 'var(--gd-text-3)', letterSpacing: '0.08em', textTransform: 'uppercase' as const, marginBottom: 4, display: 'block' };

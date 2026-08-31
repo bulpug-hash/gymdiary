@@ -36,10 +36,6 @@ export function setMax(lift: LiftKey, value: number) {
   saveOverrides(o);
 }
 
-export function clearMaxes() {
-  try { localStorage.removeItem(KEY); } catch { /* ignore */ }
-}
-
 /** Potvrzené maximum: vyšší z dokumentu a z toho, co si uživatel potvrdil. */
 export function getCurrentMaxes(): Record<LiftKey, number> {
   const o = loadOverrides();

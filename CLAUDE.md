@@ -196,7 +196,13 @@ background: tint(catColor, 13)   // color-mix(in srgb, <barva> 13%, transparent)
    Ve světlém kitu je jeho signálkou bílá (`--hero-hi`), ne volt.
 7. **České plurály:** `1 cvik / 2–4 cviky / 5+ cviků`.
 8. **Desetinná čárka** u vah (`sp.weight.replace('.', ',')`).
-9. **Recharts:** vždy `isAnimationActive={false}`. Animace kreslí čáru přes
+9. **Inputy nikdy pod 16 px.** Safari na iOSu při fokusu na menší pole samo
+   přiblíží stránku a uživatel ji musí odštípnout zpátky — v posilovně jednou
+   rukou mezi sériemi je to nepoužitelné. Platí i pro inline `inputStyle`
+   objekty v komponentách, které přebíjejí globální CSS.
+   Textová pole na čísla potřebují `inputMode` (`numeric` / `decimal`),
+   jinak iOS nabídne písmenkovou klávesnici.
+10. **Recharts:** vždy `isAnimationActive={false}`. Animace kreslí čáru přes
    `stroke-dasharray` a když se graf připojí mimo obrazovku, rAF se uškrtí,
    animace se nedokončí a z čáry zůstane 1 px — graf vypadá prázdný.
 
@@ -210,7 +216,7 @@ background: tint(catColor, 13)   // color-mix(in srgb, <barva> 13%, transparent)
 | 4 | Undo po smazání (6 s) | `lib/undo.ts` + náhrobky v `useWorkoutData.ts` |
 | 5 | Deník nabízí cviky ze všech týdnů + historii | `Diary.tsx` `getTrainingDays` / `getLegacyExercises` |
 | 6 | Automatická rotující záloha | `lib/backup.ts`, panel v Nástroje → Export |
-| 7 | Porovnání s minulou expozicí | `lib/planLink.ts` `previousExposure()` |
+| 7 | Porovnání s minulou expozicí | `lib/planLink.ts` `exerciseHistory()` |
 | 8 | Ukazatel splnění týdne | `lib/planLink.ts` `weekProgress()`, sekce 02 v Přehledu |
 | 9 | Rychlý zápis HIIT | `Diary.tsx` `quickAdd()` |
 | 10 | Varování při odskoku od plánu | `SetLogger.tsx` `deviationNote()` |
@@ -292,6 +298,21 @@ většinou CC BY-SA a v dodaném CSV u nich chybí autor.
 **Pozor u bodu 3:** `CURRENT_MAXES` v `data.ts` zůstává jako výchozí hodnota
 z dokumentu. Override se drží v `gymdiary_maxes_v1` a `getCurrentMaxes()` vrací
 vyšší z obou — komponenty už nikdy nemají číst `CURRENT_MAXES` přímo.
+
+### 4e. Záchranná obrazovka (`components/ErrorBoundary.tsx`)
+
+Když appka spadne, tohle je jediné, co uživatel uvidí. Schválně **nemá žádné
+importy z `lib/` ani `ui/`** — čte localStorage přímo a styluje se inline, aby
+fungovala i tehdy, když je rozbité všechno ostatní.
+
+Původní verze nabízela jediné tlačítko „Reload Page". U pádu způsobeného
+poškozeným úložištěm je to nekonečná smyčka: reload spustí přesně tentýž pád
+a data z appky nejde dostat ven. Proto je **první akce stažení dat do souboru**
+(včetně poškozených hodnot jako syrový text), teprve pak obnova ze zálohy
+a restart. Obrazovka rovnou vypíše, kolik reálných záznamů v úložišti leží —
+uživatel už jednou o data přišel a potřebuje to vidět černé na bílém.
+
+Ověřeno vyvoláním skutečného pádu: napočítala 366 záznamů a vyrobila soubor.
 
 ---
 
