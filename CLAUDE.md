@@ -183,6 +183,13 @@ background: tint(catColor, 13)   // color-mix(in srgb, <barva> 13%, transparent)
 5. **Žádné emoji v UI.** Místo ikon typografické kódy (`247`, `WU`, `XLS`) nebo
    kreslené ikony (`NavIcon.tsx`).
 
+   Popisky spodní lišty jsou **stejným písmem jako titulek hera** (Archivo 800),
+   ne lomenou Piratou One — ta zůstává jen v pásu s citáty. Stupeň je 8,5 px
+   a šířka 112 % (hero má 118 %): v šesti sloupcích po 61 px se při 9 px / 118 %
+   ořezalo „Průvodce" i „Nástroje". Prostrkání je kladné (0,03em), zatímco
+   hero má -0,045em — záporné drží pohromadě velké stupně, v 8,5 px by z popisku
+   udělalo šmouhu.
+
    Ikony spodní lišty jsou **varianta 42 „číslo · scanline"** (vybraná z 50
    návrhů v `~/Desktop/GymDiary_lista_50/`): číslo záložky 01–06 vysazené
    Archivem 800 a vyplněné vodorovným rastrem 3 × 2,4 px přes masku.
@@ -276,6 +283,13 @@ nezůstane díra.
 ### 4d. Grafické prvky a dalších 10 funkcí (30. 8. 2026)
 
 **Rytiny** — `client/public/ilu/`, 8 souborů, autoři a díla v `ZDROJE.md`.
+Nasazené jsou v: Přehled 02 (`warrior`), **Přehled 03 — zápis sérií (`athlete`)**,
+Přehled 04 (`victory`), Přehled 06 (`knight`), Deník (`helm`), Progres (`victory`).
+Vkládají se jako `<Watermark>` do bloku s třídou `gd-wmhost`; ta dá bloku
+`position: relative` a obsahu `z-index: 1`, takže rytina leží vždycky POD textem
+a `pointer-events: none` jí brání chytat klepnutí.
+U vysokých bloků (zápis sérií má přes 1200 px) drž `size` kolem `auto 52%`
+a `position` u horního okraje — přes celou výšku by se roztáhla do mýdla.
 Všechny jsou **CC0 z Metropolitního muzea** (Dürer, Schongauer, Hollar…),
 takže bez podmínek a bez povinné atribuce. Sedí jako duch v desce hero
 (`Plate.tsx`, opacity 0,13–0,16, maska do ztracena) a jako vlys za spodní lištou.

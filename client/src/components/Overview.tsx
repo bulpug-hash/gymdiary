@@ -221,7 +221,11 @@ export default function Overview({ workoutData, onNavigate }: Props) {
               </div>
             )}
             {activeTraining && activeDay ? (
-              <div style={{ padding: '0 20px 20px' }}>
+              <div className="gd-wmhost" style={{ padding: '0 20px 20px' }}>
+                {/* Atlet krotici lva (Caylus, 18. stol.) — sedi presne tam, kde
+                    se odskrtavaji serie. Blok je vysoky, takze rytina drzi
+                    u horniho okraje a nemusi se roztahovat pres celou vysku. */}
+                <Watermark name="athlete" position="103% 4%" size="auto 52%" opacity={0.075} />
                 {activeDay.exercises.map((ex, i) => (
                   <div key={ex.id} style={{ marginBottom: 18 }}>
                     <div style={{
@@ -324,7 +328,8 @@ export default function Overview({ workoutData, onNavigate }: Props) {
           {/* Maxima */}
           <Reveal delay={60}>
             <SectionHead n="04" label="Maxima → cíl" right="1RM" />
-            <div style={{ padding: '0 20px 20px' }}>
+            <div className="gd-wmhost" style={{ padding: '0 20px 20px' }}>
+              <Watermark name="victory" position="104% 50%" size="auto 150%" opacity={0.07} />
               {goals.map(({ name, short, current, goal }) => {
                 const pct = Math.min(100, Math.round((current / goal) * 100));
                 const done = current >= goal;
@@ -391,7 +396,8 @@ export default function Overview({ workoutData, onNavigate }: Props) {
         {/* Fáze */}
         <Reveal>
           <SectionHead n="06" label="Aktuální fáze" right={currentWeek.phase} />
-          <div style={{ padding: '0 20px 34px' }}>
+          <div className="gd-wmhost" style={{ padding: '0 20px 34px' }}>
+            <Watermark name="knight" position="104% 30%" size="auto 118%" opacity={0.065} />
             <p className="gd-serif" style={{ fontSize: 16, lineHeight: 1.65, color: 'var(--gd-text-2)', margin: '0 0 18px', maxWidth: '58ch' }}>
               {currentWeek.description}
             </p>
