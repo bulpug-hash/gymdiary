@@ -32,6 +32,17 @@ export const QUOTES: Quote[] = [
     author: 'Jiří Procházka', lang: 'cs', source: 'iSport, rozhovor' },
   { text: 'Chci s upřímností přistupovat ke každému aspektu života, ke každému momentu, jako by byl tím posledním.',
     author: 'Jiří Procházka', lang: 'cs', source: 'iSport, rozhovor' },
+  // Rozhovor pro Reportér: „Nikomu nechci způsobit zbytečnou bolest"
+  { text: 'Posun je život. Člověk se buď vyvíjí a mění, nebo stagnuje a ochabuje.',
+    author: 'Jiří Procházka', lang: 'cs', source: 'Reportér, rozhovor' },
+  { text: 'Mysl je jen nástroj, takže na ten trénink vstanu vždycky.',
+    author: 'Jiří Procházka', lang: 'cs', source: 'Reportér, rozhovor' },
+  { text: 'Každodenní dosahování mistrovství. Zlepšování disciplíny.',
+    author: 'Jiří Procházka', lang: 'cs', source: 'Reportér, rozhovor' },
+  { text: 'Semtam jsem unavený, ano, ale dávno už znám klíče, jak probudit energii.',
+    author: 'Jiří Procházka', lang: 'cs', source: 'Reportér, rozhovor' },
+  { text: 'Dokud vnitřně cítím, že je potřeba něco doladit nebo ještě jednou projet, zůstávám.',
+    author: 'Jiří Procházka', lang: 'cs', source: 'Reportér, rozhovor' },
 
   // ——— Ondřej Vetchý ————————————————————————————————————————————
   // Rozhovor pro Deník.cz, červenec 2015:
@@ -51,6 +62,14 @@ export const QUOTES: Quote[] = [
   { text: 'You must go to war with yourself before you find peace.',
     author: 'David Goggins', lang: 'en', source: 'The Rich Roll Podcast' },
   { text: 'You build calluses on your feet to endure the road. You build callouses on your mind to endure the pain.',
+    author: 'David Goggins', lang: 'en', source: "kniha Can't Hurt Me" },
+  { text: "I don't stop when I'm tired. I stop when I'm done.",
+    author: 'David Goggins', lang: 'en', source: "kniha Can't Hurt Me" },
+  { text: "We're either getting better or we're getting worse.",
+    author: 'David Goggins', lang: 'en', source: "kniha Can't Hurt Me" },
+  { text: 'Denial is the ultimate comfort zone.',
+    author: 'David Goggins', lang: 'en', source: "kniha Can't Hurt Me" },
+  { text: "The most important conversations you'll ever have are the ones you'll have with yourself.",
     author: 'David Goggins', lang: 'en', source: "kniha Can't Hurt Me" },
 ];
 

@@ -6,5 +6,7 @@ export { default as NavIcon } from './NavIcon';
 export type { NavIconKey } from './NavIcon';
 export { default as RestBar } from './RestBar';
 export { default as Reveal } from './Reveal';
+export { default as Watermark } from './Watermark';
+export type { WatermarkKey } from './Watermark';
 export { default as SectionHead } from './SectionHead';
 export { default as UpdateBar } from './UpdateBar';

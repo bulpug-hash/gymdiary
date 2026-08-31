@@ -167,9 +167,16 @@ background: tint(catColor, 13)   // color-mix(in srgb, <barva> 13%, transparent)
 4. **Signální barva jen na:** dnešní den, aktuální týden, top/overload sérii,
    osobní rekord, aktivní záložku. Nikde jinde.
 5. **Žádné emoji v UI.** Místo ikon typografické kódy (`247`, `WU`, `XLS`) nebo
-   kreslené heraldické ikony (`NavIcon.tsx`). Rytiny z knihovny se do lišty
-   nehodí — na 28 px se z nich stane kaše a griffina nerozeznáš od rytíře,
-   ověřeno renderem. Ikony jsou proto kreslené pro tu velikost.
+   kreslené ikony (`NavIcon.tsx`).
+
+   Ikony jsou **plné siluety, ne obrysy** — to je jazyk jejich vlastní grafiky
+   (Noble Knight, Fallen Angel jsou plné černé siluety, ne linky) a zároveň
+   jediné, co v 26 px drží tvar. Motivy: helm, korouhev, kodex, brk, křídlo,
+   zkřížená kladiva.
+
+   Rytiny z knihovny se do lišty použít **nedají** — ověřeno dvakrát: přímo
+   i přes prahování na siluetu. Jsou to kresby čarou, ne masa, takže v téhle
+   velikosti z nich zbude šum.
    Šipky `→ ← ↑ ↓ ▼` jsou typografie, ne emoji — ty zůstávají.
 6. **Hero je vždycky tmavý**, i ve světlém tématu — deska pod ním je černá.
    Ve světlém kitu je jeho signálkou bílá (`--hero-hi`), ne volt.
@@ -225,8 +232,11 @@ pak zapni letadlo a appku otevři znovu.
 
 ### 4c. Citáty (`lib/quotes.ts`)
 
-Běžící pás v Plánu ukazuje výroky Jiřího Procházky, Ondřeje Vetchého a Davida
-Gogginse. Rotují po dnech (`quotesForToday`), šest naráz.
+Běžící pás v Plánu ukazuje výroky Jiřího Procházky (11), Davida Gogginse (8)
+a Ondřeje Vetchého (3). Rotují po dnech (`quotesForToday`), šest naráz.
+
+Vetchý jich má nejmíň schválně — k tématu odhodlání a disciplíny toho má
+doloženého podstatně míň než zbylí dva. Radši tři jisté než osm vymyšlených.
 
 ⚠️ **Sem patří jen doložené výroky.** Jsou to skuteční žijící lidé a web je
 veřejný — vymyslet nebo parafrázovat větu a podepsat ji jejich jménem se nesmí.
@@ -332,7 +342,7 @@ Viada + Schumann (concurrent training, interference běhu a síly).
 | 11 | Zkontrolovat celý web + 5 návrhů na vizuální osvěžení | ✅ artefakt s návrhy + 4 opravené chyby |
 | 12 | Předělat vizuál do stylu **Represent / 247** | ✅ hero + desky + mikrotypografie, mobile first |
 | 13 | Fotky přímo z Representu | ⛔ neuděláno — cizí autorské snímky na veřejném webu. Čeká se na jeho vlastní fotky. |
-| 14 | Ilustrovaná spodní lišta | ✅ `NavIcon.tsx` — heraldické ikony + registrační značky u aktivní |
+| 14 | Ilustrovaná spodní lišta | ✅ `NavIcon.tsx` — plné siluety (helm, korouhev, kodex, brk, křídlo, kladiva) |
 | 15 | Hloubkový audit funkčnosti | ✅ 95 nálezů, 15 opraveno (viz níže), zbytek v seznamu nápadů |
 | 16 | 10 funkcí na zlepšení fungování | ✅ všech 10 nasazeno (viz sekce 4b) |
 | 17 | Citáty do běžícího pásu v Plánu | ✅ `lib/quotes.ts` — 13 ověřených výroků, rotace po dnech |

@@ -7,7 +7,7 @@ import {
 } from '@/lib/data';
 import type { WarmupSet, Week } from '@/lib/data';
 import type { WorkoutDataHook, Tab } from '@/lib/types';
-import { Hero, Marquee, Reveal, SectionHead } from '@/components/kit';
+import { Hero, Marquee, Reveal, SectionHead, Watermark } from '@/components/kit';
 import SetLogger from '@/components/SetLogger';
 import { weekProgress, dateForDay, daySummary } from '@/lib/planLink';
 import { getCurrentMaxes } from '@/lib/maxes';
@@ -179,7 +179,8 @@ export default function Overview({ workoutData, onNavigate }: Props) {
                 label="Splnění týdne"
                 right={`${wp.hotovo} / ${wp.celkem} ${plural(wp.celkem, 'série', 'série', 'sérií')}`}
               />
-              <div style={{ padding: '0 20px 22px' }}>
+              <div className="gd-wmhost" style={{ padding: '0 20px 22px' }}>
+                <Watermark name="warrior" position="102% 40%" size="auto 165%" opacity={0.08} />
                 <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', marginBottom: 12 }}>
                   <span className="gd-display" style={{ fontSize: 34, color: pct === 100 ? 'var(--gd-fern)' : 'var(--gd-text)' }}>
                     {pct}

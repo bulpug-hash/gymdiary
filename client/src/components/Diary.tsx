@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 import { tint, normalizeDecimal, formatWeight } from '@/lib/tint';
 import { undoToast } from '@/lib/undo';
 import { plural } from '@/lib/czech';
-import { Hero, Marquee, SectionHead } from '@/components/kit';
+import { Hero, Marquee, SectionHead, Watermark } from '@/components/kit';
 
 interface Props {
   workoutData: WorkoutDataHook;
@@ -174,7 +174,8 @@ export default function Diary({ workoutData }: Props) {
       {activeTab === 'hiit' && <HIITLog />}
 
       {/* Training days grouped */}
-      {activeTab === 'exercises' && <div style={{ padding: '0 20px 36px' }}>
+      {activeTab === 'exercises' && <div className="gd-wmhost" style={{ padding: '0 20px 36px' }}>
+        <Watermark name="helm" position="104% 12%" size="auto 46%" opacity={0.07} />
         <SectionHead n="01" label="Tréninkové dny" right="Po · Út · St · Pá · So" />
         {trainingDays.map(day => {
           const isOpen = selectedDay === day.key;

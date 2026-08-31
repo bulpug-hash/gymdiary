@@ -8,7 +8,7 @@ import type { WorkoutDataHook } from '@/lib/types';
 import { tint, formatWeight } from '@/lib/tint';
 import { getCurrentMaxes, setMax, bestRecent, type LiftKey as MaxLift } from '@/lib/maxes';
 import { toast } from 'sonner';
-import { Hero, Marquee, SectionHead } from '@/components/kit';
+import { Hero, Marquee, SectionHead, Watermark } from '@/components/kit';
 
 interface Props {
   workoutData: WorkoutDataHook;
@@ -138,7 +138,8 @@ export default function Progress({ workoutData }: Props) {
       <div className="gd-body">
       {/* Summary stats */}
       <SectionHead n="01" label="Aktuální maxima" right="1RM testováno" />
-      <div style={{ padding: '0 20px 20px' }}>
+      <div className="gd-wmhost" style={{ padding: '0 20px 20px' }}>
+        <Watermark name="victory" position="103% 45%" size="auto 175%" opacity={0.08} />
         <div style={{ display: 'flex', gap: 8 }}>
           {allStats.map(s => (
             <button
@@ -281,6 +282,8 @@ export default function Progress({ workoutData }: Props) {
       <WeeklyVolumeSection workoutData={workoutData} />
 
       {/* Recent records table */}
+      <div className="gd-frieze" aria-hidden="true" />
+
       <SectionHead n="04" label="Poslední záznamy" right={lift.label} />
       <div style={{ padding: '0 20px 36px' }}>
         {chartData.length === 0 ? (
