@@ -16,6 +16,7 @@ import { plannedId, labelFromNote, plannedTemplate, exerciseHistory } from '@/li
 import { formatWeight, normalizeDecimal } from '@/lib/tint';
 import { startRest, restForCategory } from '@/lib/restTimer';
 import { loadPlates, formatPerSideShort } from '@/lib/plates';
+import { Tick } from '@/components/kit';
 
 interface Props {
   exercise: Exercise;
@@ -154,7 +155,7 @@ export default function SetLogger({ exercise, week, dayKey, date, workoutData }:
               aria-pressed={done}
               aria-label={`${row.label}, ${shownW} kilogramů, ${shownR} opakování${done ? ', hotovo' : ''}`}
             >
-              <span className="gd-set__tick" aria-hidden="true">{done ? '✓' : ''}</span>
+              <span className="gd-set__tick" aria-hidden="true">{done && <Tick />}</span>
               <span className="gd-set__lbl">
                 {row.index !== undefined ? (labelFromNote(rec?.note) ?? row.label) : row.label}
                 {done && rec?.rpe && <span className="gd-set__prev">zapsáno na RPE {rec.rpe}</span>}

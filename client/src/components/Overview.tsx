@@ -81,21 +81,21 @@ export default function Overview({ workoutData, onNavigate }: Props) {
       <Hero
         plate="overview"
         size="lg"
+        poster
         ghost={String(currentWeek.number).padStart(2, '0')}
         kicker="Tréninkový deník"
         title={heroTitle}
-        stat={top ? { label: 'Top série', value: top.weight.replace('.', ','), unit: 'kg' } : undefined}
-        meta={
-          <>
-            <b>T{String(currentWeek.number).padStart(2, '0')}</b>
-            <span>·</span>
-            <span>{currentWeek.label}</span>
-            <span>·</span>
-            <span>{dm(currentWeek.dateFrom)} – {dm(currentWeek.dateTo)}</span>
-            {top && (<><span>·</span><span>× {top.reps} {top.label}{top.rpe ? ` · RPE ${top.rpe}` : ''}</span></>)}
-            {!isTraining && (<><span>·</span><span>Regenerace, strečink, sauna</span></>)}
-          </>
+        lead={
+          isTraining && todayDay
+            ? <>{todayDay.description.split('–')[0].trim()} · {todayDay.exercises.length} {plural(todayDay.exercises.length, 'cvik', 'cviky', 'cviků')}</>
+            : <>Aktivní regenerace · strečink · sauna</>
         }
+        specs={[
+          ...(top ? [{ label: 'Top série', value: `${top.weight.replace('.', ',')} kg × ${top.reps}` }] : []),
+          { label: 'Týden', value: `${String(currentWeek.number).padStart(2, '0')} / 13` },
+          { label: 'Blok', value: currentWeek.label },
+          { label: 'Termín', value: `${dm(currentWeek.dateFrom)} — ${dm(currentWeek.dateTo)}` },
+        ]}
       />
 
       <Marquee

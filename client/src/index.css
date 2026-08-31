@@ -62,6 +62,9 @@
   --gd-fern:       #4A5732;
   --gd-danger:     #9E4526;
   --gd-shadow:     #0A0A0A;
+  /* Displejová modrá z plakátů 247 RUN. Používá se JEN na obří posterový
+     titulek — stavy (dnešek, aktivní týden, PR) si dál drží volt. */
+  --gd-poster:     #2B7FFF;
 }
 
 :root.dark {
@@ -81,6 +84,7 @@
   --gd-fern:       #8C9B63;
   --gd-danger:     #C9663F;
   --gd-shadow:     #000000;
+  --gd-poster:     #2B7FFF;
 }
 
 :root {
@@ -628,6 +632,10 @@
     cursor: pointer;
     min-width: 0;
   }
+  /* Prázdný stav je jen rámeček. Hotový stav kreslí <Tick/> — plný signální
+     blok s fajfkou VYSEKNUTOU skrz, takže se dírou prosvítá tint řádku.
+     Text '✓' tu byl dřív; kreslil ho systémový font, byl oblý a na každém
+     zařízení jiný. */
   .gd-set__tick {
     flex: 0 0 22px;
     width: 22px;
@@ -636,12 +644,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
-    font-weight: 800;
-    color: var(--gd-accent-ink);
+    color: var(--gd-accent);
+  }
+  .gd-set__tick svg {
+    display: block;
+    width: 100%;
+    height: 100%;
   }
   .gd-set.is-done .gd-set__tick {
-    background: var(--gd-accent);
+    background: transparent;
     border-color: var(--gd-accent);
   }
   .gd-set__lbl {
@@ -826,16 +837,31 @@
     /* Dvojnásobný obsah místo čtyřnásobného – posun proto o 50 %, ne 25 %. */
     animation-name: gd-marq-quotes;
   }
+  /* Grotesk, ne serif. Kurzivní serif působil jako citace z knížky; tohle
+     drží technický tón kitu. Archivo je legální stand-in za jejich Bureau Sans
+     (komerční, na veřejný web ho nasadit nejde) — stejná grotesková kostra,
+     úzké verzálky, technické zakončení. */
+  /* Citáty jedou LOMENÝM písmem — Pirata One. Je to tentýž rejstřík, jakým
+     Represent sází „Manchester" a „Team 247": kondenzovaná textura,
+     kosočtvercová zakončení.
+
+     Proč zrovna tohle a ne UnifrakturCook/Maguntia, které vypadají Representu
+     ještě blíž: nemají ě š č ř ž ů ď ť ň. Prohlížeč je potichu doskládá jiným
+     fontem, takže by české citáty byly půl gotika, půl bezpatkové. Pirata One
+     má českou diakritiku celou — ověřeno v cmapu, ne od oka.
+
+     Lomené písmo se čte hůř než groteska, proto je tu větší stupeň než měl
+     serif. Kdyby to bylo na běžícím pásu moc, stačí přepsat font-family
+     zpátky na 'Archivo' — nic jiného se měnit nemusí. */
   .gd-marquee__item--quote {
-    font-family: 'Source Serif 4', Georgia, serif;
-    font-optical-sizing: auto;
-    font-size: 14px;
-    font-style: italic;
+    font-family: 'Pirata One', 'Archivo', system-ui, serif;
+    font-size: 17px;
+    font-style: normal;
     font-weight: 400;
-    letter-spacing: 0;
+    letter-spacing: 0.015em;
     text-transform: none;
     color: var(--gd-text-2);
-    gap: 12px;
+    gap: 14px;
   }
   .gd-marquee__quote { white-space: nowrap; }
   .gd-marquee__author {
@@ -914,4 +940,113 @@
   :root:not(.dark) .gd-watermark { mix-blend-mode: multiply; filter: invert(1); }
   .gd-wmhost { position: relative; }
   .gd-wmhost > *:not(.gd-watermark) { position: relative; z-index: 1; }
+}
+
+
+/* Pás s citáty v shellu — běží na každé záložce. Lepí se pod horní lištu,
+   ať se dá citát přečíst i uprostřed stránky, ne jen na jejím začátku. */
+@layer components {
+  .gd-quotebar {
+    position: sticky;
+    top: calc(44px + env(safe-area-inset-top, 0px));
+    z-index: 105;
+    background: var(--gd-surface);
+    border-bottom: 1px solid var(--gd-line);
+  }
+  .gd-quotebar .gd-marquee--quotes { padding: 7px 0; }
+  .gd-quotebar .gd-marquee { border: 0; }
+}
+@media (min-width: 760px) {
+  .gd-quotebar { max-width: 760px; margin-inline: auto; }
+}
+
+/* ============================================================
+   Posterový režim hera — podle plakátů 247 RUN.
+   Obří titulek v displejové modré přes desku, pod ním mřížka
+   popisek → hodnota zarovnaná doprava.
+   ============================================================ */
+@layer components {
+  .gd-hero--poster .gd-hero__title {
+    color: var(--gd-poster);
+    /* Na plakátech je nápis širší a těsnější než běžný titulek.
+       Velikost je ale krotká: „PONDĚLÍ" a „PRŮVODCE" jsou dlouhá slova
+       a na 390 px se při 19vw lámala uprostřed. */
+    font-stretch: 120%;
+    letter-spacing: -0.05em;
+    line-height: 0.88;
+    font-size: clamp(38px, 12.6vw, 88px);
+    overflow-wrap: normal;
+    hyphens: none;
+  }
+
+  .gd-poster__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 20px;
+    padding-top: 14px;
+    border-top: 1px solid color-mix(in srgb, var(--hero-fg) 24%, transparent);
+  }
+  .gd-poster__lead {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    line-height: 1.6;
+    color: var(--hero-fg);
+    max-width: 22ch;
+  }
+  .gd-poster__specs { margin: 0; display: flex; flex-direction: column; gap: 5px; }
+  .gd-poster__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .gd-poster__row dt {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--hero-dim);
+    white-space: nowrap;
+  }
+  .gd-poster__row dd {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--hero-fg);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+}
+
+@media (min-width: 560px) {
+  /* Na širší obrazovce mřížka do dvou sloupců jako na plakátu. */
+  .gd-poster__grid { grid-template-columns: 1fr auto; gap: 28px; align-items: start; }
+  .gd-poster__specs { min-width: 260px; }
+}
+
+
+/* Lomené písmo jako displejový prvek — rejstřík „Manchester / Team 247".
+   .gd-gothic je plná verze, .gd-gothic--outline obrysová: přesně to, co má
+   Represent zlatě na dresech. Obrys drží i na tmavém i na světlém podkladu,
+   protože barvu bere z currentColor. */
+@layer components {
+  .gd-gothic {
+    font-family: 'Pirata One', 'Archivo', serif;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    line-height: 1.15;
+  }
+  .gd-gothic--outline {
+    color: transparent;
+    -webkit-text-stroke: 1.4px currentColor;
+    paint-order: stroke fill;
+  }
+  /* Zlatá z jejich dresů. Odečtená z fotky, takže orientační. */
+  .gd-gothic--gold { color: #E6C15A; }
+  .gd-gothic--gold.gd-gothic--outline { -webkit-text-stroke-color: #E6C15A; }
 }

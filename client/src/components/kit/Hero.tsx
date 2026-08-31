@@ -14,14 +14,23 @@ interface Props {
   meta?: ReactNode;
   /** Velké číslo pod linkou. */
   stat?: { label: string; value: string; unit?: string };
+  /** Posterový režim podle plakátů 247 RUN: obří modrý titulek a pod ním
+   *  mřížka popisek → hodnota vpravo. */
+  poster?: boolean;
+  /** Levý popisný řádek v mřížce. */
+  lead?: ReactNode;
+  /** Pravé dvojice popisek → hodnota. */
+  specs?: { label: string; value: string }[];
   /** Obří duch číslice v pozadí desky. */
   ghost?: string;
   size?: 'lg' | 'sm';
 }
 
-export default function Hero({ plate, kicker, title, meta, stat, ghost, size = 'sm' }: Props) {
+export default function Hero({
+  plate, kicker, title, meta, stat, ghost, size = 'sm', poster, lead, specs,
+}: Props) {
   return (
-    <header className={`gd-hero ${size === 'lg' ? 'gd-hero--lg' : ''}`}>
+    <header className={`gd-hero ${size === 'lg' ? 'gd-hero--lg' : ''} ${poster ? 'gd-hero--poster' : ''}`}>
       <Plate variant={plate} ghost={ghost} />
 
       <div className="gd-hero__inner">
@@ -32,6 +41,22 @@ export default function Hero({ plate, kicker, title, meta, stat, ghost, size = '
         </div>
 
         <h1 className="gd-display gd-hero__title">{title}</h1>
+
+        {poster && (lead || specs) && (
+          <div className="gd-poster__grid">
+            {lead && <div className="gd-poster__lead">{lead}</div>}
+            {specs && (
+              <dl className="gd-poster__specs">
+                {specs.map(sp => (
+                  <div className="gd-poster__row" key={sp.label}>
+                    <dt>{sp.label}</dt>
+                    <dd>{sp.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </div>
+        )}
 
         {stat && (
           <div className="gd-hero__stat">

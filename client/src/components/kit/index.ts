@@ -9,4 +9,7 @@ export { default as Reveal } from './Reveal';
 export { default as Watermark } from './Watermark';
 export type { WatermarkKey } from './Watermark';
 export { default as SectionHead } from './SectionHead';
+export { default as Tick } from './Tick';
+export type { TickVariant } from './Tick';
+export { default as QuoteBar } from './QuoteBar';
 export { default as UpdateBar } from './UpdateBar';

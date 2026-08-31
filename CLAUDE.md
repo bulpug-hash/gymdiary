@@ -133,6 +133,12 @@ rozbil bys světlé téma.
 | `--gd-accent-ink` | `#0E0E0E` | `#FFFFFF` |
 | `--gd-fern` | `#8C9B63` | `#4A5732` |
 | `--gd-danger` | `#C9663F` | `#9E4526` |
+| `--gd-poster` | `#2B7FFF` displejová modrá | `#2B7FFF` |
+
+**`--gd-poster` je výjimka z pravidla jedné signální barvy.** Používá se
+**jen** na obří posterový titulek v heru (`gd-hero--poster`) podle plakátů
+247 RUN. Stavy — dnešek, aktuální týden, PR, aktivní záložka — si dál drží
+volt. Kdyby to mělo vadit, stačí v `Hero` vypnout prop `poster`.
 
 **Průhlednost NIKDY nedělej spojováním hexu.** `` `${color}20` `` vyrobí
 `var(--gd-accent)20`, což je neplatné CSS a prohlížeč celou deklaraci zahodí —
