@@ -74,19 +74,41 @@ export const QUOTES: Quote[] = [
 ];
 
 /**
+ * Autoři prostřídaní po jednom. Pole je psané po autorech, takže brát šest
+ * po sobě jdoucích znamenalo šest Gogginsů za sebou — takhle je v pásu
+ * pokaždé mix.
+ */
+const INTERLEAVED: Quote[] = (() => {
+  const byAuthor = new Map<string, Quote[]>();
+  for (const q of QUOTES) {
+    const arr = byAuthor.get(q.author) ?? [];
+    arr.push(q);
+    byAuthor.set(q.author, arr);
+  }
+  const lists = Array.from(byAuthor.values());
+  const out: Quote[] = [];
+  for (let i = 0; out.length < QUOTES.length; i++) {
+    for (const list of lists) {
+      if (i < list.length) out.push(list[i]);
+    }
+  }
+  return out;
+})();
+
+/**
  * Deterministický výběr na den. Pořadí se drží celý den stejné (ať to
  * nepřeskakuje při každém překreslení), ale mezi dny se posouvá.
  */
 export function quotesForToday(count = 6): Quote[] {
-  if (QUOTES.length === 0) return [];
+  if (INTERLEAVED.length === 0) return [];
   const now = new Date();
   const dayIndex = Math.floor(
-    (Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000),
+    Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000,
   );
-  const offset = ((dayIndex % QUOTES.length) + QUOTES.length) % QUOTES.length;
+  const offset = ((dayIndex % INTERLEAVED.length) + INTERLEAVED.length) % INTERLEAVED.length;
   const out: Quote[] = [];
-  for (let i = 0; i < Math.min(count, QUOTES.length); i++) {
-    out.push(QUOTES[(offset + i) % QUOTES.length]);
+  for (let i = 0; i < Math.min(count, INTERLEAVED.length); i++) {
+    out.push(INTERLEAVED[(offset + i) % INTERLEAVED.length]);
   }
   return out;
 }
