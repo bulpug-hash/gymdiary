@@ -278,12 +278,25 @@
     border-top-color: var(--gd-accent);
     background: color-mix(in srgb, var(--gd-accent) 8%, transparent);
   }
+  /* Popisky lomeným písmem, stejně jako citáty.
+     Pirata One má jediný řez (400) — tučné by se jen syntetizovalo a rozmazalo,
+     proto se váha nemění ani u aktivní záložky; ta se odliší barvou.
+     Gotika snese menší stupeň hůř než groteska, proto 12,5 px místo 7,5.
+     Pirata One je úzká, takže i tak nejširší popisek („Průvodce") zabere
+     jen ~44 z 65 px tlačítka — změřeno, nic se neořezává. */
   .gd-tabbar__lbl {
-    font-size: 7.5px; font-weight: 700; letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--gd-text-3);
-    white-space: nowrap; overflow: hidden; max-width: 100%;
+    font-family: 'Pirata One', 'Archivo', serif;
+    font-size: 12.5px;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--gd-text-3);
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 100%;
+    line-height: 1.15;
   }
-  .gd-tabbar__btn[data-on="1"] .gd-tabbar__lbl { color: var(--gd-text); font-weight: 800; }
+  .gd-tabbar__btn[data-on="1"] .gd-tabbar__lbl { color: var(--gd-accent); }
 
   /* --- Mikrotypografie ------------------------------------------------ */
   /* Druhý typografický registr.
