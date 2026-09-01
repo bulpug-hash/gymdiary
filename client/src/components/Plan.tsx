@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { PHASE3_WEEKS, getCategoryColor, getCategoryLabel, WARMUP_PROTOCOL } from '@/lib/data';
 import WarmupTable, { warmupLiftLabel } from '@/components/WarmupTable';
+import RunBlock from '@/components/RunBlock';
 import { getExerciseInfo, CATEGORY_COLORS } from '@/lib/exerciseDescriptions';
 import { Hero, QuoteBar, Reveal, SectionHead } from '@/components/kit';
 import type { WorkoutDataHook } from '@/lib/types';
@@ -445,6 +446,8 @@ function DayCard({ day, isExpanded, onToggle, workoutData, weekNumber }: {
           padding: '8px 14px 12px',
         }}>
           <div style={{ color: 'var(--gd-text-3)', fontSize: 11, marginBottom: 10, paddingTop: 6 }}>{day.description}</div>
+          {/* Běh, když ten týden nahrazuje právě tuhle HIIT lekci */}
+          <RunBlock week={weekNumber} dayKey={day.key} />
           {/* Warm-up series for strength days */}
           {(day.type === 'lower' || day.type === 'upper' || day.type === 'fullbody') && (
             <WarmupSeriesBlock dayType={day.type} weekNumber={weekNumber} />

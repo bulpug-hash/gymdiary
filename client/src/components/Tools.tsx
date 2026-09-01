@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { toast } from 'sonner';
-import { nanoid, formatDate, PHASE3_WEEKS, LEGACY_PLAN_WEEKS, RUN_LOG_KEY, HIIT_LOG_KEY } from '@/lib/data';
+import { nanoid, formatDate, PHASE3_WEEKS, LEGACY_PLAN_WEEKS, RUN_LOG_KEY, HIIT_LOG_KEY, NUTRITION } from '@/lib/data';
 import type { RunRecord, HIITRecord } from '@/lib/data';
 
 /** Popisky typů HIIT pro export – stejné jako v Deníku. */
@@ -37,12 +37,23 @@ interface WeightEntry {
 
 const BW_STORAGE_KEY = 'gymdiary_bodyweight_v1';
 
+/** Výchozí měření, dokud si žádné nezapíše. Nahlásil 99 kg k 31. 8. 2026. */
+const BW_SEED: WeightEntry[] = [
+  { id: 'bw-2026-08-31', date: '2026-08-31', weight: 99, note: 'Start plánu Podzim 2026' },
+];
+
 function loadBodyWeights(): WeightEntry[] {
   try {
     const raw = localStorage.getItem(BW_STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as WeightEntry[];
+    if (raw) {
+      const arr = JSON.parse(raw) as WeightEntry[];
+      if (Array.isArray(arr) && arr.length > 0) {
+        // Výchozí měření doplň, pokud si ho nesmazal a nemá vlastní k tomu dni.
+        return arr.some(e => e.date === BW_SEED[0].date) ? arr : [...BW_SEED, ...arr];
+      }
+    }
   } catch { /* ignore */ }
-  return [];
+  return [...BW_SEED];
 }
 
 function saveBodyWeights(entries: WeightEntry[]) {
@@ -1359,7 +1370,7 @@ function NutritionGuide() {
         <div style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 20, fontWeight: 700, color: 'var(--gd-text)', marginBottom: 4 }}>
           Výživa & Suplementace
         </div>
-        <div style={{ fontSize: 12, color: 'var(--gd-text-3)' }}>Protokol z vědecky podloženého plánu 2026 v4</div>
+        <div style={{ fontSize: 12, color: 'var(--gd-text-3)' }}>Přepočteno na 99 kg · Jäger 2017 · Aragon 2017 · Naderi · Schumann</div>
       </div>
 
       {/* Sub-tabs */}
@@ -1379,47 +1390,87 @@ function NutritionGuide() {
       {tab === 'macros' && (
         <div>
           <div style={{ ...cardStyle, borderColor: 'color-mix(in srgb, var(--gd-accent) 20%, transparent)', background: 'color-mix(in srgb, var(--gd-accent) 4%, transparent)' }}>
-            <div style={labelStyle}>Cíl – Rekomposice těla</div>
+            <div style={labelStyle}>Základ výpočtu</div>
             <div style={{ fontSize: 13, color: 'var(--gd-text-2)', lineHeight: 1.6 }}>
-              Mírný kalorický přebytek v tréninkové dny, udržovací příjem ve dnech odpočinku. Priorita: svalová hypertrofie + minimalizace tuku.
+              Vše je přepočtené na <b style={{ color: 'var(--gd-text)' }}>{NUTRITION.bodyWeightKg} kg</b> (nahlášeno 31. 8. 2026).
+              Když se váha posune o víc než ~3 kg, čísla přestanou sedět a je potřeba je přepočítat.
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
             <div style={cardStyle}>
               <div style={labelStyle}>Tréninkový den</div>
-              <div style={valueStyle}>~2 800</div>
-              <div style={subStyle}>kcal · +200 přebytek</div>
+              <div style={valueStyle}>{NUTRITION.trainingDay.calories.toLocaleString('cs-CZ')}</div>
+              <div style={subStyle}>kcal · síla, HIIT nebo běh</div>
             </div>
             <div style={cardStyle}>
-              <div style={labelStyle}>Odpočinkový den</div>
-              <div style={valueStyle}>~2 400</div>
-              <div style={subStyle}>kcal · udržovací</div>
+              <div style={labelStyle}>Volný den (Út, Pá)</div>
+              <div style={valueStyle}>{NUTRITION.restDay.calories.toLocaleString('cs-CZ')}</div>
+              <div style={subStyle}>kcal · míň sacharidů</div>
             </div>
           </div>
 
+          <div className="gd-tag" style={{ display: 'block', margin: '14px 0 8px', color: 'var(--gd-text-3)' }}>Tréninkový den</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
             <div style={{ ...cardStyle, borderColor: 'color-mix(in srgb, var(--gd-danger) 20%, transparent)', background: 'color-mix(in srgb, var(--gd-danger) 4%, transparent)' }}>
               <div style={labelStyle}>Bílkoviny</div>
-              <div style={{ ...valueStyle, color: 'var(--gd-danger)' }}>180–200g</div>
-              <div style={subStyle}>2,2–2,5 g/kg</div>
+              <div style={{ ...valueStyle, color: 'var(--gd-danger)' }}>{NUTRITION.trainingDay.protein.g} g</div>
+              <div style={subStyle}>{String(NUTRITION.trainingDay.protein.gPerKg).replace('.', ',')} g/kg</div>
             </div>
             <div style={{ ...cardStyle, borderColor: 'color-mix(in srgb, var(--gd-text-2) 20%, transparent)', background: 'color-mix(in srgb, var(--gd-text-2) 4%, transparent)' }}>
               <div style={labelStyle}>Sacharidy</div>
-              <div style={{ ...valueStyle, color: 'var(--gd-text-2)' }}>280–350g</div>
-              <div style={subStyle}>3,5–4,5 g/kg</div>
+              <div style={{ ...valueStyle, color: 'var(--gd-text-2)' }}>{NUTRITION.trainingDay.carbs.g} g</div>
+              <div style={subStyle}>{String(NUTRITION.trainingDay.carbs.gPerKg).replace('.', ',')} g/kg</div>
             </div>
             <div style={{ ...cardStyle, borderColor: 'color-mix(in srgb, var(--gd-accent) 20%, transparent)', background: 'color-mix(in srgb, var(--gd-accent) 4%, transparent)' }}>
               <div style={labelStyle}>Tuky</div>
-              <div style={{ ...valueStyle, color: 'var(--gd-accent)' }}>70–90g</div>
-              <div style={subStyle}>0,9–1,1 g/kg</div>
+              <div style={{ ...valueStyle, color: 'var(--gd-accent)' }}>{NUTRITION.trainingDay.fat.g} g</div>
+              <div style={subStyle}>{NUTRITION.trainingDay.fat.pct} % energie</div>
             </div>
           </div>
 
-          <div style={{ ...cardStyle, marginTop: 10 }}>
+          <div className="gd-tag" style={{ display: 'block', margin: '14px 0 8px', color: 'var(--gd-text-3)' }}>Volný den</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+            <div style={cardStyle}>
+              <div style={labelStyle}>Bílkoviny</div>
+              <div style={{ ...valueStyle, fontSize: 18 }}>{NUTRITION.restDay.protein.g} g</div>
+              <div style={subStyle}>nesnižují se nikdy</div>
+            </div>
+            <div style={cardStyle}>
+              <div style={labelStyle}>Sacharidy</div>
+              <div style={{ ...valueStyle, fontSize: 18 }}>{NUTRITION.restDay.carbs.g} g</div>
+              <div style={subStyle}>{String(NUTRITION.restDay.carbs.gPerKg).replace('.', ',')} g/kg</div>
+            </div>
+            <div style={cardStyle}>
+              <div style={labelStyle}>Tuky</div>
+              <div style={{ ...valueStyle, fontSize: 18 }}>{NUTRITION.restDay.fat.g} g</div>
+              <div style={subStyle}>{NUTRITION.restDay.fat.pct} % energie</div>
+            </div>
+          </div>
+
+          <div style={{ ...cardStyle, marginTop: 14 }}>
+            <div style={labelStyle}>Rozložení jídel</div>
+            <div style={{ fontSize: 13, color: 'var(--gd-text-2)', lineHeight: 1.6 }}>
+              {NUTRITION.meal.perMeal}.<br />
+              {NUTRITION.meal.spacing}. {NUTRITION.meal.leucine}.<br />
+              Před spaním: {NUTRITION.meal.preSleep}.
+            </div>
+          </div>
+
+          <div style={{ ...cardStyle, borderColor: 'color-mix(in srgb, var(--gd-fern) 25%, transparent)' }}>
+            <div style={{ ...labelStyle, color: 'var(--gd-fern)' }}>Kdyby ses rozhodl zhubnout kvůli běhu</div>
+            <div style={{ fontSize: 13, color: 'var(--gd-text-2)', lineHeight: 1.6 }}>
+              Tempo {NUTRITION.cut.rate}. Kalorie na {NUTRITION.cut.calories.toLocaleString('cs-CZ')},
+              bílkoviny nahoru na {NUTRITION.cut.protein.g} g ({String(NUTRITION.cut.protein.gPerKg).replace('.', ',')} g/kg).<br />
+              <b style={{ color: 'var(--gd-text)' }}>{NUTRITION.cut.warning}</b>
+            </div>
+          </div>
+
+          <div style={{ ...cardStyle }}>
             <div style={labelStyle}>Hydratace</div>
             <div style={{ fontSize: 13, color: 'var(--gd-text-2)', lineHeight: 1.6 }}>
-              <strong style={{ color: 'var(--gd-accent)' }}>3–4 litry vody denně.</strong> V tréninkový den +500 ml navíc. Elektrolyty (sodík, draslík) při tréninku delším než 60 min.
+              Základ 3,5–4 l denně. Za každou hodinu běhu navíc 0,5–0,7 l a špetka soli —
+              u běhů nad 90 min se ztráty sodíku už projeví.
             </div>
           </div>
         </div>

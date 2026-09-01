@@ -1,6 +1,6 @@
 # GymDiary — kontext pro AI asistenta
 
-Osobní tréninkový deník Tomáše Jirků (26 let, 95 kg, 184 cm, česky).
+Osobní tréninkový deník Tomáše Jirků (26 let, **99 kg** k 31. 8. 2026, 184 cm, česky).
 Jednouživatelská PWA. Živě běží na **https://bulpug-hash.github.io/gymdiary/**
 
 ---
@@ -77,6 +77,8 @@ client/
 | `LEGACY_PLAN_WEEKS` | starý plán `w1`…`w16` — **nemazat**, drží historii |
 | `DEFAULT_RECORDS` | reálná historie (únor–srpen 2026) |
 | `PLANNED_RECORDS` | 295 předepsaných sérií, `planned: true` |
+| `RUNNING_PROGRAM` / `runForWeek()` | běžecký plán 13 týdnů (viz 5b) |
+| `NUTRITION` | makra přepočtená na 99 kg (viz 5c) |
 | `WARMUP_SERIES_BY_WEEK` | rozehřívací série (Zatsiorsky) |
 | `Exercise.setPlan` | `{ label, weight, reps, rpe }[]` — rozpis pracovních sérií |
 
@@ -445,12 +447,22 @@ Ověřeno vyvoláním skutečného pádu: napočítala 366 záznamů a vyrobila 
 | Taper | T12 | ostrost, minimum objemu |
 | Test maxim | T13 | 3 samostatné dny (Po dřep, Út bench, Pá tah) |
 
-**Týdenní split (pevný):**
-Po = DŘEP (nohy, silově) · Út = BENCH (tlak) · **St = HIIT** · Čt = volno ·
-Pá = MRTVÝ TAH (tah/posterior) · **So = HIIT** · Ne = volno (± lehký Z2 běh)
+**Týdenní split (od 1. 9. 2026, na jeho žádost):**
+Po = DŘEP · **Út = VOLNO** · St = HIIT/běh · Čt = MRTVÝ TAH ·
+Pá = volno (± druhý běh) · So = HIIT/běh · Ne = BENCH
 
 Středa a sobota HIIT jsou **neměnné** — je to skupinová lekce.
-Dřep i tah jsou schválně 4 dny od sebe a vždy 2 dny po HIIT, aby na ně šel na čerstvé nohy.
+**Úterý musí zůstat volné** — výslovné zadání.
+
+⚠️ **Proč zrovna tohle rozdělení hlavních cviků.** Zadal jen „úterý volno,
+čtvrtek trénink a pak až v neděli"; co kam, bylo na mně:
+- **Po dřep** — 2 dny po sobotní HIIT, tedy nejčerstvější nohy v týdnu.
+- **Čt tah** — 3 dny po dřepu, zadní řetězec stihne zregenerovat.
+- **Ne bench** — horní půlka, takže sobotní HIIT den předtím nevadí,
+  a v pondělí jdou na dřep čerstvé nohy.
+
+Naopak **tah v neděli by byl chyba**: následoval by hned pondělní dřep,
+tedy dva těžké dolní dny za sebou. Právě tomu se celý plán vyhýbá.
 
 **Vlnový systém** (jeho vlastní, aplikovaný na všechny tři hlavní cviky):
 objemová série → OVERLOAD (těžší, méně opakování) → back-off série.
@@ -467,6 +479,36 @@ Reálná výchozí maxima: bench 127, dřep 185, tah 220×3 (odhad 1RM 230).
 - nohy držet silově — ničí mu je běhy a HIIT
 - cviky rotují po blocích (výpady, leg press, bulharský dřep, veslování atd.)
 - střídat silové a objemové týdny u doplňků
+
+### 5b. Běžecký program (`RUNNING_PROGRAM`)
+
+Zadání: **nepřidávat tréninky.** Jeden běh týdně (výjimečně dva) se získá tak,
+že se **vymění jedna HIIT lekce za běh**, střídavě St a So. Vykresluje to
+`components/RunBlock.tsx` na tom dni, který ten týden odpadá; v pátek se ukáže
+jen nepovinný druhý běh.
+
+Kalibrováno na jeho **reálná data**, ne z tabulky: 34 zaznamenaných běhů
+(III–VIII 2026), nejdelší **10,54 km za 1:04:44** (12. 8.) v tempu 6:08/km.
+Proto program nezačíná na 5 km, ale na 8. Vrchol T11 = 18 km, pak taper.
+
+⚠️ **Dlouhý běh je 100 % týdenního běžeckého objemu** (běžné doporučení je
+≤ 30–35 %). To je hlavní riziko a jediná obrana je nepovinný druhý běh v pátek.
+⚠️ **T12 taper a T13 test maxim** — běh tam musí jít dolů, jinak si sníží
+čísla na dřepu, benchi a tahu.
+⚠️ Jeden běh týdně **na půlmaraton nestačí** — viz rozbor v konverzaci.
+Běhá navíc příliš rychle: tep 159–162 na „lehkém" běhu je u 26letého spíš Z3.
+
+### 5c. Výživa (`NUTRITION`)
+
+Přepočteno na **99 kg**. Sekce Nástroje → Výživa čte přímo z `NUTRITION`,
+dřív měla natvrdo čísla ze starého plánu (2 800 kcal, 2,2–2,5 g/kg ≈ 80 kg).
+
+Ověřené zdroje (staženo 1. 9. 2026, tituly zkontrolované):
+Jäger et al. 2017 ISSN Protein and Exercise (PMC5477153) ·
+Aragon et al. 2017 ISSN Diets and Body Composition (PMC5470183) ·
+Naderi et al. Timing/Dose of Supplements (PMC5545206).
+
+⚠️ **Čísla jsou vázaná na hmotnost.** Posun o víc než ~3 kg = přepočítat.
 
 Zdrojový dokument: `client/public/docs/treninkovy-plan-podzim-2026-v5.2.docx`
 (generuje ho `/home/claude/plan/build.js` z `plan.json` — mimo repo).

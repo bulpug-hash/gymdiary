@@ -9,6 +9,7 @@ import type { Week } from '@/lib/data';
 import type { WorkoutDataHook, Tab } from '@/lib/types';
 import { Hero, QuoteBar, Reveal, SectionHead, Watermark } from '@/components/kit';
 import WarmupTable from '@/components/WarmupTable';
+import RunBlock from '@/components/RunBlock';
 import SetLogger from '@/components/SetLogger';
 import { weekProgress, dateForDay, daySummary } from '@/lib/planLink';
 import { getCurrentMaxes } from '@/lib/maxes';
@@ -243,6 +244,7 @@ export default function Overview({ workoutData, onNavigate }: Props) {
                 {/* Rozehřátí patří k tréninku, ne do vlastní sekce na konci
                     stránky — je vidět rovnou a řídí se VYBRANÝM dnem a týdnem,
                     stejně jako série pod ním. */}
+                <RunBlock week={weekNum} dayKey={activeDay.key} />
                 <WarmupTable dayType={activeDay.type} weekNumber={weekNum} />
                 {activeDay.exercises.map((ex, i) => (
                   <div key={ex.id} style={{ marginBottom: 18 }}>
@@ -323,9 +325,11 @@ export default function Overview({ workoutData, onNavigate }: Props) {
               </div>
             ) : (
               <div style={{ padding: '0 20px 20px' }}>
+                {/* Volný den může nést nepovinný druhý běh (pátek). */}
+                <RunBlock week={weekNum} dayKey={activeDay?.key ?? ''} />
                 <p style={{ fontSize: 13, lineHeight: 1.65, color: 'var(--gd-text-3)', margin: 0 }}>
-                  Dnes se netrénuje. Aktivní regenerace, strečink, případně lehký Z2 běh.
-                  Zítřejší jednotku najdeš v Plánu.
+                  Dnes se netrénuje. Aktivní regenerace, strečink, mobilita.
+                  Další jednotku najdeš v Plánu.
                 </p>
                 <button
                   onClick={() => onNavigate('plan')}

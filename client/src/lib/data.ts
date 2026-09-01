@@ -839,12 +839,12 @@ function npStrength(dm: [string,string,string,'lower'|'upper'|'fullbody',string]
   return { key: dm[0], label: dm[1], labelShort: dm[2], type: dm[3], description: dm[4], warmup: WARMUP_PROTOCOL, exercises };
 }
 const NP_MON: [string,string,string,'lower'|'upper'|'fullbody',string] = ['monday','Pondělí','Po','lower','DŘEP – nohy, silový důraz. Dřep vlnou + sekundární dřep + rotující leg cvik + core. Fresh nohy (2 dny po So HIIT).'];
-const NP_TUE: [string,string,string,'lower'|'upper'|'fullbody',string] = ['tuesday','Úterý','Út','upper','BENCH – tlak. Bench vlnou + variace na prsa + triceps (bez dipů) + pull-up (biceps) + biceps + core.'];
-const NP_FRI: [string,string,string,'lower'|'upper'|'fullbody',string] = ['friday','Pátek','Pá','fullbody','MRTVÝ TAH – tah/posterior. Tah vlnou + veslování + pull-up (záda) + biceps + hamstringy + core. Fresh (2 dny po St HIIT).'];
+const NP_SUN: [string,string,string,'lower'|'upper'|'fullbody',string] = ['sunday','Neděle','Ne','upper','BENCH – tlak. Bench vlnou + variace na prsa + triceps (bez dipů) + pull-up (biceps) + biceps + core. Horní půlka, takže So HIIT den předtím nevadí.'];
+const NP_THU: [string,string,string,'lower'|'upper'|'fullbody',string] = ['thursday','Čtvrtek','Čt','fullbody','MRTVÝ TAH – tah/posterior. Tah vlnou + veslování + pull-up (záda) + biceps + hamstringy + core. 3 dny po dřepu.'];
 const npWedHiit = (): WorkoutDay => ({ key: 'wednesday', label: 'Středa', labelShort: 'St', type: 'hiit', description: 'HIIT – skupinová lekce (běh). Pevná lekce. 2 dny před tahem.', exercises: [{ id: 'hiit-wed', name: 'HIIT – Skupinová lekce', nameShort: 'HIIT', category: 'run', targetSets: '1', targetReps: '~45–60 min', note: 'Po: rychlé sacharidy okamžitě (AMPK/mTOR interference).' }] });
 const npSatHiit = (): WorkoutDay => ({ key: 'saturday', label: 'Sobota', labelShort: 'So', type: 'hiit', description: 'HIIT – skupinová lekce (běh). Pevná lekce. Den po tahu (HIIT po síle = OK).', exercises: [{ id: 'hiit-sat', name: 'HIIT – Skupinová lekce', nameShort: 'HIIT', category: 'run', targetSets: '1', targetReps: '~45–60 min', note: 'Regenerace zadního řetězce.' }] });
-const npThuRest = (): WorkoutDay => ({ key: 'thursday', label: 'Čtvrtek', labelShort: 'Čt', type: 'rest', description: 'VOLNO – plná regenerace. Spánek, výživa, mobilita. Nohy + CNS se čistí před tahem.', exercises: [] });
-const npSunRest = (): WorkoutDay => ({ key: 'sunday', label: 'Neděle', labelShort: 'Ne', type: 'rest', description: 'VOLNO (± volitelný lehký běh Z2 ≤5 km). Jinak odpočinek.', exercises: [] });
+const npTueRest = (): WorkoutDay => ({ key: 'tuesday', label: 'Úterý', labelShort: 'Út', type: 'rest', description: 'VOLNO – plná regenerace. Spánek, výživa, mobilita. Pevné volno, nepřesouvat.', exercises: [] });
+const npFriRest = (): WorkoutDay => ({ key: 'friday', label: 'Pátek', labelShort: 'Pá', type: 'rest', description: 'VOLNO – regenerace mezi tahem a So lekcí. Volitelně lehký Z2 klus, když je to týden se dvěma běhy.', exercises: [] });
 
 const np1: Week = {
   number: 1, label: 'W1 – Akumulace', dateFrom: '2026-08-31', dateTo: '2026-09-06',
@@ -858,7 +858,7 @@ const np1: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
-    npStrength(NP_TUE, [
+    npStrength(NP_SUN, [
       { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Objemová', weight: '100', reps: '8', rpe: '7-8' }, { label: 'OVERLOAD', weight: '112.5', reps: '3', rpe: '8' }, { label: 'Back-off', weight: '105', reps: '6', rpe: '7-8' }, { label: 'Back-off', weight: '105', reps: '6', rpe: '7-8' }], targetSets: '4', targetReps: '8/3/6/6', targetWeight: '100/112.5/105/105 kg', rpe: '7-8', note: 'Vlna (zapiš top/overload sérii): Objemová 100×8 → OVERLOAD 112.5×3 → Back-off 105×6 → Back-off 105×6' },
       { id: 'spoto', name: 'Spoto press (2–3 cm nad hrudí) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: '100', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-pushdown', name: 'Triceps pushdown (kladka)', category: 'isolation', targetSets: '3', targetReps: '10–12', targetWeight: 'střední', note: 'Náhrada dipů – loketní izolace, šetří ramena. Rotuje po blocích.' },
@@ -868,8 +868,8 @@ const np1: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npWedHiit(),
-    npThuRest(),
-    npStrength(NP_FRI, [
+    npTueRest(),
+    npStrength(NP_THU, [
       { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Objemová', weight: '180', reps: '8', rpe: '7-8' }, { label: 'OVERLOAD', weight: '202.5', reps: '3', rpe: '8' }, { label: 'Back-off', weight: '190', reps: '6', rpe: '7-8' }], targetSets: '3', targetReps: '8/3/6', targetWeight: '180/202.5/190 kg', rpe: '7-8', note: 'Vlna (zapiš top/overload sérii): Objemová 180×8 → OVERLOAD 202.5×3 → Back-off 190×6' },
       { id: 'barbell-row', name: 'Barbell row (v předklonu) — silná záda = silný tah', category: 'accessory', targetSets: '3', targetReps: '8–10', targetWeight: '82.5', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '8', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
@@ -877,7 +877,7 @@ const np1: Week = {
       { id: 'ab-wheel-dl', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npSatHiit(),
-    npSunRest(),
+    npFriRest(),
   ],
 };
 
@@ -893,7 +893,7 @@ const np2: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
-    npStrength(NP_TUE, [
+    npStrength(NP_SUN, [
       { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Objemová', weight: '102.5', reps: '8', rpe: '8' }, { label: 'OVERLOAD', weight: '115', reps: '2', rpe: '8' }, { label: 'Back-off', weight: '107.5', reps: '6', rpe: '8' }, { label: 'Back-off', weight: '107.5', reps: '5', rpe: '8' }], targetSets: '4', targetReps: '8/2/6/5', targetWeight: '102.5/115/107.5/107.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Objemová 102.5×8 → OVERLOAD 115×2 → Back-off 107.5×6 → Back-off 107.5×5' },
       { id: 'spoto', name: 'Spoto press (2–3 cm nad hrudí) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: '100', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-pushdown', name: 'Triceps pushdown (kladka)', category: 'isolation', targetSets: '3', targetReps: '10–12', targetWeight: 'střední', note: 'Náhrada dipů – loketní izolace, šetří ramena. Rotuje po blocích.' },
@@ -903,8 +903,8 @@ const np2: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npWedHiit(),
-    npThuRest(),
-    npStrength(NP_FRI, [
+    npTueRest(),
+    npStrength(NP_THU, [
       { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Objemová', weight: '185', reps: '8', rpe: '8' }, { label: 'OVERLOAD', weight: '207.5', reps: '2', rpe: '8' }, { label: 'Back-off', weight: '195', reps: '6', rpe: '8' }], targetSets: '3', targetReps: '8/2/6', targetWeight: '185/207.5/195 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Objemová 185×8 → OVERLOAD 207.5×2 → Back-off 195×6' },
       { id: 'barbell-row', name: 'Barbell row (v předklonu) — silná záda = silný tah', category: 'accessory', targetSets: '3', targetReps: '8–10', targetWeight: '82.5', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '8', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
@@ -912,7 +912,7 @@ const np2: Week = {
       { id: 'ab-wheel-dl', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npSatHiit(),
-    npSunRest(),
+    npFriRest(),
   ],
 };
 
@@ -928,7 +928,7 @@ const np3: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
-    npStrength(NP_TUE, [
+    npStrength(NP_SUN, [
       { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Objemová', weight: '105', reps: '6', rpe: '8' }, { label: 'OVERLOAD', weight: '117.5', reps: '2', rpe: '8-9' }, { label: 'Back-off', weight: '110', reps: '6', rpe: '8' }, { label: 'Back-off', weight: '110', reps: '5', rpe: '8' }], targetSets: '4', targetReps: '6/2/6/5', targetWeight: '105/117.5/110/110 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Objemová 105×6 → OVERLOAD 117.5×2 → Back-off 110×6 → Back-off 110×5' },
       { id: 'paused-bench', name: 'Pauzový bench (2 s) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '4', targetWeight: '105', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-pushdown', name: 'Triceps pushdown (kladka)', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Náhrada dipů – loketní izolace, šetří ramena. Rotuje po blocích.' },
@@ -937,8 +937,8 @@ const np3: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npWedHiit(),
-    npThuRest(),
-    npStrength(NP_FRI, [
+    npTueRest(),
+    npStrength(NP_THU, [
       { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Objemová', weight: '187.5', reps: '6', rpe: '8' }, { label: 'OVERLOAD', weight: '212.5', reps: '2', rpe: '8-9' }, { label: 'Back-off', weight: '197.5', reps: '6', rpe: '8' }], targetSets: '3', targetReps: '6/2/6', targetWeight: '187.5/212.5/197.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Objemová 187.5×6 → OVERLOAD 212.5×2 → Back-off 197.5×6' },
       { id: 'barbell-row', name: 'Barbell row (v předklonu) — silná záda = silný tah', category: 'accessory', targetSets: '4', targetReps: '5', targetWeight: '97.5', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
@@ -947,7 +947,7 @@ const np3: Week = {
       { id: 'ab-wheel-dl', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npSatHiit(),
-    npSunRest(),
+    npFriRest(),
   ],
 };
 
@@ -961,22 +961,22 @@ const np4: Week = {
       { id: 'pause-squat', name: 'Pauzový dřep (2 s)', category: 'accessory', targetSets: '2', targetReps: '5', targetWeight: '115', note: 'Lehce, technika v díře.' },
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '2', targetReps: '10', note: 'Břicho – každý trénink.' },
     ]),
-    npStrength(NP_TUE, [
+    npStrength(NP_SUN, [
       { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Deload', weight: '90', reps: '5', rpe: '6' }, { label: 'Deload', weight: '90', reps: '5', rpe: '6' }, { label: 'Deload', weight: '92.5', reps: '5', rpe: '6-7' }], targetSets: '3', targetReps: '5/5/5', targetWeight: '90/90/92.5 kg', rpe: '6', note: 'Vlna (zapiš top/overload sérii): Deload 90×5 → Deload 90×5 → Deload 92.5×5' },
       { id: 'pullup', name: 'Weighted pull-up (podhmat úzko – biceps)', category: 'accessory', targetSets: '2', targetReps: '6', note: 'Lehce.' },
       { id: 'face-pulls', name: 'Face pulls', category: 'prevention', targetSets: '3', targetReps: '15', targetWeight: 'lehká', note: 'Prehab ramen.' },
       { id: 'ab-wheel', name: 'Ab wheel', category: 'core', targetSets: '2', targetReps: '10', note: 'Břicho.' },
     ]),
     npWedHiit(),
-    npThuRest(),
-    npStrength(NP_FRI, [
+    npTueRest(),
+    npStrength(NP_THU, [
       { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Deload', weight: '160', reps: '5', rpe: '6' }, { label: 'Deload', weight: '160', reps: '5', rpe: '6' }, { label: 'Deload', weight: '165', reps: '5', rpe: '6-7' }], targetSets: '3', targetReps: '5/5/5', targetWeight: '160/160/165 kg', rpe: '6', note: 'Vlna (zapiš top/overload sérii): Deload 160×5 → Deload 160×5 → Deload 165×5' },
       { id: 'barbell-row', name: 'Barbell row (v předklonu)', category: 'accessory', targetSets: '2', targetReps: '8', targetWeight: '72.5', note: 'Lehce, záda.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – záda)', category: 'accessory', targetSets: '2', targetReps: '6', note: 'Lehce.' },
       { id: 'ab-wheel-dl', name: 'Ab wheel', category: 'core', targetSets: '2', targetReps: '10', note: 'Břicho.' },
     ]),
     npSatHiit(),
-    npSunRest(),
+    npFriRest(),
   ],
 };
 
@@ -992,7 +992,7 @@ const np5: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
-    npStrength(NP_TUE, [
+    npStrength(NP_SUN, [
       { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'TOP', weight: '107.5', reps: '5', rpe: '8' }, { label: 'OVERLOAD', weight: '112.5', reps: '3', rpe: '8-9' }, { label: 'Back-off', weight: '105', reps: '5', rpe: '8' }, { label: 'Back-off', weight: '105', reps: '5', rpe: '8' }], targetSets: '4', targetReps: '5/3/5/5', targetWeight: '107.5/112.5/105/105 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): TOP 107.5×5 → OVERLOAD 112.5×3 → Back-off 105×5 → Back-off 105×5' },
       { id: 'long-pause-bench', name: 'Dlouhý pauzový bench (3 s) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '4', targetWeight: '102.5', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-overhead', name: 'Overhead extension s lanem', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Náhrada dipů – protažený triceps, šetří ramena. Rotuje po blocích.' },
@@ -1001,8 +1001,8 @@ const np5: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npWedHiit(),
-    npThuRest(),
-    npStrength(NP_FRI, [
+    npTueRest(),
+    npStrength(NP_THU, [
       { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'TOP', weight: '195', reps: '5', rpe: '8' }, { label: 'OVERLOAD', weight: '205', reps: '3', rpe: '8-9' }, { label: 'Back-off', weight: '187.5', reps: '5', rpe: '8' }], targetSets: '3', targetReps: '5/3/5', targetWeight: '195/205/187.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): TOP 195×5 → OVERLOAD 205×3 → Back-off 187.5×5' },
       { id: 'chest-supported-row', name: 'Chest-supported row (na lavici/stroji) — silná záda = silný tah', category: 'accessory', targetSets: '4', targetReps: '5', targetWeight: 'stroj těžká', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat střední – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
@@ -1011,7 +1011,7 @@ const np5: Week = {
       { id: 'ab-wheel-dl', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npSatHiit(),
-    npSunRest(),
+    npFriRest(),
   ],
 };
 
@@ -1027,7 +1027,7 @@ const np6: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
-    npStrength(NP_TUE, [
+    npStrength(NP_SUN, [
       { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'TOP', weight: '110', reps: '4', rpe: '8' }, { label: 'OVERLOAD', weight: '115', reps: '2', rpe: '9' }, { label: 'Back-off', weight: '107.5', reps: '5', rpe: '8' }, { label: 'Back-off', weight: '107.5', reps: '4', rpe: '8' }], targetSets: '4', targetReps: '4/2/5/4', targetWeight: '110/115/107.5/107.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): TOP 110×4 → OVERLOAD 115×2 → Back-off 107.5×5 → Back-off 107.5×4' },
       { id: 'spoto', name: 'Spoto press (2–3 cm nad hrudí) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: '100', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-overhead', name: 'Overhead extension s lanem', category: 'isolation', targetSets: '3', targetReps: '10–12', targetWeight: 'střední', note: 'Náhrada dipů – protažený triceps, šetří ramena. Rotuje po blocích.' },
@@ -1037,8 +1037,8 @@ const np6: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npWedHiit(),
-    npThuRest(),
-    npStrength(NP_FRI, [
+    npTueRest(),
+    npStrength(NP_THU, [
       { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'TOP', weight: '200', reps: '4', rpe: '8' }, { label: 'OVERLOAD', weight: '210', reps: '2', rpe: '9' }, { label: 'Back-off', weight: '192.5', reps: '5', rpe: '8' }], targetSets: '3', targetReps: '4/2/5', targetWeight: '200/210/192.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): TOP 200×4 → OVERLOAD 210×2 → Back-off 192.5×5' },
       { id: 'chest-supported-row', name: 'Chest-supported row (na lavici/stroji) — silná záda = silný tah', category: 'accessory', targetSets: '3', targetReps: '8–10', targetWeight: 'stroj střední', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat střední – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '8', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
@@ -1046,7 +1046,7 @@ const np6: Week = {
       { id: 'ab-wheel-dl', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npSatHiit(),
-    npSunRest(),
+    npFriRest(),
   ],
 };
 
@@ -1062,7 +1062,7 @@ const np7: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
-    npStrength(NP_TUE, [
+    npStrength(NP_SUN, [
       { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'TOP', weight: '115', reps: '3', rpe: '8-9' }, { label: 'OVERLOAD', weight: '117.5', reps: '2', rpe: '9' }, { label: 'Back-off', weight: '107.5', reps: '4', rpe: '8' }, { label: 'Back-off', weight: '107.5', reps: '4', rpe: '8' }], targetSets: '4', targetReps: '3/2/4/4', targetWeight: '115/117.5/107.5/107.5 kg', rpe: '8-9', note: 'Vlna (zapiš top/overload sérii): TOP 115×3 → OVERLOAD 117.5×2 → Back-off 107.5×4 → Back-off 107.5×4' },
       { id: 'long-pause-bench', name: 'Dlouhý pauzový bench (3 s) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '4', targetWeight: '102.5', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-overhead', name: 'Overhead extension s lanem', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Náhrada dipů – protažený triceps, šetří ramena. Rotuje po blocích.' },
@@ -1071,8 +1071,8 @@ const np7: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npWedHiit(),
-    npThuRest(),
-    npStrength(NP_FRI, [
+    npTueRest(),
+    npStrength(NP_THU, [
       { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'TOP', weight: '207.5', reps: '3', rpe: '8-9' }, { label: 'OVERLOAD', weight: '215', reps: '2', rpe: '9' }, { label: 'Back-off', weight: '195', reps: '4', rpe: '8' }], targetSets: '3', targetReps: '3/2/4', targetWeight: '207.5/215/195 kg', rpe: '8-9', note: 'Vlna (zapiš top/overload sérii): TOP 207.5×3 → OVERLOAD 215×2 → Back-off 195×4' },
       { id: 'chest-supported-row', name: 'Chest-supported row (na lavici/stroji) — silná záda = silný tah', category: 'accessory', targetSets: '4', targetReps: '5', targetWeight: 'stroj těžká', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat střední – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
@@ -1081,7 +1081,7 @@ const np7: Week = {
       { id: 'ab-wheel-dl', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npSatHiit(),
-    npSunRest(),
+    npFriRest(),
   ],
 };
 
@@ -1095,22 +1095,22 @@ const np8: Week = {
       { id: 'pause-squat', name: 'Pauzový dřep (2 s)', category: 'accessory', targetSets: '2', targetReps: '3', targetWeight: '125', note: 'Lehce, technika v díře.' },
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '2', targetReps: '10', note: 'Břicho – každý trénink.' },
     ]),
-    npStrength(NP_TUE, [
+    npStrength(NP_SUN, [
       { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Deload', weight: '95', reps: '3', rpe: '6-7' }, { label: 'Deload', weight: '95', reps: '3', rpe: '6-7' }, { label: 'Deload', weight: '97.5', reps: '3', rpe: '7' }], targetSets: '3', targetReps: '3/3/3', targetWeight: '95/95/97.5 kg', rpe: '6-7', note: 'Vlna (zapiš top/overload sérii): Deload 95×3 → Deload 95×3 → Deload 97.5×3' },
       { id: 'pullup', name: 'Weighted pull-up (neutrální úchop – biceps)', category: 'accessory', targetSets: '2', targetReps: '6', note: 'Lehce.' },
       { id: 'face-pulls', name: 'Face pulls', category: 'prevention', targetSets: '3', targetReps: '15', targetWeight: 'lehká', note: 'Prehab ramen.' },
       { id: 'ab-wheel', name: 'Ab wheel', category: 'core', targetSets: '2', targetReps: '10', note: 'Břicho.' },
     ]),
     npWedHiit(),
-    npThuRest(),
-    npStrength(NP_FRI, [
+    npTueRest(),
+    npStrength(NP_THU, [
       { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Deload', weight: '172.5', reps: '3', rpe: '6-7' }, { label: 'Deload', weight: '172.5', reps: '3', rpe: '6-7' }, { label: 'Deload', weight: '177.5', reps: '3', rpe: '7' }], targetSets: '3', targetReps: '3/3/3', targetWeight: '172.5/172.5/177.5 kg', rpe: '6-7', note: 'Vlna (zapiš top/overload sérii): Deload 172.5×3 → Deload 172.5×3 → Deload 177.5×3' },
       { id: 'chest-supported-row', name: 'Chest-supported row (na lavici/stroji)', category: 'accessory', targetSets: '2', targetReps: '8', targetWeight: 'stroj lehká', note: 'Lehce, záda.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat střední – záda)', category: 'accessory', targetSets: '2', targetReps: '6', note: 'Lehce.' },
       { id: 'ab-wheel-dl', name: 'Ab wheel', category: 'core', targetSets: '2', targetReps: '10', note: 'Břicho.' },
     ]),
     npSatHiit(),
-    npSunRest(),
+    npFriRest(),
   ],
 };
 
@@ -1126,7 +1126,7 @@ const np9: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
-    npStrength(NP_TUE, [
+    npStrength(NP_SUN, [
       { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Nájezd', weight: '112.5', reps: '3', rpe: '8' }, { label: 'TOP', weight: '117.5', reps: '2', rpe: '9' }, { label: 'Back-off', weight: '107.5', reps: '5', rpe: '8' }, { label: 'Back-off', weight: '107.5', reps: '5', rpe: '8' }], targetSets: '4', targetReps: '3/2/5/5', targetWeight: '112.5/117.5/107.5/107.5 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Nájezd 112.5×3 → TOP 117.5×2 → Back-off 107.5×5 → Back-off 107.5×5' },
       { id: 'pin-press', name: 'Pin press (z kolíků z prsu) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '4', targetWeight: '107.5', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-skull', name: 'Skull crusher / JM press', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Náhrada dipů – triceps na lockout, šetří ramena. Rotuje po blocích.' },
@@ -1135,8 +1135,8 @@ const np9: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npWedHiit(),
-    npThuRest(),
-    npStrength(NP_FRI, [
+    npTueRest(),
+    npStrength(NP_THU, [
       { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Nájezd', weight: '202.5', reps: '3', rpe: '8' }, { label: 'TOP', weight: '215', reps: '2', rpe: '9' }, { label: 'Back-off', weight: '195', reps: '5', rpe: '8' }], targetSets: '3', targetReps: '3/2/5', targetWeight: '202.5/215/195 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Nájezd 202.5×3 → TOP 215×2 → Back-off 195×5' },
       { id: 'pendlay-row', name: 'Pendlay row (z podlahy) — silná záda = silný tah', category: 'accessory', targetSets: '4', targetReps: '5', targetWeight: '97.5', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
@@ -1145,7 +1145,7 @@ const np9: Week = {
       { id: 'ab-wheel-dl', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npSatHiit(),
-    npSunRest(),
+    npFriRest(),
   ],
 };
 
@@ -1161,7 +1161,7 @@ const np10: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
-    npStrength(NP_TUE, [
+    npStrength(NP_SUN, [
       { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Nájezd', weight: '115', reps: '2', rpe: '8' }, { label: 'TOP single', weight: '120', reps: '1', rpe: '9' }, { label: 'Back-off', weight: '110', reps: '4', rpe: '8' }, { label: 'Back-off', weight: '110', reps: '3', rpe: '8' }], targetSets: '4', targetReps: '2/1/4/3', targetWeight: '115/120/110/110 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Nájezd 115×2 → TOP single 120×1 → Back-off 110×4 → Back-off 110×3' },
       { id: 'spoto', name: 'Spoto press (2–3 cm nad hrudí) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: '102.5', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-skull', name: 'Skull crusher / JM press', category: 'isolation', targetSets: '3', targetReps: '10–12', targetWeight: 'střední', note: 'Náhrada dipů – triceps na lockout, šetří ramena. Rotuje po blocích.' },
@@ -1171,8 +1171,8 @@ const np10: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npWedHiit(),
-    npThuRest(),
-    npStrength(NP_FRI, [
+    npTueRest(),
+    npStrength(NP_THU, [
       { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Nájezd', weight: '207.5', reps: '2', rpe: '8' }, { label: 'TOP single', weight: '217.5', reps: '1', rpe: '9' }, { label: 'Back-off', weight: '200', reps: '4', rpe: '8' }], targetSets: '3', targetReps: '2/1/4', targetWeight: '207.5/217.5/200 kg', rpe: '8', note: 'Vlna (zapiš top/overload sérii): Nájezd 207.5×2 → TOP single 217.5×1 → Back-off 200×4' },
       { id: 'pendlay-row', name: 'Pendlay row (z podlahy) — silná záda = silný tah', category: 'accessory', targetSets: '3', targetReps: '8–10', targetWeight: '82.5', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '8', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
@@ -1180,7 +1180,7 @@ const np10: Week = {
       { id: 'ab-wheel-dl', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npSatHiit(),
-    npSunRest(),
+    npFriRest(),
   ],
 };
 
@@ -1196,7 +1196,7 @@ const np11: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
-    npStrength(NP_TUE, [
+    npStrength(NP_SUN, [
       { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Nájezd', weight: '117.5', reps: '2', rpe: '8-9' }, { label: 'TOP single', weight: '122.5', reps: '1', rpe: '9' }, { label: 'Back-off', weight: '112.5', reps: '3', rpe: '8' }, { label: 'Back-off', weight: '112.5', reps: '3', rpe: '8' }], targetSets: '4', targetReps: '2/1/3/3', targetWeight: '117.5/122.5/112.5/112.5 kg', rpe: '8-9', note: 'Vlna (zapiš top/overload sérii): Nájezd 117.5×2 → TOP single 122.5×1 → Back-off 112.5×3 → Back-off 112.5×3' },
       { id: 'pin-press', name: 'Pin press (z kolíků z prsu) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '4', targetWeight: '107.5', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-skull', name: 'Skull crusher / JM press', category: 'isolation', targetSets: '3', targetReps: '8–10', targetWeight: 'střední', note: 'Náhrada dipů – triceps na lockout, šetří ramena. Rotuje po blocích.' },
@@ -1205,8 +1205,8 @@ const np11: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npWedHiit(),
-    npThuRest(),
-    npStrength(NP_FRI, [
+    npTueRest(),
+    npStrength(NP_THU, [
       { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Nájezd', weight: '212.5', reps: '2', rpe: '8-9' }, { label: 'TOP single', weight: '222.5', reps: '1', rpe: '9' }, { label: 'Back-off', weight: '202.5', reps: '3', rpe: '8' }], targetSets: '3', targetReps: '2/1/3', targetWeight: '212.5/222.5/202.5 kg', rpe: '8-9', note: 'Vlna (zapiš top/overload sérii): Nájezd 212.5×2 → TOP single 222.5×1 → Back-off 202.5×3' },
       { id: 'pendlay-row', name: 'Pendlay row (z podlahy) — silná záda = silný tah', category: 'accessory', targetSets: '4', targetReps: '5', targetWeight: '97.5', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
@@ -1215,7 +1215,7 @@ const np11: Week = {
       { id: 'ab-wheel-dl', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npSatHiit(),
-    npSunRest(),
+    npFriRest(),
   ],
 };
 
@@ -1231,7 +1231,7 @@ const np12: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
       { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
-    npStrength(NP_TUE, [
+    npStrength(NP_SUN, [
       { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Opener', weight: '115', reps: '1', rpe: '7' }, { label: 'Druhá', weight: '107.5', reps: '2', rpe: '7' }, { label: 'Objem', weight: '102.5', reps: '3', rpe: '7' }], targetSets: '3', targetReps: '1/2/3', targetWeight: '115/107.5/102.5 kg', rpe: '7', note: 'Vlna (zapiš top/overload sérii): Opener 115×1 → Druhá 107.5×2 → Objem 102.5×3' },
       { id: 'spoto', name: 'Spoto press (2–3 cm nad hrudí) — variace na start z prsu', category: 'accessory', targetSets: '3', targetReps: '6', targetWeight: '102.5', note: 'Cílí slabinu (tlak z prsu). Bez odrazu. Rotuje po blocích.' },
       { id: 'triceps-skull', name: 'Skull crusher / JM press', category: 'isolation', targetSets: '3', targetReps: '10–12', targetWeight: 'střední', note: 'Náhrada dipů – triceps na lockout, šetří ramena. Rotuje po blocích.' },
@@ -1241,8 +1241,8 @@ const np12: Week = {
       { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npWedHiit(),
-    npThuRest(),
-    npStrength(NP_FRI, [
+    npTueRest(),
+    npStrength(NP_THU, [
       { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Opener', weight: '207.5', reps: '1', rpe: '7' }, { label: 'Druhá', weight: '195', reps: '2', rpe: '7' }, { label: 'Objem', weight: '185', reps: '3', rpe: '7' }], targetSets: '3', targetReps: '1/2/3', targetWeight: '207.5/195/185 kg', rpe: '7', note: 'Vlna (zapiš top/overload sérii): Opener 207.5×1 → Druhá 195×2 → Objem 185×3' },
       { id: 'pendlay-row', name: 'Pendlay row (z podlahy) — silná záda = silný tah', category: 'accessory', targetSets: '3', targetReps: '8–10', targetWeight: '82.5', note: 'Hlavní stavitel zad. Rotuje po blocích, střídá síla/objem.' },
       { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '8', note: 'Tvůj pull-up #2 – zádová varianta. Každý pull den. Úchop rotuje.' },
@@ -1250,7 +1250,7 @@ const np12: Week = {
       { id: 'ab-wheel-dl', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npSatHiit(),
-    npSunRest(),
+    npFriRest(),
   ],
 };
 
@@ -1262,61 +1262,164 @@ const np13: Week = {
     npStrength(NP_MON, [
       { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'Rozjezd', weight: '150', reps: '1' }, { label: 'Rozjezd', weight: '170', reps: '1' }, { label: 'CÍL', weight: '190', reps: '1' }, { label: 'PR (volitelně)', weight: '195', reps: '1' }], targetSets: '1', targetReps: '1', targetWeight: '190 kg (CÍL)', rpe: 'MAX', note: 'TEST. Postup: 150×1 (Rozjezd) → 170×1 (Rozjezd) → 190×1 (CÍL) → 195×1 (PR (volitelně))' },
     ]),
-    npStrength(NP_TUE, [
+    npStrength(NP_SUN, [
       { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Rozjezd', weight: '100', reps: '1' }, { label: 'Rozjezd', weight: '115', reps: '1' }, { label: 'Rozjezd', weight: '125', reps: '1' }, { label: 'CÍL', weight: '130', reps: '1' }, { label: 'PR (volitelně)', weight: '132.5', reps: '1' }], targetSets: '1', targetReps: '1', targetWeight: '130 kg (CÍL)', rpe: 'MAX', note: 'TEST. Postup: 100×1 (Rozjezd) → 115×1 (Rozjezd) → 125×1 (Rozjezd) → 130×1 (CÍL) → 132.5×1 (PR (volitelně))' },
     ]),
     npWedHiit(),
-    npThuRest(),
-    npStrength(NP_FRI, [
+    npTueRest(),
+    npStrength(NP_THU, [
       { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Rozjezd', weight: '180', reps: '1' }, { label: 'Rozjezd', weight: '207.5', reps: '1' }, { label: 'CÍL', weight: '230', reps: '1' }, { label: 'PR pokus', weight: '235', reps: '1' }], targetSets: '1', targetReps: '1', targetWeight: '230 kg (CÍL)', rpe: 'MAX', note: 'TEST. Postup: 180×1 (Rozjezd) → 207.5×1 (Rozjezd) → 230×1 (CÍL) → 235×1 (PR pokus)' },
     ]),
     npSatHiit(),
-    npSunRest(),
+    npFriRest(),
   ],
 };
 
-export const PHASE3_WEEKS: Week[] = [np1, np2, np3, np4, np5, np6, np7, np8, np9, np10, np11, np12, np13];
+// Pořadí dnů ve zdrojáku odpovídá tomu, jak se bloky cviků historicky psaly,
+// ne kalendáři — po přesunu benche na neděli a tahu na čtvrtek by se týden
+// zobrazoval rozházeně. Seřadí se tady, na jednom místě, ne ve 13 literálech.
+const DEN_PORADI = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+const seradDny = (w: Week): Week => ({
+  ...w,
+  days: [...w.days].sort((a, b) => DEN_PORADI.indexOf(a.key) - DEN_PORADI.indexOf(b.key)),
+});
+
+export const PHASE3_WEEKS: Week[] = [np1, np2, np3, np4, np5, np6, np7, np8, np9, np10, np11, np12, np13].map(seradDny);
 
 
 // ============================================================
 // NUTRITION DATA (Schumann & Rønnestad)
 // ============================================================
+// ============================================================
+// VÝŽIVA — přepočteno na 99 kg (nahlášeno 31. 8. 2026)
+// ============================================================
+//
+// ⚠️ Čísla jsou vázaná na TĚLESNOU HMOTNOST. Když se posune o víc než ~3 kg,
+// přepočítej je, jinak přestanou sedět.
+//
+// Zdroje s ověřenými čísly (staženo 1. 9. 2026):
+//  - Jäger et al. 2017, ISSN Position Stand: Protein and Exercise (PMC5477153)
+//  - Aragon et al. 2017, ISSN Position Stand: Diets and Body Composition (PMC5470183)
+//  - Naderi et al., Timing/Optimal Dose of Supplements in Sports Nutrition (PMC5545206)
+//  - Schumann & Rønnestad, Concurrent Aerobic and Strength Training (knižní, str. dle plánu)
 export const NUTRITION = {
-  calories: 3600,
-  protein: { g: 160, gPerKg: 1.7, source: 'Schumann s.233' },
-  carbs: { g: 517, gPerKg: 5.5, source: 'Schumann s.215' },
-  fat: { g: 99, source: 'Dopočet' },
-  timing: {
-    preworkout: '20–30 g bílkovin + 60–80 g sacharidů, 1–2 h před tréninkem',
-    postStrength: '20 g bílkovin + ~94 g sacharidů (1 g/kg) do 4 h po tréninku',
-    postHiit: 'Sacharidy okamžitě po HIIT – minimalizuje AMPK/mTOR interferenci (Schumann s.234)',
+  bodyWeightKg: 99,
+  bodyWeightDate: '2026-08-31',
+
+  /** Silový den (Po dřep, Čt tah, Ne bench) i den s během nebo HIIT. */
+  trainingDay: {
+    calories: 3500,
+    protein: { g: 178, gPerKg: 1.8, source: 'Jäger 2017: 1,4–2,0 g/kg' },
+    carbs: { g: 500, gPerKg: 5.1, source: 'Naderi: 3–12 g/kg dle intenzity' },
+    fat: { g: 88, pct: 23, source: 'Dopočet; drženo nad 20 % kvůli hormonům' },
   },
+  /** Volný den (Út, Pá). Bílkoviny zůstávají, dolů jdou sacharidy. */
+  restDay: {
+    calories: 2950,
+    protein: { g: 178, gPerKg: 1.8, source: 'Bílkoviny se nesnižují nikdy' },
+    carbs: { g: 350, gPerKg: 3.5, source: 'Sacharidová periodizace' },
+    fat: { g: 90, pct: 27, source: 'Dopočet' },
+  },
+
+  meal: {
+    perMeal: '40–45 g bílkovin, 4× denně (Jäger: 0,25 g/kg nebo 20–40 g na jídlo)',
+    spacing: 'Po 3–4 hodinách (Jäger 2017)',
+    leucine: '1–3 g leucinu na jídlo (práh 700–3000 mg)',
+    preSleep: '30–40 g kaseinu před spaním (Jäger 2017)',
+  },
+
+  timing: {
+    preworkout: '80–120 g sacharidů + 30 g bílkovin, 2–3 h před tréninkem',
+    postStrength: '40 g bílkovin + 100–150 g sacharidů do 2 h po síle',
+    postHiit: '60–90 g rychlých sacharidů OKAMŽITĚ po HIIT i po dlouhém běhu — omezí interferenci AMPK/mTOR (Schumann)',
+    duringRun: 'Nad 75 min běhu: 30–60 g sacharidů za hodinu (Naderi: 30–60 g/h při 1–2 h)',
+  },
+
   supplements: [
-    { name: 'Kreatin monohydrát', dose: '5 g/den maintenance (loading: 20–30 g/den × 5–7 dní)', source: 'Schumann s.238' },
-    { name: 'Omega-3 (n-3 PUFA)', dose: '3–6 g EPA + 0.6 g DHA denně', source: 'Schumann s.237' },
-    { name: 'HMB', dose: '3 g/den', source: 'Schumann s.236' },
-    { name: 'Vitamin D3 + Magnézium', dose: 'Dle obecných doporučení', source: 'Obecná doporučení' },
+    { name: 'Kreatin monohydrát', dose: '5 g/den, kdykoli během dne', source: 'Schumann s.238' },
+    { name: 'Omega-3 (EPA+DHA)', dose: '2–3 g denně', source: 'Schumann s.237' },
+    { name: 'Vitamin D3', dose: '2000–4000 IU/den v zimě', source: 'Obecné doporučení' },
+    { name: 'Kofein', dose: '3 mg/kg (≈ 300 mg) 45–60 min před dlouhým během', source: 'Naderi' },
   ],
+
+  /** Kdyby chtěl zhubnout kvůli běhu — každý kilo dolů je ~2–3 s/km. */
+  cut: {
+    rate: '0,5–1,0 % hmotnosti týdně = 0,5–1,0 kg (Aragon 2017)',
+    calories: 3000,
+    protein: { g: 220, gPerKg: 2.2, source: 'Aragon 2017: 2,3–3,1 g/kg FFM v deficitu' },
+    warning: 'V deficitu nečekej nová maxima. Nedělej to v T12–T13 (taper a test).',
+  },
 };
+
 
 // ============================================================
 // RUNNING PROGRAM (Viada – concurrent scheduling)
 // ============================================================
-export const RUNNING_PROGRAM = [
-  { week: 1, type: 'Volitelný Z2 běh', duration: '≤30 min', zone: 'Z2', description: 'Neděle, konverzační tempo, ≤5 km. Nepovinné – chrání nohy.' },
-  { week: 2, type: 'Volitelný Z2 běh', duration: '≤30 min', zone: 'Z2', description: 'Neděle, konverzační tempo, ≤5 km. Nepovinné – chrání nohy.' },
-  { week: 3, type: 'Volitelný Z2 běh', duration: '≤30 min', zone: 'Z2', description: 'Neděle, konverzační tempo, ≤5 km. Nepovinné – chrání nohy.' },
-  { week: 4, type: 'Volitelný Z2 běh', duration: '≤30 min', zone: 'Z2', description: 'Neděle, konverzační tempo, ≤5 km. Nepovinné – chrání nohy.' },
-  { week: 5, type: 'Volitelný Z2 běh', duration: '≤30 min', zone: 'Z2', description: 'Neděle, konverzační tempo, ≤5 km. Nepovinné – chrání nohy.' },
-  { week: 6, type: 'Volitelný Z2 běh', duration: '≤30 min', zone: 'Z2', description: 'Neděle, konverzační tempo, ≤5 km. Nepovinné – chrání nohy.' },
-  { week: 7, type: 'Volitelný Z2 běh', duration: '≤30 min', zone: 'Z2', description: 'Neděle, konverzační tempo, ≤5 km. Nepovinné – chrání nohy.' },
-  { week: 8, type: 'Volitelný Z2 běh', duration: '≤30 min', zone: 'Z2', description: 'Neděle, konverzační tempo, ≤5 km. Nepovinné – chrání nohy.' },
-  { week: 9, type: 'Volitelný Z2 běh', duration: '≤30 min', zone: 'Z2', description: 'Neděle, konverzační tempo, ≤5 km. Nepovinné – chrání nohy.' },
-  { week: 10, type: 'Volitelný Z2 běh', duration: '≤30 min', zone: 'Z2', description: 'Neděle, konverzační tempo, ≤5 km. Nepovinné – chrání nohy.' },
-  { week: 11, type: 'Volitelný Z2 běh', duration: '≤30 min', zone: 'Z2', description: 'Neděle, konverzační tempo, ≤5 km. Nepovinné – chrání nohy.' },
-  { week: 12, type: 'VYNECHAT', duration: '–', zone: '–', description: 'Taper/test – žádný běh (Viada).' },
-  { week: 13, type: 'VYNECHAT', duration: '–', zone: '–', description: 'Taper/test – žádný běh (Viada).' },
+// ============================================================
+// BĚŽECKÝ PROGRAM — Podzim 2026
+// ============================================================
+//
+// Zadání: NEPŘIDÁVAT tréninky. Jeden běh týdně (výjimečně dva) se získá tak,
+// že se v daném týdnu VYMĚNÍ jedna HIIT lekce za běh. Střídá se St a So,
+// aby nevypadávala pořád tatáž lekce.
+//
+// Kalibrace podle jeho REÁLNÝCH dat, ne z tabulky: 34 zaznamenaných běhů
+// (III–VIII 2026), nejdelší 10,54 km za 1:04:44 (12. 8.) v tempu 6:08/km.
+// Proto program nezačíná na pěti kilometrech, ale na osmi.
+//
+// ⚠️ Dlouhý běh je tu 100 % týdenního objemu. Běžné doporučení je ≤ 30–35 %.
+// To je hlavní riziko celého programu (kostní stres, achilovka) a jediná
+// obrana je druhý, kratší běh v pátek — proto je u stavebních týdnů `druhy`.
+//
+// ⚠️ T12 je taper a T13 test maxim. Běh tam musí jít dolů, jinak si sníží
+// čísla na dřepu, benchi a tahu — kvůli tomu celý plán je.
+export interface RunPlan {
+  week: number;
+  /** Kterou HIIT lekci ten týden vyměnit za běh. */
+  vymenit: 'wednesday' | 'saturday' | null;
+  km: number;
+  duration: string;
+  zone: string;
+  type: string;
+  description: string;
+  /** Nepovinný druhý, krátký běh v pátek — rozloží zátěž. */
+  druhy?: string;
+}
+
+export const RUNNING_PROGRAM: RunPlan[] = [
+  { week: 1,  vymenit: 'wednesday', km: 8,  duration: '50–55 min', zone: 'Z2 · tep 135–150', type: 'Dlouhý Z2',
+    description: 'Vědomě pomaleji, než jsi zvyklý. Tempo kolem 6:30–6:50/km. Když tep leze přes 150, jdi do chůze.' },
+  { week: 2,  vymenit: 'saturday',  km: 10, duration: '65–70 min', zone: 'Z2 · tep 135–150', type: 'Dlouhý Z2',
+    description: 'Zopakování tvého maxima z 12. 8., ale o poznání pomaleji. Cíl je tep, ne čas.' },
+  { week: 3,  vymenit: 'wednesday', km: 11, duration: '72–78 min', zone: 'Z2 · tep 135–150', type: 'Dlouhý Z2',
+    description: 'První nové maximum. Poslední 2 km musíš zvládnout bez zpomalení.', druhy: 'Pá 5 km velmi lehce' },
+  { week: 4,  vymenit: 'saturday',  km: 6,  duration: '40 min',    zone: 'Z2 · tep ≤ 145', type: 'Deload',
+    description: 'Deload i v běhu. Stejný týden, kdy jde dolů činka.' },
+  { week: 5,  vymenit: 'wednesday', km: 12, duration: '78–85 min', zone: 'Z2 · tep 135–150', type: 'Dlouhý Z2',
+    description: 'Nad hodinu a čtvrt. Vezmi si s sebou pití.', druhy: 'Pá 5 km velmi lehce' },
+  { week: 6,  vymenit: 'saturday',  km: 13, duration: '85–92 min', zone: 'Z2 · tep 135–150', type: 'Dlouhý Z2',
+    description: 'Od téhle délky řeš i jídlo během běhu — 30 g sacharidů po 45 min.', druhy: 'Pá 5 km velmi lehce' },
+  { week: 7,  vymenit: 'wednesday', km: 14, duration: '92–100 min', zone: 'Z2 · tep 135–150', type: 'Dlouhý Z2',
+    description: 'Dvě třetiny půlmaratonu. Zkus přesně tu obuv a to jídlo, co bys měl na závodě.', druhy: 'Pá 6 km velmi lehce' },
+  { week: 8,  vymenit: 'saturday',  km: 8,  duration: '52 min',    zone: 'Z2 · tep ≤ 145', type: 'Deload',
+    description: 'Druhý deload. Nepřeskakuj ho — tady se ta předchozí práce teprve vstřebá.' },
+  { week: 9,  vymenit: 'wednesday', km: 15, duration: '100–108 min', zone: 'Z2 · tep 135–150', type: 'Dlouhý Z2',
+    description: 'Přes hodinu a půl. Od téhle délky je limit spíš hlava a nohy než plíce.', druhy: 'Pá 6 km velmi lehce' },
+  { week: 10, vymenit: 'saturday',  km: 16, duration: '105–115 min', zone: 'Z2 + 2 km tempo', type: 'Dlouhý + tempo',
+    description: 'Prvních 14 km Z2, poslední 2 km zrychli na 5:45–6:00/km. Naučí tělo běžet unavené.', druhy: 'Pá 6 km velmi lehce' },
+  { week: 11, vymenit: 'wednesday', km: 18, duration: '2:00–2:10', zone: 'Z2 · tep 135–150', type: 'Nejdelší běh',
+    description: 'Vrchol objemu. 18 km v Z2 znamená, že půlmaraton doběhneš — jen ne rychle.', druhy: 'Pá 6 km velmi lehce' },
+  { week: 12, vymenit: 'saturday',  km: 8,  duration: '50 min',    zone: 'Z2 · tep ≤ 145', type: 'Taper',
+    description: 'Objem prudce dolů. Tenhle týden se ladí na test maxim, ne na běh.' },
+  { week: 13, vymenit: null,        km: 4,  duration: '25 min',    zone: 'Z1 · velmi lehce', type: 'Bez zátěže',
+    description: 'Týden testu maxim (Po dřep, Čt tah, Ne bench). Běh jen jako rozklusání, ideálně vůbec. Obě HIIT lekce nech být, nebo je odchoď.' },
 ];
+
+/** Běžecký plán pro daný týden. */
+export function runForWeek(week: number): RunPlan | null {
+  return RUNNING_PROGRAM.find(r => r.week === week) ?? null;
+}
+
 
 // ============================================================
 // DEFAULT RECORDS (historical data from CSV + app records)
@@ -1528,125 +1631,125 @@ export const WARMUP_SERIES_BY_WEEK: Record<number, WarmupSeries> = {
 export const PLANNED_RECORDS: RecordsMap = {
   'ab-wheel': [
     { id: 'plan-w1-po-ab-wheel', date: '2026-08-31', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T1 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w1-ut-ab-wheel', date: '2026-09-01', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T1 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w1-ne-ab-wheel', date: '2026-09-01', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T1 · 3 × 10–12 · vlastní', planned: true },
     { id: 'plan-w2-po-ab-wheel', date: '2026-09-07', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T2 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w2-ut-ab-wheel', date: '2026-09-08', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T2 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w2-ne-ab-wheel', date: '2026-09-08', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T2 · 3 × 10–12 · vlastní', planned: true },
     { id: 'plan-w3-po-ab-wheel', date: '2026-09-14', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T3 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w3-ut-ab-wheel', date: '2026-09-15', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T3 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w3-ne-ab-wheel', date: '2026-09-15', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T3 · 3 × 10–12 · vlastní', planned: true },
     { id: 'plan-w4-po-ab-wheel', date: '2026-09-21', sets: '2', weight: '0', reps: '10', note: 'PLÁN · T4 · 2 × 10 · vlastní', planned: true },
-    { id: 'plan-w4-ut-ab-wheel', date: '2026-09-22', sets: '2', weight: '0', reps: '10', note: 'PLÁN · T4 · 2 × 10 · vlastní', planned: true },
+    { id: 'plan-w4-ne-ab-wheel', date: '2026-09-22', sets: '2', weight: '0', reps: '10', note: 'PLÁN · T4 · 2 × 10 · vlastní', planned: true },
     { id: 'plan-w5-po-ab-wheel', date: '2026-09-28', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T5 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w5-ut-ab-wheel', date: '2026-09-29', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T5 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w5-ne-ab-wheel', date: '2026-09-29', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T5 · 3 × 10–12 · vlastní', planned: true },
     { id: 'plan-w6-po-ab-wheel', date: '2026-10-05', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T6 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w6-ut-ab-wheel', date: '2026-10-06', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T6 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w6-ne-ab-wheel', date: '2026-10-06', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T6 · 3 × 10–12 · vlastní', planned: true },
     { id: 'plan-w7-po-ab-wheel', date: '2026-10-12', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T7 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w7-ut-ab-wheel', date: '2026-10-13', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T7 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w7-ne-ab-wheel', date: '2026-10-13', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T7 · 3 × 10–12 · vlastní', planned: true },
     { id: 'plan-w8-po-ab-wheel', date: '2026-10-19', sets: '2', weight: '0', reps: '10', note: 'PLÁN · T8 · 2 × 10 · vlastní', planned: true },
-    { id: 'plan-w8-ut-ab-wheel', date: '2026-10-20', sets: '2', weight: '0', reps: '10', note: 'PLÁN · T8 · 2 × 10 · vlastní', planned: true },
+    { id: 'plan-w8-ne-ab-wheel', date: '2026-10-20', sets: '2', weight: '0', reps: '10', note: 'PLÁN · T8 · 2 × 10 · vlastní', planned: true },
     { id: 'plan-w9-po-ab-wheel', date: '2026-10-26', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T9 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w9-ut-ab-wheel', date: '2026-10-27', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T9 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w9-ne-ab-wheel', date: '2026-10-27', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T9 · 3 × 10–12 · vlastní', planned: true },
     { id: 'plan-w10-po-ab-wheel', date: '2026-11-02', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T10 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w10-ut-ab-wheel', date: '2026-11-03', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T10 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w10-ne-ab-wheel', date: '2026-11-03', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T10 · 3 × 10–12 · vlastní', planned: true },
     { id: 'plan-w11-po-ab-wheel', date: '2026-11-09', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T11 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w11-ut-ab-wheel', date: '2026-11-10', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T11 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w11-ne-ab-wheel', date: '2026-11-10', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T11 · 3 × 10–12 · vlastní', planned: true },
     { id: 'plan-w12-po-ab-wheel', date: '2026-11-16', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T12 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w12-ut-ab-wheel', date: '2026-11-17', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T12 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w12-ne-ab-wheel', date: '2026-11-17', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T12 · 3 × 10–12 · vlastní', planned: true },
   ],
   'ab-wheel-dl': [
-    { id: 'plan-w1-pa-ab-wheel-dl', date: '2026-09-04', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T1 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w2-pa-ab-wheel-dl', date: '2026-09-11', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T2 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w3-pa-ab-wheel-dl', date: '2026-09-18', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T3 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w4-pa-ab-wheel-dl', date: '2026-09-25', sets: '2', weight: '0', reps: '10', note: 'PLÁN · T4 · 2 × 10 · vlastní', planned: true },
-    { id: 'plan-w5-pa-ab-wheel-dl', date: '2026-10-02', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T5 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w6-pa-ab-wheel-dl', date: '2026-10-09', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T6 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w7-pa-ab-wheel-dl', date: '2026-10-16', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T7 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w8-pa-ab-wheel-dl', date: '2026-10-23', sets: '2', weight: '0', reps: '10', note: 'PLÁN · T8 · 2 × 10 · vlastní', planned: true },
-    { id: 'plan-w9-pa-ab-wheel-dl', date: '2026-10-30', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T9 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w10-pa-ab-wheel-dl', date: '2026-11-06', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T10 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w11-pa-ab-wheel-dl', date: '2026-11-13', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T11 · 3 × 10–12 · vlastní', planned: true },
-    { id: 'plan-w12-pa-ab-wheel-dl', date: '2026-11-20', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T12 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w1-ct-ab-wheel-dl', date: '2026-09-04', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T1 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w2-ct-ab-wheel-dl', date: '2026-09-11', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T2 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w3-ct-ab-wheel-dl', date: '2026-09-18', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T3 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w4-ct-ab-wheel-dl', date: '2026-09-25', sets: '2', weight: '0', reps: '10', note: 'PLÁN · T4 · 2 × 10 · vlastní', planned: true },
+    { id: 'plan-w5-ct-ab-wheel-dl', date: '2026-10-02', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T5 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w6-ct-ab-wheel-dl', date: '2026-10-09', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T6 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w7-ct-ab-wheel-dl', date: '2026-10-16', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T7 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w8-ct-ab-wheel-dl', date: '2026-10-23', sets: '2', weight: '0', reps: '10', note: 'PLÁN · T8 · 2 × 10 · vlastní', planned: true },
+    { id: 'plan-w9-ct-ab-wheel-dl', date: '2026-10-30', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T9 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w10-ct-ab-wheel-dl', date: '2026-11-06', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T10 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w11-ct-ab-wheel-dl', date: '2026-11-13', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T11 · 3 × 10–12 · vlastní', planned: true },
+    { id: 'plan-w12-ct-ab-wheel-dl', date: '2026-11-20', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T12 · 3 × 10–12 · vlastní', planned: true },
   ],
   'barbell-row': [
-    { id: 'plan-w1-pa-barbell-row', date: '2026-09-04', sets: '3', weight: '82.5', reps: '8–10', note: 'PLÁN · T1 · 3 × 8–10', planned: true },
-    { id: 'plan-w2-pa-barbell-row', date: '2026-09-11', sets: '3', weight: '82.5', reps: '8–10', note: 'PLÁN · T2 · 3 × 8–10', planned: true },
-    { id: 'plan-w3-pa-barbell-row', date: '2026-09-18', sets: '4', weight: '97.5', reps: '5', note: 'PLÁN · T3 · 4 × 5', planned: true },
-    { id: 'plan-w4-pa-barbell-row', date: '2026-09-25', sets: '2', weight: '72.5', reps: '8', note: 'PLÁN · T4 · 2 × 8', planned: true },
+    { id: 'plan-w1-ct-barbell-row', date: '2026-09-04', sets: '3', weight: '82.5', reps: '8–10', note: 'PLÁN · T1 · 3 × 8–10', planned: true },
+    { id: 'plan-w2-ct-barbell-row', date: '2026-09-11', sets: '3', weight: '82.5', reps: '8–10', note: 'PLÁN · T2 · 3 × 8–10', planned: true },
+    { id: 'plan-w3-ct-barbell-row', date: '2026-09-18', sets: '4', weight: '97.5', reps: '5', note: 'PLÁN · T3 · 4 × 5', planned: true },
+    { id: 'plan-w4-ct-barbell-row', date: '2026-09-25', sets: '2', weight: '72.5', reps: '8', note: 'PLÁN · T4 · 2 × 8', planned: true },
   ],
   'bench': [
-    { id: 'plan-w1-ut-bench-0', date: '2026-09-01', sets: '1', weight: '100', reps: '8', note: 'PLÁN · T1 · Objemová · RPE 7-8', planned: true },
-    { id: 'plan-w1-ut-bench-1', date: '2026-09-01', sets: '1', weight: '112.5', reps: '3', note: 'PLÁN · T1 · OVERLOAD · RPE 8', planned: true },
-    { id: 'plan-w1-ut-bench-2', date: '2026-09-01', sets: '1', weight: '105', reps: '6', note: 'PLÁN · T1 · Back-off · RPE 7-8', planned: true },
-    { id: 'plan-w1-ut-bench-3', date: '2026-09-01', sets: '1', weight: '105', reps: '6', note: 'PLÁN · T1 · Back-off · RPE 7-8', planned: true },
-    { id: 'plan-w2-ut-bench-0', date: '2026-09-08', sets: '1', weight: '102.5', reps: '8', note: 'PLÁN · T2 · Objemová · RPE 8', planned: true },
-    { id: 'plan-w2-ut-bench-1', date: '2026-09-08', sets: '1', weight: '115', reps: '2', note: 'PLÁN · T2 · OVERLOAD · RPE 8', planned: true },
-    { id: 'plan-w2-ut-bench-2', date: '2026-09-08', sets: '1', weight: '107.5', reps: '6', note: 'PLÁN · T2 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w2-ut-bench-3', date: '2026-09-08', sets: '1', weight: '107.5', reps: '5', note: 'PLÁN · T2 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w3-ut-bench-0', date: '2026-09-15', sets: '1', weight: '105', reps: '6', note: 'PLÁN · T3 · Objemová · RPE 8', planned: true },
-    { id: 'plan-w3-ut-bench-1', date: '2026-09-15', sets: '1', weight: '117.5', reps: '2', note: 'PLÁN · T3 · OVERLOAD · RPE 8-9', planned: true },
-    { id: 'plan-w3-ut-bench-2', date: '2026-09-15', sets: '1', weight: '110', reps: '6', note: 'PLÁN · T3 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w3-ut-bench-3', date: '2026-09-15', sets: '1', weight: '110', reps: '5', note: 'PLÁN · T3 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w4-ut-bench-0', date: '2026-09-22', sets: '1', weight: '90', reps: '5', note: 'PLÁN · T4 · Deload · RPE 6', planned: true },
-    { id: 'plan-w4-ut-bench-1', date: '2026-09-22', sets: '1', weight: '90', reps: '5', note: 'PLÁN · T4 · Deload · RPE 6', planned: true },
-    { id: 'plan-w4-ut-bench-2', date: '2026-09-22', sets: '1', weight: '92.5', reps: '5', note: 'PLÁN · T4 · Deload · RPE 6-7', planned: true },
-    { id: 'plan-w5-ut-bench-0', date: '2026-09-29', sets: '1', weight: '107.5', reps: '5', note: 'PLÁN · T5 · TOP · RPE 8', planned: true },
-    { id: 'plan-w5-ut-bench-1', date: '2026-09-29', sets: '1', weight: '112.5', reps: '3', note: 'PLÁN · T5 · OVERLOAD · RPE 8-9', planned: true },
-    { id: 'plan-w5-ut-bench-2', date: '2026-09-29', sets: '1', weight: '105', reps: '5', note: 'PLÁN · T5 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w5-ut-bench-3', date: '2026-09-29', sets: '1', weight: '105', reps: '5', note: 'PLÁN · T5 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w6-ut-bench-0', date: '2026-10-06', sets: '1', weight: '110', reps: '4', note: 'PLÁN · T6 · TOP · RPE 8', planned: true },
-    { id: 'plan-w6-ut-bench-1', date: '2026-10-06', sets: '1', weight: '115', reps: '2', note: 'PLÁN · T6 · OVERLOAD · RPE 9', planned: true },
-    { id: 'plan-w6-ut-bench-2', date: '2026-10-06', sets: '1', weight: '107.5', reps: '5', note: 'PLÁN · T6 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w6-ut-bench-3', date: '2026-10-06', sets: '1', weight: '107.5', reps: '4', note: 'PLÁN · T6 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w7-ut-bench-0', date: '2026-10-13', sets: '1', weight: '115', reps: '3', note: 'PLÁN · T7 · TOP · RPE 8-9', planned: true },
-    { id: 'plan-w7-ut-bench-1', date: '2026-10-13', sets: '1', weight: '117.5', reps: '2', note: 'PLÁN · T7 · OVERLOAD · RPE 9', planned: true },
-    { id: 'plan-w7-ut-bench-2', date: '2026-10-13', sets: '1', weight: '107.5', reps: '4', note: 'PLÁN · T7 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w7-ut-bench-3', date: '2026-10-13', sets: '1', weight: '107.5', reps: '4', note: 'PLÁN · T7 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w8-ut-bench-0', date: '2026-10-20', sets: '1', weight: '95', reps: '3', note: 'PLÁN · T8 · Deload · RPE 6-7', planned: true },
-    { id: 'plan-w8-ut-bench-1', date: '2026-10-20', sets: '1', weight: '95', reps: '3', note: 'PLÁN · T8 · Deload · RPE 6-7', planned: true },
-    { id: 'plan-w8-ut-bench-2', date: '2026-10-20', sets: '1', weight: '97.5', reps: '3', note: 'PLÁN · T8 · Deload · RPE 7', planned: true },
-    { id: 'plan-w9-ut-bench-0', date: '2026-10-27', sets: '1', weight: '112.5', reps: '3', note: 'PLÁN · T9 · Nájezd · RPE 8', planned: true },
-    { id: 'plan-w9-ut-bench-1', date: '2026-10-27', sets: '1', weight: '117.5', reps: '2', note: 'PLÁN · T9 · TOP · RPE 9', planned: true },
-    { id: 'plan-w9-ut-bench-2', date: '2026-10-27', sets: '1', weight: '107.5', reps: '5', note: 'PLÁN · T9 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w9-ut-bench-3', date: '2026-10-27', sets: '1', weight: '107.5', reps: '5', note: 'PLÁN · T9 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w10-ut-bench-0', date: '2026-11-03', sets: '1', weight: '115', reps: '2', note: 'PLÁN · T10 · Nájezd · RPE 8', planned: true },
-    { id: 'plan-w10-ut-bench-1', date: '2026-11-03', sets: '1', weight: '120', reps: '1', note: 'PLÁN · T10 · TOP single · RPE 9', planned: true },
-    { id: 'plan-w10-ut-bench-2', date: '2026-11-03', sets: '1', weight: '110', reps: '4', note: 'PLÁN · T10 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w10-ut-bench-3', date: '2026-11-03', sets: '1', weight: '110', reps: '3', note: 'PLÁN · T10 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w11-ut-bench-0', date: '2026-11-10', sets: '1', weight: '117.5', reps: '2', note: 'PLÁN · T11 · Nájezd · RPE 8-9', planned: true },
-    { id: 'plan-w11-ut-bench-1', date: '2026-11-10', sets: '1', weight: '122.5', reps: '1', note: 'PLÁN · T11 · TOP single · RPE 9', planned: true },
-    { id: 'plan-w11-ut-bench-2', date: '2026-11-10', sets: '1', weight: '112.5', reps: '3', note: 'PLÁN · T11 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w11-ut-bench-3', date: '2026-11-10', sets: '1', weight: '112.5', reps: '3', note: 'PLÁN · T11 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w12-ut-bench-0', date: '2026-11-17', sets: '1', weight: '115', reps: '1', note: 'PLÁN · T12 · Opener · RPE 7', planned: true },
-    { id: 'plan-w12-ut-bench-1', date: '2026-11-17', sets: '1', weight: '107.5', reps: '2', note: 'PLÁN · T12 · Druhá · RPE 7', planned: true },
-    { id: 'plan-w12-ut-bench-2', date: '2026-11-17', sets: '1', weight: '102.5', reps: '3', note: 'PLÁN · T12 · Objem · RPE 7', planned: true },
-    { id: 'plan-w13-ut-bench-0', date: '2026-11-24', sets: '1', weight: '100', reps: '1', note: 'PLÁN · T13 · Rozjezd', planned: true },
-    { id: 'plan-w13-ut-bench-1', date: '2026-11-24', sets: '1', weight: '115', reps: '1', note: 'PLÁN · T13 · Rozjezd', planned: true },
-    { id: 'plan-w13-ut-bench-2', date: '2026-11-24', sets: '1', weight: '125', reps: '1', note: 'PLÁN · T13 · Rozjezd', planned: true },
-    { id: 'plan-w13-ut-bench-3', date: '2026-11-24', sets: '1', weight: '130', reps: '1', note: 'PLÁN · T13 · CÍL', planned: true },
-    { id: 'plan-w13-ut-bench-4', date: '2026-11-24', sets: '1', weight: '132.5', reps: '1', note: 'PLÁN · T13 · PR (volitelně)', planned: true },
+    { id: 'plan-w1-ne-bench-0', date: '2026-09-01', sets: '1', weight: '100', reps: '8', note: 'PLÁN · T1 · Objemová · RPE 7-8', planned: true },
+    { id: 'plan-w1-ne-bench-1', date: '2026-09-01', sets: '1', weight: '112.5', reps: '3', note: 'PLÁN · T1 · OVERLOAD · RPE 8', planned: true },
+    { id: 'plan-w1-ne-bench-2', date: '2026-09-01', sets: '1', weight: '105', reps: '6', note: 'PLÁN · T1 · Back-off · RPE 7-8', planned: true },
+    { id: 'plan-w1-ne-bench-3', date: '2026-09-01', sets: '1', weight: '105', reps: '6', note: 'PLÁN · T1 · Back-off · RPE 7-8', planned: true },
+    { id: 'plan-w2-ne-bench-0', date: '2026-09-08', sets: '1', weight: '102.5', reps: '8', note: 'PLÁN · T2 · Objemová · RPE 8', planned: true },
+    { id: 'plan-w2-ne-bench-1', date: '2026-09-08', sets: '1', weight: '115', reps: '2', note: 'PLÁN · T2 · OVERLOAD · RPE 8', planned: true },
+    { id: 'plan-w2-ne-bench-2', date: '2026-09-08', sets: '1', weight: '107.5', reps: '6', note: 'PLÁN · T2 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w2-ne-bench-3', date: '2026-09-08', sets: '1', weight: '107.5', reps: '5', note: 'PLÁN · T2 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w3-ne-bench-0', date: '2026-09-15', sets: '1', weight: '105', reps: '6', note: 'PLÁN · T3 · Objemová · RPE 8', planned: true },
+    { id: 'plan-w3-ne-bench-1', date: '2026-09-15', sets: '1', weight: '117.5', reps: '2', note: 'PLÁN · T3 · OVERLOAD · RPE 8-9', planned: true },
+    { id: 'plan-w3-ne-bench-2', date: '2026-09-15', sets: '1', weight: '110', reps: '6', note: 'PLÁN · T3 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w3-ne-bench-3', date: '2026-09-15', sets: '1', weight: '110', reps: '5', note: 'PLÁN · T3 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w4-ne-bench-0', date: '2026-09-22', sets: '1', weight: '90', reps: '5', note: 'PLÁN · T4 · Deload · RPE 6', planned: true },
+    { id: 'plan-w4-ne-bench-1', date: '2026-09-22', sets: '1', weight: '90', reps: '5', note: 'PLÁN · T4 · Deload · RPE 6', planned: true },
+    { id: 'plan-w4-ne-bench-2', date: '2026-09-22', sets: '1', weight: '92.5', reps: '5', note: 'PLÁN · T4 · Deload · RPE 6-7', planned: true },
+    { id: 'plan-w5-ne-bench-0', date: '2026-09-29', sets: '1', weight: '107.5', reps: '5', note: 'PLÁN · T5 · TOP · RPE 8', planned: true },
+    { id: 'plan-w5-ne-bench-1', date: '2026-09-29', sets: '1', weight: '112.5', reps: '3', note: 'PLÁN · T5 · OVERLOAD · RPE 8-9', planned: true },
+    { id: 'plan-w5-ne-bench-2', date: '2026-09-29', sets: '1', weight: '105', reps: '5', note: 'PLÁN · T5 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w5-ne-bench-3', date: '2026-09-29', sets: '1', weight: '105', reps: '5', note: 'PLÁN · T5 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w6-ne-bench-0', date: '2026-10-06', sets: '1', weight: '110', reps: '4', note: 'PLÁN · T6 · TOP · RPE 8', planned: true },
+    { id: 'plan-w6-ne-bench-1', date: '2026-10-06', sets: '1', weight: '115', reps: '2', note: 'PLÁN · T6 · OVERLOAD · RPE 9', planned: true },
+    { id: 'plan-w6-ne-bench-2', date: '2026-10-06', sets: '1', weight: '107.5', reps: '5', note: 'PLÁN · T6 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w6-ne-bench-3', date: '2026-10-06', sets: '1', weight: '107.5', reps: '4', note: 'PLÁN · T6 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w7-ne-bench-0', date: '2026-10-13', sets: '1', weight: '115', reps: '3', note: 'PLÁN · T7 · TOP · RPE 8-9', planned: true },
+    { id: 'plan-w7-ne-bench-1', date: '2026-10-13', sets: '1', weight: '117.5', reps: '2', note: 'PLÁN · T7 · OVERLOAD · RPE 9', planned: true },
+    { id: 'plan-w7-ne-bench-2', date: '2026-10-13', sets: '1', weight: '107.5', reps: '4', note: 'PLÁN · T7 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w7-ne-bench-3', date: '2026-10-13', sets: '1', weight: '107.5', reps: '4', note: 'PLÁN · T7 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w8-ne-bench-0', date: '2026-10-20', sets: '1', weight: '95', reps: '3', note: 'PLÁN · T8 · Deload · RPE 6-7', planned: true },
+    { id: 'plan-w8-ne-bench-1', date: '2026-10-20', sets: '1', weight: '95', reps: '3', note: 'PLÁN · T8 · Deload · RPE 6-7', planned: true },
+    { id: 'plan-w8-ne-bench-2', date: '2026-10-20', sets: '1', weight: '97.5', reps: '3', note: 'PLÁN · T8 · Deload · RPE 7', planned: true },
+    { id: 'plan-w9-ne-bench-0', date: '2026-10-27', sets: '1', weight: '112.5', reps: '3', note: 'PLÁN · T9 · Nájezd · RPE 8', planned: true },
+    { id: 'plan-w9-ne-bench-1', date: '2026-10-27', sets: '1', weight: '117.5', reps: '2', note: 'PLÁN · T9 · TOP · RPE 9', planned: true },
+    { id: 'plan-w9-ne-bench-2', date: '2026-10-27', sets: '1', weight: '107.5', reps: '5', note: 'PLÁN · T9 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w9-ne-bench-3', date: '2026-10-27', sets: '1', weight: '107.5', reps: '5', note: 'PLÁN · T9 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w10-ne-bench-0', date: '2026-11-03', sets: '1', weight: '115', reps: '2', note: 'PLÁN · T10 · Nájezd · RPE 8', planned: true },
+    { id: 'plan-w10-ne-bench-1', date: '2026-11-03', sets: '1', weight: '120', reps: '1', note: 'PLÁN · T10 · TOP single · RPE 9', planned: true },
+    { id: 'plan-w10-ne-bench-2', date: '2026-11-03', sets: '1', weight: '110', reps: '4', note: 'PLÁN · T10 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w10-ne-bench-3', date: '2026-11-03', sets: '1', weight: '110', reps: '3', note: 'PLÁN · T10 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w11-ne-bench-0', date: '2026-11-10', sets: '1', weight: '117.5', reps: '2', note: 'PLÁN · T11 · Nájezd · RPE 8-9', planned: true },
+    { id: 'plan-w11-ne-bench-1', date: '2026-11-10', sets: '1', weight: '122.5', reps: '1', note: 'PLÁN · T11 · TOP single · RPE 9', planned: true },
+    { id: 'plan-w11-ne-bench-2', date: '2026-11-10', sets: '1', weight: '112.5', reps: '3', note: 'PLÁN · T11 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w11-ne-bench-3', date: '2026-11-10', sets: '1', weight: '112.5', reps: '3', note: 'PLÁN · T11 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w12-ne-bench-0', date: '2026-11-17', sets: '1', weight: '115', reps: '1', note: 'PLÁN · T12 · Opener · RPE 7', planned: true },
+    { id: 'plan-w12-ne-bench-1', date: '2026-11-17', sets: '1', weight: '107.5', reps: '2', note: 'PLÁN · T12 · Druhá · RPE 7', planned: true },
+    { id: 'plan-w12-ne-bench-2', date: '2026-11-17', sets: '1', weight: '102.5', reps: '3', note: 'PLÁN · T12 · Objem · RPE 7', planned: true },
+    { id: 'plan-w13-ne-bench-0', date: '2026-11-24', sets: '1', weight: '100', reps: '1', note: 'PLÁN · T13 · Rozjezd', planned: true },
+    { id: 'plan-w13-ne-bench-1', date: '2026-11-24', sets: '1', weight: '115', reps: '1', note: 'PLÁN · T13 · Rozjezd', planned: true },
+    { id: 'plan-w13-ne-bench-2', date: '2026-11-24', sets: '1', weight: '125', reps: '1', note: 'PLÁN · T13 · Rozjezd', planned: true },
+    { id: 'plan-w13-ne-bench-3', date: '2026-11-24', sets: '1', weight: '130', reps: '1', note: 'PLÁN · T13 · CÍL', planned: true },
+    { id: 'plan-w13-ne-bench-4', date: '2026-11-24', sets: '1', weight: '132.5', reps: '1', note: 'PLÁN · T13 · PR (volitelně)', planned: true },
   ],
   'bicep-curl': [
-    { id: 'plan-w1-ut-bicep-curl', date: '2026-09-01', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T1 · 3 × 10–12 · střední', planned: true },
-    { id: 'plan-w2-ut-bicep-curl', date: '2026-09-08', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T2 · 3 × 10–12 · střední', planned: true },
-    { id: 'plan-w3-ut-bicep-curl', date: '2026-09-15', sets: '3', weight: '0', reps: '6–8', note: 'PLÁN · T3 · 3 × 6–8 · střední', planned: true },
-    { id: 'plan-w5-ut-bicep-curl', date: '2026-09-29', sets: '3', weight: '0', reps: '6–8', note: 'PLÁN · T5 · 3 × 6–8 · střední', planned: true },
-    { id: 'plan-w6-ut-bicep-curl', date: '2026-10-06', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T6 · 3 × 10–12 · střední', planned: true },
-    { id: 'plan-w7-ut-bicep-curl', date: '2026-10-13', sets: '3', weight: '0', reps: '6–8', note: 'PLÁN · T7 · 3 × 6–8 · střední', planned: true },
-    { id: 'plan-w9-ut-bicep-curl', date: '2026-10-27', sets: '3', weight: '0', reps: '6–8', note: 'PLÁN · T9 · 3 × 6–8 · střední', planned: true },
-    { id: 'plan-w10-ut-bicep-curl', date: '2026-11-03', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T10 · 3 × 10–12 · střední', planned: true },
-    { id: 'plan-w11-ut-bicep-curl', date: '2026-11-10', sets: '3', weight: '0', reps: '6–8', note: 'PLÁN · T11 · 3 × 6–8 · střední', planned: true },
-    { id: 'plan-w12-ut-bicep-curl', date: '2026-11-17', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T12 · 3 × 10–12 · střední', planned: true },
+    { id: 'plan-w1-ne-bicep-curl', date: '2026-09-01', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T1 · 3 × 10–12 · střední', planned: true },
+    { id: 'plan-w2-ne-bicep-curl', date: '2026-09-08', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T2 · 3 × 10–12 · střední', planned: true },
+    { id: 'plan-w3-ne-bicep-curl', date: '2026-09-15', sets: '3', weight: '0', reps: '6–8', note: 'PLÁN · T3 · 3 × 6–8 · střední', planned: true },
+    { id: 'plan-w5-ne-bicep-curl', date: '2026-09-29', sets: '3', weight: '0', reps: '6–8', note: 'PLÁN · T5 · 3 × 6–8 · střední', planned: true },
+    { id: 'plan-w6-ne-bicep-curl', date: '2026-10-06', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T6 · 3 × 10–12 · střední', planned: true },
+    { id: 'plan-w7-ne-bicep-curl', date: '2026-10-13', sets: '3', weight: '0', reps: '6–8', note: 'PLÁN · T7 · 3 × 6–8 · střední', planned: true },
+    { id: 'plan-w9-ne-bicep-curl', date: '2026-10-27', sets: '3', weight: '0', reps: '6–8', note: 'PLÁN · T9 · 3 × 6–8 · střední', planned: true },
+    { id: 'plan-w10-ne-bicep-curl', date: '2026-11-03', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T10 · 3 × 10–12 · střední', planned: true },
+    { id: 'plan-w11-ne-bicep-curl', date: '2026-11-10', sets: '3', weight: '0', reps: '6–8', note: 'PLÁN · T11 · 3 × 6–8 · střední', planned: true },
+    { id: 'plan-w12-ne-bicep-curl', date: '2026-11-17', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T12 · 3 × 10–12 · střední', planned: true },
   ],
   'bicep-curl-2': [
-    { id: 'plan-w1-pa-bicep-curl-2', date: '2026-09-04', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T1 · 3 × 8–10 · střední', planned: true },
-    { id: 'plan-w2-pa-bicep-curl-2', date: '2026-09-11', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T2 · 3 × 8–10 · střední', planned: true },
-    { id: 'plan-w3-pa-bicep-curl-2', date: '2026-09-18', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T3 · 3 × 8–10 · střední', planned: true },
-    { id: 'plan-w5-pa-bicep-curl-2', date: '2026-10-02', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T5 · 3 × 8–10 · střední', planned: true },
-    { id: 'plan-w6-pa-bicep-curl-2', date: '2026-10-09', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T6 · 3 × 8–10 · střední', planned: true },
-    { id: 'plan-w7-pa-bicep-curl-2', date: '2026-10-16', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T7 · 3 × 8–10 · střední', planned: true },
-    { id: 'plan-w9-pa-bicep-curl-2', date: '2026-10-30', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T9 · 3 × 8–10 · střední', planned: true },
-    { id: 'plan-w10-pa-bicep-curl-2', date: '2026-11-06', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T10 · 3 × 8–10 · střední', planned: true },
-    { id: 'plan-w11-pa-bicep-curl-2', date: '2026-11-13', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T11 · 3 × 8–10 · střední', planned: true },
-    { id: 'plan-w12-pa-bicep-curl-2', date: '2026-11-20', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T12 · 3 × 8–10 · střední', planned: true },
+    { id: 'plan-w1-ct-bicep-curl-2', date: '2026-09-04', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T1 · 3 × 8–10 · střední', planned: true },
+    { id: 'plan-w2-ct-bicep-curl-2', date: '2026-09-11', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T2 · 3 × 8–10 · střední', planned: true },
+    { id: 'plan-w3-ct-bicep-curl-2', date: '2026-09-18', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T3 · 3 × 8–10 · střední', planned: true },
+    { id: 'plan-w5-ct-bicep-curl-2', date: '2026-10-02', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T5 · 3 × 8–10 · střední', planned: true },
+    { id: 'plan-w6-ct-bicep-curl-2', date: '2026-10-09', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T6 · 3 × 8–10 · střední', planned: true },
+    { id: 'plan-w7-ct-bicep-curl-2', date: '2026-10-16', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T7 · 3 × 8–10 · střední', planned: true },
+    { id: 'plan-w9-ct-bicep-curl-2', date: '2026-10-30', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T9 · 3 × 8–10 · střední', planned: true },
+    { id: 'plan-w10-ct-bicep-curl-2', date: '2026-11-06', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T10 · 3 × 8–10 · střední', planned: true },
+    { id: 'plan-w11-ct-bicep-curl-2', date: '2026-11-13', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T11 · 3 × 8–10 · střední', planned: true },
+    { id: 'plan-w12-ct-bicep-curl-2', date: '2026-11-20', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T12 · 3 × 8–10 · střední', planned: true },
   ],
   'bulgarian': [
     { id: 'plan-w1-po-bulgarian', date: '2026-08-31', sets: '3', weight: '0', reps: '8–10/nohu', note: 'PLÁN · T1 · 3 × 8–10/nohu · 2× činka střední', planned: true },
@@ -1654,65 +1757,65 @@ export const PLANNED_RECORDS: RecordsMap = {
     { id: 'plan-w3-po-bulgarian', date: '2026-09-14', sets: '3', weight: '0', reps: '6/nohu', note: 'PLÁN · T3 · 3 × 6/nohu · 2× činka střední', planned: true },
   ],
   'chest-supported-row': [
-    { id: 'plan-w5-pa-chest-supported-row', date: '2026-10-02', sets: '4', weight: '0', reps: '5', note: 'PLÁN · T5 · 4 × 5 · stroj těžká', planned: true },
-    { id: 'plan-w6-pa-chest-supported-row', date: '2026-10-09', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T6 · 3 × 8–10 · stroj střední', planned: true },
-    { id: 'plan-w7-pa-chest-supported-row', date: '2026-10-16', sets: '4', weight: '0', reps: '5', note: 'PLÁN · T7 · 4 × 5 · stroj těžká', planned: true },
-    { id: 'plan-w8-pa-chest-supported-row', date: '2026-10-23', sets: '2', weight: '0', reps: '8', note: 'PLÁN · T8 · 2 × 8 · stroj lehká', planned: true },
+    { id: 'plan-w5-ct-chest-supported-row', date: '2026-10-02', sets: '4', weight: '0', reps: '5', note: 'PLÁN · T5 · 4 × 5 · stroj těžká', planned: true },
+    { id: 'plan-w6-ct-chest-supported-row', date: '2026-10-09', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T6 · 3 × 8–10 · stroj střední', planned: true },
+    { id: 'plan-w7-ct-chest-supported-row', date: '2026-10-16', sets: '4', weight: '0', reps: '5', note: 'PLÁN · T7 · 4 × 5 · stroj těžká', planned: true },
+    { id: 'plan-w8-ct-chest-supported-row', date: '2026-10-23', sets: '2', weight: '0', reps: '8', note: 'PLÁN · T8 · 2 × 8 · stroj lehká', planned: true },
   ],
   'deadlift': [
-    { id: 'plan-w1-pa-deadlift-0', date: '2026-09-04', sets: '1', weight: '180', reps: '8', note: 'PLÁN · T1 · Objemová · RPE 7-8', planned: true },
-    { id: 'plan-w1-pa-deadlift-1', date: '2026-09-04', sets: '1', weight: '202.5', reps: '3', note: 'PLÁN · T1 · OVERLOAD · RPE 8', planned: true },
-    { id: 'plan-w1-pa-deadlift-2', date: '2026-09-04', sets: '1', weight: '190', reps: '6', note: 'PLÁN · T1 · Back-off · RPE 7-8', planned: true },
-    { id: 'plan-w2-pa-deadlift-0', date: '2026-09-11', sets: '1', weight: '185', reps: '8', note: 'PLÁN · T2 · Objemová · RPE 8', planned: true },
-    { id: 'plan-w2-pa-deadlift-1', date: '2026-09-11', sets: '1', weight: '207.5', reps: '2', note: 'PLÁN · T2 · OVERLOAD · RPE 8', planned: true },
-    { id: 'plan-w2-pa-deadlift-2', date: '2026-09-11', sets: '1', weight: '195', reps: '6', note: 'PLÁN · T2 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w3-pa-deadlift-0', date: '2026-09-18', sets: '1', weight: '187.5', reps: '6', note: 'PLÁN · T3 · Objemová · RPE 8', planned: true },
-    { id: 'plan-w3-pa-deadlift-1', date: '2026-09-18', sets: '1', weight: '212.5', reps: '2', note: 'PLÁN · T3 · OVERLOAD · RPE 8-9', planned: true },
-    { id: 'plan-w3-pa-deadlift-2', date: '2026-09-18', sets: '1', weight: '197.5', reps: '6', note: 'PLÁN · T3 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w4-pa-deadlift-0', date: '2026-09-25', sets: '1', weight: '160', reps: '5', note: 'PLÁN · T4 · Deload · RPE 6', planned: true },
-    { id: 'plan-w4-pa-deadlift-1', date: '2026-09-25', sets: '1', weight: '160', reps: '5', note: 'PLÁN · T4 · Deload · RPE 6', planned: true },
-    { id: 'plan-w4-pa-deadlift-2', date: '2026-09-25', sets: '1', weight: '165', reps: '5', note: 'PLÁN · T4 · Deload · RPE 6-7', planned: true },
-    { id: 'plan-w5-pa-deadlift-0', date: '2026-10-02', sets: '1', weight: '195', reps: '5', note: 'PLÁN · T5 · TOP · RPE 8', planned: true },
-    { id: 'plan-w5-pa-deadlift-1', date: '2026-10-02', sets: '1', weight: '205', reps: '3', note: 'PLÁN · T5 · OVERLOAD · RPE 8-9', planned: true },
-    { id: 'plan-w5-pa-deadlift-2', date: '2026-10-02', sets: '1', weight: '187.5', reps: '5', note: 'PLÁN · T5 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w6-pa-deadlift-0', date: '2026-10-09', sets: '1', weight: '200', reps: '4', note: 'PLÁN · T6 · TOP · RPE 8', planned: true },
-    { id: 'plan-w6-pa-deadlift-1', date: '2026-10-09', sets: '1', weight: '210', reps: '2', note: 'PLÁN · T6 · OVERLOAD · RPE 9', planned: true },
-    { id: 'plan-w6-pa-deadlift-2', date: '2026-10-09', sets: '1', weight: '192.5', reps: '5', note: 'PLÁN · T6 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w7-pa-deadlift-0', date: '2026-10-16', sets: '1', weight: '207.5', reps: '3', note: 'PLÁN · T7 · TOP · RPE 8-9', planned: true },
-    { id: 'plan-w7-pa-deadlift-1', date: '2026-10-16', sets: '1', weight: '215', reps: '2', note: 'PLÁN · T7 · OVERLOAD · RPE 9', planned: true },
-    { id: 'plan-w7-pa-deadlift-2', date: '2026-10-16', sets: '1', weight: '195', reps: '4', note: 'PLÁN · T7 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w8-pa-deadlift-0', date: '2026-10-23', sets: '1', weight: '172.5', reps: '3', note: 'PLÁN · T8 · Deload · RPE 6-7', planned: true },
-    { id: 'plan-w8-pa-deadlift-1', date: '2026-10-23', sets: '1', weight: '172.5', reps: '3', note: 'PLÁN · T8 · Deload · RPE 6-7', planned: true },
-    { id: 'plan-w8-pa-deadlift-2', date: '2026-10-23', sets: '1', weight: '177.5', reps: '3', note: 'PLÁN · T8 · Deload · RPE 7', planned: true },
-    { id: 'plan-w9-pa-deadlift-0', date: '2026-10-30', sets: '1', weight: '202.5', reps: '3', note: 'PLÁN · T9 · Nájezd · RPE 8', planned: true },
-    { id: 'plan-w9-pa-deadlift-1', date: '2026-10-30', sets: '1', weight: '215', reps: '2', note: 'PLÁN · T9 · TOP · RPE 9', planned: true },
-    { id: 'plan-w9-pa-deadlift-2', date: '2026-10-30', sets: '1', weight: '195', reps: '5', note: 'PLÁN · T9 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w10-pa-deadlift-0', date: '2026-11-06', sets: '1', weight: '207.5', reps: '2', note: 'PLÁN · T10 · Nájezd · RPE 8', planned: true },
-    { id: 'plan-w10-pa-deadlift-1', date: '2026-11-06', sets: '1', weight: '217.5', reps: '1', note: 'PLÁN · T10 · TOP single · RPE 9', planned: true },
-    { id: 'plan-w10-pa-deadlift-2', date: '2026-11-06', sets: '1', weight: '200', reps: '4', note: 'PLÁN · T10 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w11-pa-deadlift-0', date: '2026-11-13', sets: '1', weight: '212.5', reps: '2', note: 'PLÁN · T11 · Nájezd · RPE 8-9', planned: true },
-    { id: 'plan-w11-pa-deadlift-1', date: '2026-11-13', sets: '1', weight: '222.5', reps: '1', note: 'PLÁN · T11 · TOP single · RPE 9', planned: true },
-    { id: 'plan-w11-pa-deadlift-2', date: '2026-11-13', sets: '1', weight: '202.5', reps: '3', note: 'PLÁN · T11 · Back-off · RPE 8', planned: true },
-    { id: 'plan-w12-pa-deadlift-0', date: '2026-11-20', sets: '1', weight: '207.5', reps: '1', note: 'PLÁN · T12 · Opener · RPE 7', planned: true },
-    { id: 'plan-w12-pa-deadlift-1', date: '2026-11-20', sets: '1', weight: '195', reps: '2', note: 'PLÁN · T12 · Druhá · RPE 7', planned: true },
-    { id: 'plan-w12-pa-deadlift-2', date: '2026-11-20', sets: '1', weight: '185', reps: '3', note: 'PLÁN · T12 · Objem · RPE 7', planned: true },
-    { id: 'plan-w13-pa-deadlift-0', date: '2026-11-27', sets: '1', weight: '180', reps: '1', note: 'PLÁN · T13 · Rozjezd', planned: true },
-    { id: 'plan-w13-pa-deadlift-1', date: '2026-11-27', sets: '1', weight: '207.5', reps: '1', note: 'PLÁN · T13 · Rozjezd', planned: true },
-    { id: 'plan-w13-pa-deadlift-2', date: '2026-11-27', sets: '1', weight: '230', reps: '1', note: 'PLÁN · T13 · CÍL', planned: true },
-    { id: 'plan-w13-pa-deadlift-3', date: '2026-11-27', sets: '1', weight: '235', reps: '1', note: 'PLÁN · T13 · PR pokus', planned: true },
+    { id: 'plan-w1-ct-deadlift-0', date: '2026-09-04', sets: '1', weight: '180', reps: '8', note: 'PLÁN · T1 · Objemová · RPE 7-8', planned: true },
+    { id: 'plan-w1-ct-deadlift-1', date: '2026-09-04', sets: '1', weight: '202.5', reps: '3', note: 'PLÁN · T1 · OVERLOAD · RPE 8', planned: true },
+    { id: 'plan-w1-ct-deadlift-2', date: '2026-09-04', sets: '1', weight: '190', reps: '6', note: 'PLÁN · T1 · Back-off · RPE 7-8', planned: true },
+    { id: 'plan-w2-ct-deadlift-0', date: '2026-09-11', sets: '1', weight: '185', reps: '8', note: 'PLÁN · T2 · Objemová · RPE 8', planned: true },
+    { id: 'plan-w2-ct-deadlift-1', date: '2026-09-11', sets: '1', weight: '207.5', reps: '2', note: 'PLÁN · T2 · OVERLOAD · RPE 8', planned: true },
+    { id: 'plan-w2-ct-deadlift-2', date: '2026-09-11', sets: '1', weight: '195', reps: '6', note: 'PLÁN · T2 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w3-ct-deadlift-0', date: '2026-09-18', sets: '1', weight: '187.5', reps: '6', note: 'PLÁN · T3 · Objemová · RPE 8', planned: true },
+    { id: 'plan-w3-ct-deadlift-1', date: '2026-09-18', sets: '1', weight: '212.5', reps: '2', note: 'PLÁN · T3 · OVERLOAD · RPE 8-9', planned: true },
+    { id: 'plan-w3-ct-deadlift-2', date: '2026-09-18', sets: '1', weight: '197.5', reps: '6', note: 'PLÁN · T3 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w4-ct-deadlift-0', date: '2026-09-25', sets: '1', weight: '160', reps: '5', note: 'PLÁN · T4 · Deload · RPE 6', planned: true },
+    { id: 'plan-w4-ct-deadlift-1', date: '2026-09-25', sets: '1', weight: '160', reps: '5', note: 'PLÁN · T4 · Deload · RPE 6', planned: true },
+    { id: 'plan-w4-ct-deadlift-2', date: '2026-09-25', sets: '1', weight: '165', reps: '5', note: 'PLÁN · T4 · Deload · RPE 6-7', planned: true },
+    { id: 'plan-w5-ct-deadlift-0', date: '2026-10-02', sets: '1', weight: '195', reps: '5', note: 'PLÁN · T5 · TOP · RPE 8', planned: true },
+    { id: 'plan-w5-ct-deadlift-1', date: '2026-10-02', sets: '1', weight: '205', reps: '3', note: 'PLÁN · T5 · OVERLOAD · RPE 8-9', planned: true },
+    { id: 'plan-w5-ct-deadlift-2', date: '2026-10-02', sets: '1', weight: '187.5', reps: '5', note: 'PLÁN · T5 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w6-ct-deadlift-0', date: '2026-10-09', sets: '1', weight: '200', reps: '4', note: 'PLÁN · T6 · TOP · RPE 8', planned: true },
+    { id: 'plan-w6-ct-deadlift-1', date: '2026-10-09', sets: '1', weight: '210', reps: '2', note: 'PLÁN · T6 · OVERLOAD · RPE 9', planned: true },
+    { id: 'plan-w6-ct-deadlift-2', date: '2026-10-09', sets: '1', weight: '192.5', reps: '5', note: 'PLÁN · T6 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w7-ct-deadlift-0', date: '2026-10-16', sets: '1', weight: '207.5', reps: '3', note: 'PLÁN · T7 · TOP · RPE 8-9', planned: true },
+    { id: 'plan-w7-ct-deadlift-1', date: '2026-10-16', sets: '1', weight: '215', reps: '2', note: 'PLÁN · T7 · OVERLOAD · RPE 9', planned: true },
+    { id: 'plan-w7-ct-deadlift-2', date: '2026-10-16', sets: '1', weight: '195', reps: '4', note: 'PLÁN · T7 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w8-ct-deadlift-0', date: '2026-10-23', sets: '1', weight: '172.5', reps: '3', note: 'PLÁN · T8 · Deload · RPE 6-7', planned: true },
+    { id: 'plan-w8-ct-deadlift-1', date: '2026-10-23', sets: '1', weight: '172.5', reps: '3', note: 'PLÁN · T8 · Deload · RPE 6-7', planned: true },
+    { id: 'plan-w8-ct-deadlift-2', date: '2026-10-23', sets: '1', weight: '177.5', reps: '3', note: 'PLÁN · T8 · Deload · RPE 7', planned: true },
+    { id: 'plan-w9-ct-deadlift-0', date: '2026-10-30', sets: '1', weight: '202.5', reps: '3', note: 'PLÁN · T9 · Nájezd · RPE 8', planned: true },
+    { id: 'plan-w9-ct-deadlift-1', date: '2026-10-30', sets: '1', weight: '215', reps: '2', note: 'PLÁN · T9 · TOP · RPE 9', planned: true },
+    { id: 'plan-w9-ct-deadlift-2', date: '2026-10-30', sets: '1', weight: '195', reps: '5', note: 'PLÁN · T9 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w10-ct-deadlift-0', date: '2026-11-06', sets: '1', weight: '207.5', reps: '2', note: 'PLÁN · T10 · Nájezd · RPE 8', planned: true },
+    { id: 'plan-w10-ct-deadlift-1', date: '2026-11-06', sets: '1', weight: '217.5', reps: '1', note: 'PLÁN · T10 · TOP single · RPE 9', planned: true },
+    { id: 'plan-w10-ct-deadlift-2', date: '2026-11-06', sets: '1', weight: '200', reps: '4', note: 'PLÁN · T10 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w11-ct-deadlift-0', date: '2026-11-13', sets: '1', weight: '212.5', reps: '2', note: 'PLÁN · T11 · Nájezd · RPE 8-9', planned: true },
+    { id: 'plan-w11-ct-deadlift-1', date: '2026-11-13', sets: '1', weight: '222.5', reps: '1', note: 'PLÁN · T11 · TOP single · RPE 9', planned: true },
+    { id: 'plan-w11-ct-deadlift-2', date: '2026-11-13', sets: '1', weight: '202.5', reps: '3', note: 'PLÁN · T11 · Back-off · RPE 8', planned: true },
+    { id: 'plan-w12-ct-deadlift-0', date: '2026-11-20', sets: '1', weight: '207.5', reps: '1', note: 'PLÁN · T12 · Opener · RPE 7', planned: true },
+    { id: 'plan-w12-ct-deadlift-1', date: '2026-11-20', sets: '1', weight: '195', reps: '2', note: 'PLÁN · T12 · Druhá · RPE 7', planned: true },
+    { id: 'plan-w12-ct-deadlift-2', date: '2026-11-20', sets: '1', weight: '185', reps: '3', note: 'PLÁN · T12 · Objem · RPE 7', planned: true },
+    { id: 'plan-w13-ct-deadlift-0', date: '2026-11-27', sets: '1', weight: '180', reps: '1', note: 'PLÁN · T13 · Rozjezd', planned: true },
+    { id: 'plan-w13-ct-deadlift-1', date: '2026-11-27', sets: '1', weight: '207.5', reps: '1', note: 'PLÁN · T13 · Rozjezd', planned: true },
+    { id: 'plan-w13-ct-deadlift-2', date: '2026-11-27', sets: '1', weight: '230', reps: '1', note: 'PLÁN · T13 · CÍL', planned: true },
+    { id: 'plan-w13-ct-deadlift-3', date: '2026-11-27', sets: '1', weight: '235', reps: '1', note: 'PLÁN · T13 · PR pokus', planned: true },
   ],
   'face-pulls': [
-    { id: 'plan-w1-ut-face-pulls', date: '2026-09-01', sets: '3', weight: '0', reps: '15–20', note: 'PLÁN · T1 · 3 × 15–20 · lehká', planned: true },
-    { id: 'plan-w2-ut-face-pulls', date: '2026-09-08', sets: '3', weight: '0', reps: '15–20', note: 'PLÁN · T2 · 3 × 15–20 · lehká', planned: true },
-    { id: 'plan-w4-ut-face-pulls', date: '2026-09-22', sets: '3', weight: '0', reps: '15', note: 'PLÁN · T4 · 3 × 15 · lehká', planned: true },
-    { id: 'plan-w6-ut-face-pulls', date: '2026-10-06', sets: '3', weight: '0', reps: '15–20', note: 'PLÁN · T6 · 3 × 15–20 · lehká', planned: true },
-    { id: 'plan-w8-ut-face-pulls', date: '2026-10-20', sets: '3', weight: '0', reps: '15', note: 'PLÁN · T8 · 3 × 15 · lehká', planned: true },
-    { id: 'plan-w10-ut-face-pulls', date: '2026-11-03', sets: '3', weight: '0', reps: '15–20', note: 'PLÁN · T10 · 3 × 15–20 · lehká', planned: true },
-    { id: 'plan-w12-ut-face-pulls', date: '2026-11-17', sets: '3', weight: '0', reps: '15–20', note: 'PLÁN · T12 · 3 × 15–20 · lehká', planned: true },
+    { id: 'plan-w1-ne-face-pulls', date: '2026-09-01', sets: '3', weight: '0', reps: '15–20', note: 'PLÁN · T1 · 3 × 15–20 · lehká', planned: true },
+    { id: 'plan-w2-ne-face-pulls', date: '2026-09-08', sets: '3', weight: '0', reps: '15–20', note: 'PLÁN · T2 · 3 × 15–20 · lehká', planned: true },
+    { id: 'plan-w4-ne-face-pulls', date: '2026-09-22', sets: '3', weight: '0', reps: '15', note: 'PLÁN · T4 · 3 × 15 · lehká', planned: true },
+    { id: 'plan-w6-ne-face-pulls', date: '2026-10-06', sets: '3', weight: '0', reps: '15–20', note: 'PLÁN · T6 · 3 × 15–20 · lehká', planned: true },
+    { id: 'plan-w8-ne-face-pulls', date: '2026-10-20', sets: '3', weight: '0', reps: '15', note: 'PLÁN · T8 · 3 × 15 · lehká', planned: true },
+    { id: 'plan-w10-ne-face-pulls', date: '2026-11-03', sets: '3', weight: '0', reps: '15–20', note: 'PLÁN · T10 · 3 × 15–20 · lehká', planned: true },
+    { id: 'plan-w12-ne-face-pulls', date: '2026-11-17', sets: '3', weight: '0', reps: '15–20', note: 'PLÁN · T12 · 3 × 15–20 · lehká', planned: true },
   ],
   'ghd': [
-    { id: 'plan-w5-pa-ghd', date: '2026-10-02', sets: '3', weight: '0', reps: '4–6', note: 'PLÁN · T5 · 3 × 4–6 · vlastní', planned: true },
-    { id: 'plan-w7-pa-ghd', date: '2026-10-16', sets: '3', weight: '0', reps: '4–6', note: 'PLÁN · T7 · 3 × 4–6 · vlastní', planned: true },
+    { id: 'plan-w5-ct-ghd', date: '2026-10-02', sets: '3', weight: '0', reps: '4–6', note: 'PLÁN · T5 · 3 × 4–6 · vlastní', planned: true },
+    { id: 'plan-w7-ct-ghd', date: '2026-10-16', sets: '3', weight: '0', reps: '4–6', note: 'PLÁN · T7 · 3 × 4–6 · vlastní', planned: true },
   ],
   'leg-press': [
     { id: 'plan-w9-po-leg-press', date: '2026-10-26', sets: '4', weight: '0', reps: '6–8', note: 'PLÁN · T9 · 4 × 6–8 · stroj střední–těžká, RPE 8', planned: true },
@@ -1721,13 +1824,13 @@ export const PLANNED_RECORDS: RecordsMap = {
     { id: 'plan-w12-po-leg-press', date: '2026-11-16', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T12 · 3 × 10–12 · stroj střední–těžká, RPE 8', planned: true },
   ],
   'long-pause-bench': [
-    { id: 'plan-w5-ut-long-pause-bench', date: '2026-09-29', sets: '3', weight: '102.5', reps: '4', note: 'PLÁN · T5 · 3 × 4', planned: true },
-    { id: 'plan-w7-ut-long-pause-bench', date: '2026-10-13', sets: '3', weight: '102.5', reps: '4', note: 'PLÁN · T7 · 3 × 4', planned: true },
+    { id: 'plan-w5-ne-long-pause-bench', date: '2026-09-29', sets: '3', weight: '102.5', reps: '4', note: 'PLÁN · T5 · 3 × 4', planned: true },
+    { id: 'plan-w7-ne-long-pause-bench', date: '2026-10-13', sets: '3', weight: '102.5', reps: '4', note: 'PLÁN · T7 · 3 × 4', planned: true },
   ],
   'nordic-curls': [
-    { id: 'plan-w3-pa-nordic-curls', date: '2026-09-18', sets: '3', weight: '0', reps: '4–6', note: 'PLÁN · T3 · 3 × 4–6 · vlastní', planned: true },
-    { id: 'plan-w9-pa-nordic-curls', date: '2026-10-30', sets: '3', weight: '0', reps: '4–6', note: 'PLÁN · T9 · 3 × 4–6 · vlastní', planned: true },
-    { id: 'plan-w11-pa-nordic-curls', date: '2026-11-13', sets: '3', weight: '0', reps: '4–6', note: 'PLÁN · T11 · 3 × 4–6 · vlastní', planned: true },
+    { id: 'plan-w3-ct-nordic-curls', date: '2026-09-18', sets: '3', weight: '0', reps: '4–6', note: 'PLÁN · T3 · 3 × 4–6 · vlastní', planned: true },
+    { id: 'plan-w9-ct-nordic-curls', date: '2026-10-30', sets: '3', weight: '0', reps: '4–6', note: 'PLÁN · T9 · 3 × 4–6 · vlastní', planned: true },
+    { id: 'plan-w11-ct-nordic-curls', date: '2026-11-13', sets: '3', weight: '0', reps: '4–6', note: 'PLÁN · T11 · 3 × 4–6 · vlastní', planned: true },
   ],
   'pallof': [
     { id: 'plan-w1-po-pallof', date: '2026-08-31', sets: '2', weight: '0', reps: '10/str.', note: 'PLÁN · T1 · 2 × 10/str. · lehká', planned: true },
@@ -1753,17 +1856,17 @@ export const PLANNED_RECORDS: RecordsMap = {
     { id: 'plan-w12-po-pause-squat', date: '2026-11-16', sets: '3', weight: '147.5', reps: '3', note: 'PLÁN · T12 · 3 × 3', planned: true },
   ],
   'paused-bench': [
-    { id: 'plan-w3-ut-paused-bench', date: '2026-09-15', sets: '3', weight: '105', reps: '4', note: 'PLÁN · T3 · 3 × 4', planned: true },
+    { id: 'plan-w3-ne-paused-bench', date: '2026-09-15', sets: '3', weight: '105', reps: '4', note: 'PLÁN · T3 · 3 × 4', planned: true },
   ],
   'pendlay-row': [
-    { id: 'plan-w9-pa-pendlay-row', date: '2026-10-30', sets: '4', weight: '97.5', reps: '5', note: 'PLÁN · T9 · 4 × 5', planned: true },
-    { id: 'plan-w10-pa-pendlay-row', date: '2026-11-06', sets: '3', weight: '82.5', reps: '8–10', note: 'PLÁN · T10 · 3 × 8–10', planned: true },
-    { id: 'plan-w11-pa-pendlay-row', date: '2026-11-13', sets: '4', weight: '97.5', reps: '5', note: 'PLÁN · T11 · 4 × 5', planned: true },
-    { id: 'plan-w12-pa-pendlay-row', date: '2026-11-20', sets: '3', weight: '82.5', reps: '8–10', note: 'PLÁN · T12 · 3 × 8–10', planned: true },
+    { id: 'plan-w9-ct-pendlay-row', date: '2026-10-30', sets: '4', weight: '97.5', reps: '5', note: 'PLÁN · T9 · 4 × 5', planned: true },
+    { id: 'plan-w10-ct-pendlay-row', date: '2026-11-06', sets: '3', weight: '82.5', reps: '8–10', note: 'PLÁN · T10 · 3 × 8–10', planned: true },
+    { id: 'plan-w11-ct-pendlay-row', date: '2026-11-13', sets: '4', weight: '97.5', reps: '5', note: 'PLÁN · T11 · 4 × 5', planned: true },
+    { id: 'plan-w12-ct-pendlay-row', date: '2026-11-20', sets: '3', weight: '82.5', reps: '8–10', note: 'PLÁN · T12 · 3 × 8–10', planned: true },
   ],
   'pin-press': [
-    { id: 'plan-w9-ut-pin-press', date: '2026-10-27', sets: '3', weight: '107.5', reps: '4', note: 'PLÁN · T9 · 3 × 4', planned: true },
-    { id: 'plan-w11-ut-pin-press', date: '2026-11-10', sets: '3', weight: '107.5', reps: '4', note: 'PLÁN · T11 · 3 × 4', planned: true },
+    { id: 'plan-w9-ne-pin-press', date: '2026-10-27', sets: '3', weight: '107.5', reps: '4', note: 'PLÁN · T9 · 3 × 4', planned: true },
+    { id: 'plan-w11-ne-pin-press', date: '2026-11-10', sets: '3', weight: '107.5', reps: '4', note: 'PLÁN · T11 · 3 × 4', planned: true },
   ],
   'pin-squat': [
     { id: 'plan-w5-po-pin-squat', date: '2026-09-28', sets: '3', weight: '145', reps: '3', note: 'PLÁN · T5 · 3 × 3', planned: true },
@@ -1771,39 +1874,39 @@ export const PLANNED_RECORDS: RecordsMap = {
     { id: 'plan-w7-po-pin-squat', date: '2026-10-12', sets: '3', weight: '145', reps: '3', note: 'PLÁN · T7 · 3 × 3', planned: true },
   ],
   'pullup': [
-    { id: 'plan-w1-ut-pullup', date: '2026-09-01', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T1 · 3 × 8 · vlastní', planned: true },
-    { id: 'plan-w2-ut-pullup', date: '2026-09-08', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T2 · 3 × 8 · vlastní', planned: true },
-    { id: 'plan-w3-ut-pullup', date: '2026-09-15', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T3 · 3 × 5 · +5–10 kg', planned: true },
-    { id: 'plan-w4-ut-pullup', date: '2026-09-22', sets: '2', weight: '0', reps: '6', note: 'PLÁN · T4 · 2 × 6 · vlastní', planned: true },
-    { id: 'plan-w5-ut-pullup', date: '2026-09-29', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T5 · 3 × 5 · +5–10 kg', planned: true },
-    { id: 'plan-w6-ut-pullup', date: '2026-10-06', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T6 · 3 × 8 · vlastní', planned: true },
-    { id: 'plan-w7-ut-pullup', date: '2026-10-13', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T7 · 3 × 5 · +5–10 kg', planned: true },
-    { id: 'plan-w8-ut-pullup', date: '2026-10-20', sets: '2', weight: '0', reps: '6', note: 'PLÁN · T8 · 2 × 6 · vlastní', planned: true },
-    { id: 'plan-w9-ut-pullup', date: '2026-10-27', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T9 · 3 × 5 · +5–10 kg', planned: true },
-    { id: 'plan-w10-ut-pullup', date: '2026-11-03', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T10 · 3 × 8 · vlastní', planned: true },
-    { id: 'plan-w11-ut-pullup', date: '2026-11-10', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T11 · 3 × 5 · +5–10 kg', planned: true },
-    { id: 'plan-w12-ut-pullup', date: '2026-11-17', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T12 · 3 × 8 · vlastní', planned: true },
+    { id: 'plan-w1-ne-pullup', date: '2026-09-01', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T1 · 3 × 8 · vlastní', planned: true },
+    { id: 'plan-w2-ne-pullup', date: '2026-09-08', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T2 · 3 × 8 · vlastní', planned: true },
+    { id: 'plan-w3-ne-pullup', date: '2026-09-15', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T3 · 3 × 5 · +5–10 kg', planned: true },
+    { id: 'plan-w4-ne-pullup', date: '2026-09-22', sets: '2', weight: '0', reps: '6', note: 'PLÁN · T4 · 2 × 6 · vlastní', planned: true },
+    { id: 'plan-w5-ne-pullup', date: '2026-09-29', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T5 · 3 × 5 · +5–10 kg', planned: true },
+    { id: 'plan-w6-ne-pullup', date: '2026-10-06', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T6 · 3 × 8 · vlastní', planned: true },
+    { id: 'plan-w7-ne-pullup', date: '2026-10-13', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T7 · 3 × 5 · +5–10 kg', planned: true },
+    { id: 'plan-w8-ne-pullup', date: '2026-10-20', sets: '2', weight: '0', reps: '6', note: 'PLÁN · T8 · 2 × 6 · vlastní', planned: true },
+    { id: 'plan-w9-ne-pullup', date: '2026-10-27', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T9 · 3 × 5 · +5–10 kg', planned: true },
+    { id: 'plan-w10-ne-pullup', date: '2026-11-03', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T10 · 3 × 8 · vlastní', planned: true },
+    { id: 'plan-w11-ne-pullup', date: '2026-11-10', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T11 · 3 × 5 · +5–10 kg', planned: true },
+    { id: 'plan-w12-ne-pullup', date: '2026-11-17', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T12 · 3 × 8 · vlastní', planned: true },
   ],
   'pullup-back': [
-    { id: 'plan-w1-pa-pullup-back', date: '2026-09-04', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T1 · 3 × 8 · vlastní', planned: true },
-    { id: 'plan-w2-pa-pullup-back', date: '2026-09-11', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T2 · 3 × 8 · vlastní', planned: true },
-    { id: 'plan-w3-pa-pullup-back', date: '2026-09-18', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T3 · 3 × 5 · +5–10 kg', planned: true },
-    { id: 'plan-w4-pa-pullup-back', date: '2026-09-25', sets: '2', weight: '0', reps: '6', note: 'PLÁN · T4 · 2 × 6 · vlastní', planned: true },
-    { id: 'plan-w5-pa-pullup-back', date: '2026-10-02', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T5 · 3 × 5 · +5–10 kg', planned: true },
-    { id: 'plan-w6-pa-pullup-back', date: '2026-10-09', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T6 · 3 × 8 · vlastní', planned: true },
-    { id: 'plan-w7-pa-pullup-back', date: '2026-10-16', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T7 · 3 × 5 · +5–10 kg', planned: true },
-    { id: 'plan-w8-pa-pullup-back', date: '2026-10-23', sets: '2', weight: '0', reps: '6', note: 'PLÁN · T8 · 2 × 6 · vlastní', planned: true },
-    { id: 'plan-w9-pa-pullup-back', date: '2026-10-30', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T9 · 3 × 5 · +5–10 kg', planned: true },
-    { id: 'plan-w10-pa-pullup-back', date: '2026-11-06', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T10 · 3 × 8 · vlastní', planned: true },
-    { id: 'plan-w11-pa-pullup-back', date: '2026-11-13', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T11 · 3 × 5 · +5–10 kg', planned: true },
-    { id: 'plan-w12-pa-pullup-back', date: '2026-11-20', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T12 · 3 × 8 · vlastní', planned: true },
+    { id: 'plan-w1-ct-pullup-back', date: '2026-09-04', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T1 · 3 × 8 · vlastní', planned: true },
+    { id: 'plan-w2-ct-pullup-back', date: '2026-09-11', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T2 · 3 × 8 · vlastní', planned: true },
+    { id: 'plan-w3-ct-pullup-back', date: '2026-09-18', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T3 · 3 × 5 · +5–10 kg', planned: true },
+    { id: 'plan-w4-ct-pullup-back', date: '2026-09-25', sets: '2', weight: '0', reps: '6', note: 'PLÁN · T4 · 2 × 6 · vlastní', planned: true },
+    { id: 'plan-w5-ct-pullup-back', date: '2026-10-02', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T5 · 3 × 5 · +5–10 kg', planned: true },
+    { id: 'plan-w6-ct-pullup-back', date: '2026-10-09', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T6 · 3 × 8 · vlastní', planned: true },
+    { id: 'plan-w7-ct-pullup-back', date: '2026-10-16', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T7 · 3 × 5 · +5–10 kg', planned: true },
+    { id: 'plan-w8-ct-pullup-back', date: '2026-10-23', sets: '2', weight: '0', reps: '6', note: 'PLÁN · T8 · 2 × 6 · vlastní', planned: true },
+    { id: 'plan-w9-ct-pullup-back', date: '2026-10-30', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T9 · 3 × 5 · +5–10 kg', planned: true },
+    { id: 'plan-w10-ct-pullup-back', date: '2026-11-06', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T10 · 3 × 8 · vlastní', planned: true },
+    { id: 'plan-w11-ct-pullup-back', date: '2026-11-13', sets: '3', weight: '0', reps: '5', note: 'PLÁN · T11 · 3 × 5 · +5–10 kg', planned: true },
+    { id: 'plan-w12-ct-pullup-back', date: '2026-11-20', sets: '3', weight: '0', reps: '8', note: 'PLÁN · T12 · 3 × 8 · vlastní', planned: true },
   ],
   'spoto': [
-    { id: 'plan-w1-ut-spoto', date: '2026-09-01', sets: '3', weight: '100', reps: '6', note: 'PLÁN · T1 · 3 × 6', planned: true },
-    { id: 'plan-w2-ut-spoto', date: '2026-09-08', sets: '3', weight: '100', reps: '6', note: 'PLÁN · T2 · 3 × 6', planned: true },
-    { id: 'plan-w6-ut-spoto', date: '2026-10-06', sets: '3', weight: '100', reps: '6', note: 'PLÁN · T6 · 3 × 6', planned: true },
-    { id: 'plan-w10-ut-spoto', date: '2026-11-03', sets: '3', weight: '102.5', reps: '6', note: 'PLÁN · T10 · 3 × 6', planned: true },
-    { id: 'plan-w12-ut-spoto', date: '2026-11-17', sets: '3', weight: '102.5', reps: '6', note: 'PLÁN · T12 · 3 × 6', planned: true },
+    { id: 'plan-w1-ne-spoto', date: '2026-09-01', sets: '3', weight: '100', reps: '6', note: 'PLÁN · T1 · 3 × 6', planned: true },
+    { id: 'plan-w2-ne-spoto', date: '2026-09-08', sets: '3', weight: '100', reps: '6', note: 'PLÁN · T2 · 3 × 6', planned: true },
+    { id: 'plan-w6-ne-spoto', date: '2026-10-06', sets: '3', weight: '100', reps: '6', note: 'PLÁN · T6 · 3 × 6', planned: true },
+    { id: 'plan-w10-ne-spoto', date: '2026-11-03', sets: '3', weight: '102.5', reps: '6', note: 'PLÁN · T10 · 3 × 6', planned: true },
+    { id: 'plan-w12-ne-spoto', date: '2026-11-17', sets: '3', weight: '102.5', reps: '6', note: 'PLÁN · T12 · 3 × 6', planned: true },
   ],
   'squat': [
     { id: 'plan-w1-po-squat-0', date: '2026-08-31', sets: '1', weight: '145', reps: '8', note: 'PLÁN · T1 · Objemová · RPE 7-8', planned: true },
@@ -1857,20 +1960,20 @@ export const PLANNED_RECORDS: RecordsMap = {
     { id: 'plan-w13-po-squat-3', date: '2026-11-23', sets: '1', weight: '195', reps: '1', note: 'PLÁN · T13 · PR (volitelně)', planned: true },
   ],
   'triceps-overhead': [
-    { id: 'plan-w5-ut-triceps-overhead', date: '2026-09-29', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T5 · 3 × 8–10 · střední', planned: true },
-    { id: 'plan-w6-ut-triceps-overhead', date: '2026-10-06', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T6 · 3 × 10–12 · střední', planned: true },
-    { id: 'plan-w7-ut-triceps-overhead', date: '2026-10-13', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T7 · 3 × 8–10 · střední', planned: true },
+    { id: 'plan-w5-ne-triceps-overhead', date: '2026-09-29', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T5 · 3 × 8–10 · střední', planned: true },
+    { id: 'plan-w6-ne-triceps-overhead', date: '2026-10-06', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T6 · 3 × 10–12 · střední', planned: true },
+    { id: 'plan-w7-ne-triceps-overhead', date: '2026-10-13', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T7 · 3 × 8–10 · střední', planned: true },
   ],
   'triceps-pushdown': [
-    { id: 'plan-w1-ut-triceps-pushdown', date: '2026-09-01', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T1 · 3 × 10–12 · střední', planned: true },
-    { id: 'plan-w2-ut-triceps-pushdown', date: '2026-09-08', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T2 · 3 × 10–12 · střední', planned: true },
-    { id: 'plan-w3-ut-triceps-pushdown', date: '2026-09-15', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T3 · 3 × 8–10 · střední', planned: true },
+    { id: 'plan-w1-ne-triceps-pushdown', date: '2026-09-01', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T1 · 3 × 10–12 · střední', planned: true },
+    { id: 'plan-w2-ne-triceps-pushdown', date: '2026-09-08', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T2 · 3 × 10–12 · střední', planned: true },
+    { id: 'plan-w3-ne-triceps-pushdown', date: '2026-09-15', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T3 · 3 × 8–10 · střední', planned: true },
   ],
   'triceps-skull': [
-    { id: 'plan-w9-ut-triceps-skull', date: '2026-10-27', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T9 · 3 × 8–10 · střední', planned: true },
-    { id: 'plan-w10-ut-triceps-skull', date: '2026-11-03', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T10 · 3 × 10–12 · střední', planned: true },
-    { id: 'plan-w11-ut-triceps-skull', date: '2026-11-10', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T11 · 3 × 8–10 · střední', planned: true },
-    { id: 'plan-w12-ut-triceps-skull', date: '2026-11-17', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T12 · 3 × 10–12 · střední', planned: true },
+    { id: 'plan-w9-ne-triceps-skull', date: '2026-10-27', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T9 · 3 × 8–10 · střední', planned: true },
+    { id: 'plan-w10-ne-triceps-skull', date: '2026-11-03', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T10 · 3 × 10–12 · střední', planned: true },
+    { id: 'plan-w11-ne-triceps-skull', date: '2026-11-10', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T11 · 3 × 8–10 · střední', planned: true },
+    { id: 'plan-w12-ne-triceps-skull', date: '2026-11-17', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T12 · 3 × 10–12 · střední', planned: true },
   ],
   'walking-lunges': [
     { id: 'plan-w5-po-walking-lunges', date: '2026-09-28', sets: '3', weight: '0', reps: '8/nohu', note: 'PLÁN · T5 · 3 × 8/nohu · 2× činka lehká–stř.', planned: true },
