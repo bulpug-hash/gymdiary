@@ -249,6 +249,16 @@ se `setPlan` nekončí číslicí – ale kdyby takový přibyl, tohle praskne.
 **Odškrtnutí nikdy nezakládá nový záznam** – volá `updateRecord()` na existující
 plan-id, takže se objem nemůže započítat dvakrát.
 
+⚠️ **Hlavní tlačítko série zapisuje `shownW`/`shownR`, NE `row.weight`.**
+`row.weight` je hodnota ze šablony plánu. U doplňkových cviků sdílí všechny
+série jeden souhrnný záznam, takže když si zapsal 105 kg u série 1 a pak
+klepnul na sérii 2, přepsalo se to zpátky na plánovaných 100 a jeho číslo
+zmizelo. Reprodukováno a opraveno 1. 9. 2026. Zároveň tím vzniká to, co chtěl:
+váha zadaná u první série platí i pro druhou a třetí.
+U hlavních cviků (`setPlan`) má každá série vlastní záznam i vlastní
+plánovanou váhu (vlna 145 → 162,5 → 152,5), takže se mezi sebou **nepropisují
+a nesmí** — jinak by se vlna rozbila.
+
 **Náhrobky (`gymdiary_deleted_v1`).** Bez nich se smazaný `plan-*` nebo
 `recovered-*` záznam po reloadu vždy vrátil, protože `loadRecords()` je pokaždé
 znovu mergne z `data.ts` / `recoveryData.ts`. Aplikují se až úplně na konci
@@ -357,7 +367,16 @@ věcí, které se bez jeho výslovného souhlasu nemění. Stejně tak přechod
 z vložených formulářů na sheety: velký zásah do `Diary.tsx` i `Tools.tsx`
 s reálným rizikem, že se něco rozbije. Obojí čeká na jeho rozhodnutí.
 
-### 4g. Rozcvička a měření pauzy (31. 8. 2026)
+### 4i. Hotový den v týdenním rozvrhu (1. 9. 2026)
+
+Pruh dnů v Přehledu (sekce 01) ukazuje stav podle `weekProgress()`:
+- **hotovo** (všechny předepsané série odškrtnuté) → šrafa `.gd-daycell--done`
+  (`repeating-linear-gradient` -45°, volt 42 %), voltový rámeček, popisek dne
+  voltově a **✓ v rohu**. Den zůstane plně čitelný — plná výplň je vyhrazená
+  VYBRANÉMU dni, aby se ty dva stavy nepletly.
+- **rozděláno** → tenký voltový proužek u spodní hrany, šířka = procenta.
+
+### 4g. Rozcvička (31. 8. 2026)
 
 **Rozehřívací série** kreslí jediná komponenta `components/WarmupTable.tsx`,
 kterou používá Přehled i Plán. Dřív to byly dvě různé tabulky a ta v Přehledu
@@ -374,11 +393,10 @@ vždycky.
 do deníku se zapisují jen pracovní série, jinak by se nafoukl objem.
 Tabulka to říká přímo popiskem „Nezapisuje se".
 
-**Měření pauzy** — `lib/setClock.ts`, ukládá se do `TrainingRecord.gapSec`.
-RestBar odpočítává **předpis**; tohle je **skutečnost**: kolik uplynulo od
-odškrtnutí jedné série do odškrtnutí další. Značka jde do localStorage, ne do
-paměti — telefon mezi sériemi běžně usne. Odstup mimo 15 s – 30 min se zahodí
-(překlep / oprava / jiný den), radši nic než nesmysl v datech.
+⛔ **Měření pauzy mezi sériemi bylo zrušeno (1. 9. 2026).** Bylo v
+`lib/setClock.ts` + `TrainingRecord.gapSec`. Nechtěl to: často zapisuje víc
+sérií najednou, takže naměřený odstup neodpovídal skutečné pauze a do dat to
+sypalo nesmysly. Nevracet bez jeho výslovného zadání.
 
 **Přehled uměl listovat týdny jen dozadu** — bylo tam „← Předchozí týden"
 a nic dál. Z aktuálního týdne tak nešlo nahlédnout na žádný další.

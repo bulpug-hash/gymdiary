@@ -250,6 +250,18 @@
     display: inline-flex; align-items: center; justify-content: flex-end;
   }
 
+  /* Hotový den v týdenním rozvrhu. Šrafa místo výplně: den zůstane čitelný
+     a je vidět, že je odbytý — plná barva je vyhrazená VYBRANÉMU dni.
+     Stejný jazyk jako scanline číslice v liště, jen šikmo. */
+  .gd-daycell--done {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      color-mix(in srgb, var(--gd-accent) 42%, transparent) 0 2px,
+      transparent 2px 5px
+    );
+  }
+  /* Zapnuté „omezit pohyb" nechává šrafu být — je statická, nic nebliká. */
+
   /* --- Spodní navigace ------------------------------------------------ */
   /* Rytinový vlys za spodní lištou – textura, ne obrázek k prohlížení. */
   .gd-tabbar::before {

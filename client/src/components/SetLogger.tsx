@@ -16,7 +16,6 @@ import { plannedId, labelFromNote, plannedTemplate, exerciseHistory } from '@/li
 import { formatWeight, normalizeDecimal } from '@/lib/tint';
 import { startRest, restForCategory } from '@/lib/restTimer';
 import { ulozeno, tap } from '@/lib/haptics';
-import { pauzaOdPosledni, oznacSeriiHotovou, formatPauzu } from '@/lib/setClock';
 import { loadPlates, formatPerSideShort } from '@/lib/plates';
 import { Tick } from '@/components/kit';
 
@@ -99,15 +98,11 @@ export default function SetLogger({ exercise, week, dayKey, date, workoutData }:
     const rec = byId(row.id);
     const note = rec?.note ?? `PLÁN · T${week} · ${row.label}`;
     const w = normalizeDecimal(weight);
-    // Skutečná pauza od minulé odškrtnuté série. Čte se PŘED zapsáním nové
-    // značky, jinak by vyšla nula.
-    const pauza = pauzaOdPosledni();
     if (!rec) {
-      workoutData.addRecord(exercise.id, date, row.sets, w, reps, note, rpe, pauza ?? undefined);
+      workoutData.addRecord(exercise.id, date, row.sets, w, reps, note, rpe);
     } else {
-      workoutData.updateRecord(exercise.id, row.id, date, row.sets, w, reps, note, rpe, pauza ?? undefined);
+      workoutData.updateRecord(exercise.id, row.id, date, row.sets, w, reps, note, rpe);
     }
-    oznacSeriiHotovou();
     ulozeno();
     setOpenRow(null);
     startRest(restForCategory(exercise.category), exercise.nameShort || exercise.name);
@@ -159,21 +154,18 @@ export default function SetLogger({ exercise, week, dayKey, date, workoutData }:
           <div key={key} className={`gd-set ${done ? 'is-done' : ''}`}>
             <button
               className="gd-set__main"
-              onClick={() => (done ? undoSet(row) : write(row, row.weight, row.reps))}
+              /* ⚠️ Zapisuje se to, co je na řádku VIDĚT (shownW/shownR), ne
+                 row.weight z šablony plánu. U doplňkových cviků sdílí všechny
+                 série jeden záznam, takže klepnutí na sérii 2 dřív přepsalo
+                 váhu zadanou u série 1 zpátky na plánovanou. */
+              onClick={() => (done ? undoSet(row) : write(row, shownW, shownR, rec?.rpe))}
               aria-pressed={done}
               aria-label={`${row.label}, ${shownW} kilogramů, ${shownR} opakování${done ? ', hotovo' : ''}`}
             >
               <span className="gd-set__tick" aria-hidden="true">{done && <Tick />}</span>
               <span className="gd-set__lbl">
                 {row.index !== undefined ? (labelFromNote(rec?.note) ?? row.label) : row.label}
-                {done && (rec?.rpe || rec?.gapSec) && (
-                  <span className="gd-set__prev">
-                    {rec.rpe && `zapsáno na RPE ${rec.rpe}`}
-                    {rec.rpe && rec.gapSec ? ' · ' : ''}
-                    {/* Naměřená pauza, ne předpis z RestBaru. */}
-                    {rec.gapSec ? `pauza ${formatPauzu(rec.gapSec)}` : ''}
-                  </span>
-                )}
+                {done && rec?.rpe && <span className="gd-set__prev">zapsáno na RPE {rec.rpe}</span>}
               </span>
               <span className="gd-set__num">
                 {row.weight !== '0' ? `${formatWeight(shownW)} × ${shownR}` : `${row.sets} × ${shownR}`}

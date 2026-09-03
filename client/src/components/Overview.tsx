@@ -111,37 +111,70 @@ export default function Overview({ workoutData, onNavigate }: Props) {
             label="Týdenní rozvrh"
             right={`T${String(currentWeek.number).padStart(2, '0')} · ${dm(currentWeek.dateFrom)} — ${dm(currentWeek.dateTo)}`}
           />
-          <div style={{ display: 'flex', gap: 4, padding: '0 20px 10px' }}>
-            {DAY_KEYS.map((key, i) => {
-              const day = currentWeek.days.find(d => d.key === key);
-              const sel = key === activeKey;
-              const isTodayCell = isThisWeek && key === todayKey;
-              const isRest = day?.type === 'rest';
-              return (
-                <button
-                  key={key}
-                  onClick={() => setPickedDay(key)}
-                  aria-pressed={sel}
-                  style={{
-                    flex: 1, textAlign: 'center', padding: '10px 0 9px', cursor: 'pointer',
-                    background: sel ? 'var(--gd-accent)' : 'transparent',
-                    border: sel
-                      ? '1px solid var(--gd-accent)'
-                      : isTodayCell ? '1px solid var(--gd-text-3)' : '1px solid var(--gd-line)',
-                    borderRadius: 0,
-                  }}
-                >
-                  <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.04em', color: sel ? 'var(--gd-accent-ink)' : 'var(--gd-text-2)' }}>{DAY_SHORT[i]}</div>
-                  <div style={{
-                    fontSize: 8, marginTop: 3, fontWeight: 700, letterSpacing: '0.1em',
-                    color: sel ? 'color-mix(in srgb, var(--gd-accent-ink) 65%, transparent)' : 'var(--gd-text-4)',
-                  }}>
-                    {isRest ? '–' : (day ? TYPE_LABEL[day.type] || '?' : '?')}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+          {/* Postup po dnech — hotový den se prošrafuje, ale zůstane čitelný. */}
+          {(() => {
+            const postup = weekProgress(currentWeek, workoutData.records);
+            return (
+              <div style={{ display: 'flex', gap: 4, padding: '0 20px 10px' }}>
+                {DAY_KEYS.map((key, i) => {
+                  const day = currentWeek.days.find(d => d.key === key);
+                  const sel = key === activeKey;
+                  const isTodayCell = isThisWeek && key === todayKey;
+                  const isRest = day?.type === 'rest';
+                  const dp = postup.dny.find(d => d.key === key);
+                  const hotovo = !!dp && dp.celkem > 0 && dp.hotovo >= dp.celkem;
+                  const rozdelano = !!dp && dp.hotovo > 0 && !hotovo;
+                  const pct = dp && dp.celkem > 0 ? Math.round((dp.hotovo / dp.celkem) * 100) : 0;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setPickedDay(key)}
+                      aria-pressed={sel}
+                      aria-label={`${day?.label ?? key}${hotovo ? ', hotovo' : rozdelano ? `, rozděláno ${pct} %` : ''}`}
+                      className={hotovo && !sel ? 'gd-daycell gd-daycell--done' : 'gd-daycell'}
+                      style={{
+                        flex: 1, textAlign: 'center', padding: '10px 0 9px', cursor: 'pointer',
+                        position: 'relative', minWidth: 0,
+                        background: sel ? 'var(--gd-accent)' : 'transparent',
+                        border: sel
+                          ? '1px solid var(--gd-accent)'
+                          : hotovo ? '1px solid color-mix(in srgb, var(--gd-accent) 55%, transparent)'
+                          : isTodayCell ? '1px solid var(--gd-text-3)' : '1px solid var(--gd-line)',
+                        borderRadius: 0,
+                      }}
+                    >
+                      <div style={{
+                        fontSize: 11, fontWeight: 800, letterSpacing: '0.04em',
+                        color: sel ? 'var(--gd-accent-ink)' : hotovo ? 'var(--gd-accent)' : 'var(--gd-text-2)',
+                      }}>{DAY_SHORT[i]}</div>
+                      <div style={{
+                        fontSize: 8, marginTop: 3, fontWeight: 700, letterSpacing: '0.1em',
+                        color: sel ? 'color-mix(in srgb, var(--gd-accent-ink) 65%, transparent)'
+                             : hotovo ? 'color-mix(in srgb, var(--gd-accent) 70%, transparent)' : 'var(--gd-text-4)',
+                      }}>
+                        {isRest ? '–' : (day ? TYPE_LABEL[day.type] || '?' : '?')}
+                      </div>
+
+                      {/* Hotovo: značka v rohu. Rozděláno: proužek podle procent. */}
+                      {hotovo && (
+                        <span aria-hidden="true" style={{
+                          position: 'absolute', top: 2, right: 3, lineHeight: 1,
+                          fontSize: 9, fontWeight: 800,
+                          color: sel ? 'var(--gd-accent-ink)' : 'var(--gd-accent)',
+                        }}>✓</span>
+                      )}
+                      {rozdelano && (
+                        <span aria-hidden="true" style={{
+                          position: 'absolute', left: 0, bottom: 0, height: 2, width: `${pct}%`,
+                          background: sel ? 'var(--gd-accent-ink)' : 'var(--gd-accent)',
+                        }} />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })()}
           <div style={{ display: 'flex', gap: 8, padding: '0 20px 20px' }}>
             <button
               onClick={() => { setWeekNum(w => Math.max(1, w - 1)); setPickedDay(null); }}

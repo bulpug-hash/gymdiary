@@ -67,9 +67,6 @@ export interface TrainingRecord {
   /** Skutečně pociťované RPE série (6–10). Bez něj se nepozná, jestli
    *  roste síla, nebo jen únava — 100×8 na RPE 9,5 a na RPE 7 je rozdíl. */
   rpe?: string;
-  /** Skutečně naměřená pauza od předchozí odškrtnuté série, v sekundách.
-   *  Není to předpis z RestBaru, ale realita — viz lib/setClock.ts. */
-  gapSec?: number;
   gym?: string;
   extraActivity?: string;
 }
