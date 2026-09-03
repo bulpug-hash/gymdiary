@@ -464,6 +464,12 @@ Středa a sobota HIIT jsou **neměnné** — je to skupinová lekce.
 Naopak **tah v neděli by byl chyba**: následoval by hned pondělní dřep,
 tedy dva těžké dolní dny za sebou. Právě tomu se celý plán vyhýbá.
 
+✅ **Vyzkoušeno a zamítnuto (1. 9. 2026).** Vyžádal si prohození na Čt bench /
+Ne tah, bylo nasazeno (commit 9194367) a po vysvětlení důsledku sám vrátil
+zpátky (revert 8d2bad5): *„ok tak to neměn a vrať to jak to bylo, dal jsi mi
+dobré argumenty."* **Neotevírej to znovu** a nenavrhuj to jako vylepšení —
+je to prověřená a uzavřená volba.
+
 **Vlnový systém** (jeho vlastní, aplikovaný na všechny tři hlavní cviky):
 objemová série → OVERLOAD (těžší, méně opakování) → back-off série.
 Např. bench T1: `100×8 → 112,5×3 → 105×6 → 105×6`.
