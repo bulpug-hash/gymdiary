@@ -448,21 +448,23 @@ Ověřeno vyvoláním skutečného pádu: napočítala 366 záznamů a vyrobila 
 | Test maxim | T13 | 3 samostatné dny (Po dřep, Út bench, Pá tah) |
 
 **Týdenní split (od 1. 9. 2026, na jeho žádost):**
-Po = DŘEP · **Út = VOLNO** · St = HIIT/běh · Čt = MRTVÝ TAH ·
-Pá = volno (± druhý běh) · So = HIIT/běh · Ne = BENCH
+Po = DŘEP · **Út = VOLNO** · St = HIIT/běh · **Čt = BENCH** ·
+Pá = volno (± druhý běh) · So = HIIT/běh · **Ne = MRTVÝ TAH**
 
 Středa a sobota HIIT jsou **neměnné** — je to skupinová lekce.
 **Úterý musí zůstat volné** — výslovné zadání.
 
-⚠️ **Proč zrovna tohle rozdělení hlavních cviků.** Zadal jen „úterý volno,
-čtvrtek trénink a pak až v neděli"; co kam, bylo na mně:
-- **Po dřep** — 2 dny po sobotní HIIT, tedy nejčerstvější nohy v týdnu.
-- **Čt tah** — 3 dny po dřepu, zadní řetězec stihne zregenerovat.
-- **Ne bench** — horní půlka, takže sobotní HIIT den předtím nevadí,
-  a v pondělí jdou na dřep čerstvé nohy.
+⚠️ **Rozdělení hlavních cviků je JEHO volba, ne moje doporučení.**
+Nejdřív jsem dal Čt tah / Ne bench (tah 3 dny po dřepu, bench na horní půlku).
+On si pak výslovně vyžádal **Čt upper, Ne full** — tedy bench ve čtvrtek
+a tah v neděli. Provedeno 1. 9. 2026.
 
-Naopak **tah v neděli by byl chyba**: následoval by hned pondělní dřep,
-tedy dva těžké dolní dny za sebou. Právě tomu se celý plán vyhýbá.
+⛔ **Známý důsledek: tah v neděli + dřep v pondělí = dva těžké dolní dny
+po sobě.** Zadní řetězec nemá pauzu. Bylo mu to řečeno, rozhodl takhle.
+Zmírnění, které je zapsané i v popisu dne: **když je nedělní tah těžký
+(overload / T9–T11 dvojky a singly), ubrat v pondělí na objemu dřepu.**
+Kdyby začal stagnovat na dřepu nebo ho začala bolet spodní záda, tohle je
+první podezřelý.
 
 **Vlnový systém** (jeho vlastní, aplikovaný na všechny tři hlavní cviky):
 objemová série → OVERLOAD (těžší, méně opakování) → back-off série.
