@@ -95,6 +95,18 @@ client/
 
 **Když měníš plán, měň i `PLANNED_RECORDS` — jinak se deník rozejde s Plánem.**
 
+⚠️ **`'barbell-row'` je v `data.ts` DVAKRÁT.** Jednou v `DEFAULT_RECORDS`
+(historie, id přes `nanoid()`) a jednou v `PLANNED_RECORDS` (id `plan-*`).
+Při záměně cviku se sahá **jen na ten druhý**. Totéž platí obecně: klíč
+v `DEFAULT_RECORDS` drží odcvičenou minulost a nikdy se nepřejmenovává.
+
+**Výměna cviku za jiný = NOVÉ `id`, ne přepsaný název.** Když si 4. 9. 2026
+vyměnil obouruční `barbell-row` za `db-row` (jednoručky), dostal cvik nové id.
+Kdyby si nechal staré, ukazovalo by se u 40kg jednoručky „POSLEDNĚ 90×6 95×6"
+z osy a každý trénink by to mátlo. Se změněným id zůstane 16 historických
+záznamů pod `barbell-row`, `getExerciseInfo` je dohledá v `LEGACY_PLAN_WEEKS`
+jako „Barbell Row" a Deník je nabídne pod „Mimo aktuální plán". Ověřeno.
+
 ---
 
 ## 4. Design systém — kit „247"
