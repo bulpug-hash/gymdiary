@@ -261,6 +261,12 @@ se `setPlan` nekončí číslicí – ale kdyby takový přibyl, tohle praskne.
 **Odškrtnutí nikdy nezakládá nový záznam** – volá `updateRecord()` na existující
 plan-id, takže se objem nemůže započítat dvakrát.
 
+⚠️ **`addRecord()` musí u odškrtnutí dostat `forcedId` = plan-id.** Bez něj
+založí záznam s `nanoid()`, SetLogger ho po překreslení podle `row.id`
+nenajde, fajfka se neuchytí a **každé další klepnutí přidá duplicitní
+záznam**. Týkalo se to HIIT dnů, které jako jediné nemají předepsaný záznam
+v `PLANNED_RECORDS`. Opraveno 10. 9. 2026.
+
 ⚠️ **Hlavní tlačítko série zapisuje `shownW`/`shownR`, NE `row.weight`.**
 `row.weight` je hodnota ze šablony plánu. U doplňkových cviků sdílí všechny
 série jeden souhrnný záznam, takže když si zapsal 105 kg u série 1 a pak
@@ -378,6 +384,29 @@ osmi nesouvisejících sekcí — ale struktura záložek je v sekci 7 na seznam
 věcí, které se bez jeho výslovného souhlasu nemění. Stejně tak přechod
 z vložených formulářů na sheety: velký zásah do `Diary.tsx` i `Tools.tsx`
 s reálným rizikem, že se něco rozbije. Obojí čeká na jeho rozhodnutí.
+
+### 4j. HIIT × běh a přesun dne (10. 9. 2026)
+
+`lib/dayMode.ts` drží **uživatelské odchylky nad plánem**, ne změny plánu.
+`data.ts` i `PLANNED_RECORDS` zůstávají nedotčené.
+
+**Volba HIIT × běh** (`gymdiary_daymode_v1`). Dny s lekcí (St/So) mají v sekci
+03 přepínač. Výchozí stav se bere z `RUNNING_PROGRAM` (ten týden se běhá St,
+nebo So). Zapisuje se pod JINÉ id podle režimu — `hiit-wed` × `run-wed` —
+aby se běhy a HIIT v datech nemíchaly.
+
+**Přesun dne** (`gymdiary_daymove_v1`). Přidržení prstu 450 ms na dlaždici
+v rozvrhu → tažení doleva/doprava → puštění. Je to vždycky **VÝMĚNA** dvou
+dnů, ne přesun: jinak by na jednom dni skončily dva tréninky a na druhém
+žádný. Uloží se oba směry.
+
+⚠️ **`activeKey` je KALENDÁŘNÍ den, `activeDay.key` je den v PLÁNU.** Po
+přesunu se rozejdou a je nutné je rozlišovat:
+- `dayKey` do SetLoggeru = `planDayKey` (drží se ho id předepsaných záznamů,
+  nesmí se měnit, jinak se rozbije vazba na plán)
+- `date` do SetLoggeru = `dateForDay(week, activeKey)` — **kalendářní** datum,
+  přesně proto, aby v deníku bylo vidět, kdy trénink doopravdy proběhl
+- `weekProgress()` se hledá podle `day.key`, ne podle kalendářního dne
 
 ### 4i. Hotový den v týdenním rozvrhu (1. 9. 2026)
 

@@ -1,8 +1,8 @@
 // Přehled — první obrazovka. Odpovídá na jednu otázku: co dnes a s jakou vahou.
 // Kit 247: celoplošný hero s fotkou, pod ním hustá typografická data.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
-  PHASE3_WEEKS, getTodayDayKey, getTodayISO, getCurrentWeek,
+  PHASE3_WEEKS, getTodayDayKey, getTodayISO, getCurrentWeek, runForWeek,
   GOALS,
 } from '@/lib/data';
 import type { Week } from '@/lib/data';
@@ -10,10 +10,12 @@ import type { WorkoutDataHook, Tab } from '@/lib/types';
 import { Hero, QuoteBar, Reveal, SectionHead, Watermark } from '@/components/kit';
 import WarmupTable from '@/components/WarmupTable';
 import RunBlock from '@/components/RunBlock';
+import { ulozenyMode, nastavMode, cvikProMode, presunyTydne, nastavPresun, type DayMode } from '@/lib/dayMode';
 import SetLogger from '@/components/SetLogger';
 import { weekProgress, dateForDay, daySummary } from '@/lib/planLink';
 import { getCurrentMaxes } from '@/lib/maxes';
 import { plural } from '@/lib/czech';
+import { tap, ulozeno } from '@/lib/haptics';
 
 interface Props {
   workoutData: WorkoutDataHook;
@@ -21,6 +23,15 @@ interface Props {
 }
 
 const DAY_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+const DAY_LABEL: Record<string, string> = {
+  monday: 'Pondělí', tuesday: 'Úterý', wednesday: 'Středa', thursday: 'Čtvrtek',
+  friday: 'Pátek', saturday: 'Sobota', sunday: 'Neděle',
+};
+/** Přídavná jména se v češtině netvoří příponou — musí být vypsaná. */
+const DAY_ADJ: Record<string, string> = {
+  monday: 'pondělní', tuesday: 'úterní', wednesday: 'středeční', thursday: 'čtvrteční',
+  friday: 'páteční', saturday: 'sobotní', sunday: 'nedělní',
+};
 const DAY_SHORT = ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'];
 
 const TYPE_LABEL: Record<string, string> = {
@@ -52,13 +63,88 @@ export default function Overview({ workoutData, onNavigate }: Props) {
   // zapomene odškrtnout, musí se to dát dohnat – jinak ty série zůstanou
   // „předepsané“ navždy a týdenní procento lže.
   const [weekNum, setWeekNum] = useState(currentWeekNum);
+  // Přepnutí HIIT×běh musí překreslit sekci 03.
+  const [modeTik, setModeTik] = useState(0);
+  const [presunTik, setPresunTik] = useState(0);
+  // Přidržení prstu na dni → tažení doleva/doprava na jiný den.
+  const [drzeny, setDrzeny] = useState<string | null>(null);
+  const [cilovy, setCilovy] = useState<string | null>(null);
+  const drzTimer = useRef<number | null>(null);
+  const pruhRef = useRef<HTMLDivElement | null>(null);
+  void modeTik; // jen spouštěč překreslení po přepnutí HIIT×běh
   const [pickedDay, setPickedDay] = useState<string | null>(null);
 
   const currentWeek: Week = PHASE3_WEEKS.find(w => w.number === weekNum) || PHASE3_WEEKS[0];
   const isThisWeek = weekNum === currentWeekNum;
   const activeKey = pickedDay ?? (isThisWeek ? todayKey : 'monday');
-  const activeDay = currentWeek.days.find(d => d.key === activeKey);
+
+  // Přesuny tréninků v rámci týdne. `activeKey` je KALENDÁŘNÍ den, na který
+  // se dívá; trénink na něm může být přesunutý z jiného dne.
+  // Přesun je vždycky VÝMĚNA dvou dnů — jinak by na jednom dni skončily dva
+  // tréninky a na druhém žádný.
+  /** Který den leží pod prstem. Počítá se z pozic dlaždic, ne z indexu —
+   *  dlaždice jsou pružné a při jiné šířce by index nesouhlasil. */
+  const denPodPrstem = (x: number): string | null => {
+    const pruh = pruhRef.current;
+    if (!pruh) return null;
+    for (const el of Array.from(pruh.children)) {
+      const r = (el as HTMLElement).getBoundingClientRect();
+      if (x >= r.left && x <= r.right) return (el as HTMLElement).dataset.den ?? null;
+    }
+    return null;
+  };
+
+  const zrusDrzeni = () => {
+    if (drzTimer.current !== null) { clearTimeout(drzTimer.current); drzTimer.current = null; }
+  };
+
+  const naStisk = (key: string) => (e: React.PointerEvent<HTMLButtonElement>) => {
+    zrusDrzeni();
+    const cil = e.currentTarget;
+    drzTimer.current = window.setTimeout(() => {
+      setDrzeny(key);
+      setCilovy(key);
+      tap();
+      // Bez zachycení ukazatele by tažení skončilo, jakmile prst opustí dlaždici.
+      try { cil.setPointerCapture(e.pointerId); } catch { /* nepodstatné */ }
+    }, 450);
+  };
+
+  const naTah = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!drzeny) return;
+    e.preventDefault();
+    const d = denPodPrstem(e.clientX);
+    if (d) setCilovy(d);
+  };
+
+  const naPusteni = () => {
+    zrusDrzeni();
+    if (drzeny && cilovy && cilovy !== drzeny) {
+      // Výměna: co bylo na A jde na B a naopak.
+      const aPuv = trenkyNaDni[drzeny]?.key ?? drzeny;
+      const bPuv = trenkyNaDni[cilovy]?.key ?? cilovy;
+      nastavPresun(weekNum, aPuv, cilovy);
+      nastavPresun(weekNum, bPuv, drzeny);
+      setPresunTik(t => t + 1);
+      setPickedDay(cilovy);
+      ulozeno();
+    }
+    setDrzeny(null);
+    setCilovy(null);
+  };
+
+  const presuny = presunyTydne(weekNum);
+  void presunTik; // překreslení po přesunu
+  const trenkyNaDni: Record<string, typeof currentWeek.days[number]> = {};
+  for (const d of currentWeek.days) trenkyNaDni[presuny[d.key] ?? d.key] = d;
+
+  const activeDay = trenkyNaDni[activeKey];
+  // Datum se bere podle KALENDÁŘNÍHO dne, ne podle dne v plánu — přesně proto,
+  // aby v deníku bylo vidět, kdy trénink doopravdy proběhl.
   const activeISO = dateForDay(currentWeek, activeKey);
+  /** Den v plánu — drží se ho id předepsaných záznamů, nesmí se měnit. */
+  const planDayKey = activeDay?.key ?? activeKey;
+  const jePresunuty = !!activeDay && activeDay.key !== activeKey;
   const isToday = isThisWeek && activeKey === todayKey && !pickedDay;
   const todayDay = currentWeek.days.find(d => d.key === todayKey);
   const isTraining = !!todayDay && todayDay.type !== 'rest';
@@ -115,32 +201,47 @@ export default function Overview({ workoutData, onNavigate }: Props) {
           {(() => {
             const postup = weekProgress(currentWeek, workoutData.records);
             return (
-              <div style={{ display: 'flex', gap: 4, padding: '0 20px 10px' }}>
+              <div ref={pruhRef} style={{ display: 'flex', gap: 4, padding: '0 20px 10px', touchAction: drzeny ? 'none' : 'pan-y' }}>
                 {DAY_KEYS.map((key, i) => {
-                  const day = currentWeek.days.find(d => d.key === key);
+                  const day = trenkyNaDni[key];
+                  const presunutySem = !!day && day.key !== key;
                   const sel = key === activeKey;
                   const isTodayCell = isThisWeek && key === todayKey;
                   const isRest = day?.type === 'rest';
-                  const dp = postup.dny.find(d => d.key === key);
+                  // Postup se hledá podle dne v PLÁNU, ne podle kalendářního —
+                  // po přesunu by se ty dva rozešly.
+                  const dp = postup.dny.find(d => d.key === (day?.key ?? key));
                   const hotovo = !!dp && dp.celkem > 0 && dp.hotovo >= dp.celkem;
                   const rozdelano = !!dp && dp.hotovo > 0 && !hotovo;
                   const pct = dp && dp.celkem > 0 ? Math.round((dp.hotovo / dp.celkem) * 100) : 0;
                   return (
                     <button
                       key={key}
-                      onClick={() => setPickedDay(key)}
+                      data-den={key}
+                      onClick={() => { if (!drzeny) setPickedDay(key); }}
+                      onPointerDown={naStisk(key)}
+                      onPointerMove={naTah}
+                      onPointerUp={naPusteni}
+                      onPointerCancel={() => { zrusDrzeni(); setDrzeny(null); setCilovy(null); }}
+                      onContextMenu={e => e.preventDefault()}
                       aria-pressed={sel}
                       aria-label={`${day?.label ?? key}${hotovo ? ', hotovo' : rozdelano ? `, rozděláno ${pct} %` : ''}`}
                       className={hotovo && !sel ? 'gd-daycell gd-daycell--done' : 'gd-daycell'}
                       style={{
                         flex: 1, textAlign: 'center', padding: '10px 0 9px', cursor: 'pointer',
                         position: 'relative', minWidth: 0,
-                        background: sel ? 'var(--gd-accent)' : 'transparent',
-                        border: sel
-                          ? '1px solid var(--gd-accent)'
+                        background: drzeny === key ? 'color-mix(in srgb, var(--gd-accent) 30%, transparent)'
+                          : cilovy === key && drzeny ? 'color-mix(in srgb, var(--gd-accent) 14%, transparent)'
+                          : sel ? 'var(--gd-accent)' : 'transparent',
+                        border: drzeny === key || (cilovy === key && drzeny)
+                          ? '1px dashed var(--gd-accent)'
+                          : sel ? '1px solid var(--gd-accent)'
                           : hotovo ? '1px solid color-mix(in srgb, var(--gd-accent) 55%, transparent)'
                           : isTodayCell ? '1px solid var(--gd-text-3)' : '1px solid var(--gd-line)',
                         borderRadius: 0,
+                        userSelect: 'none', WebkitUserSelect: 'none',
+                        transform: drzeny === key ? 'scale(1.06)' : 'none',
+                        transition: 'transform .12s ease',
                       }}
                     >
                       <div style={{
@@ -169,12 +270,21 @@ export default function Overview({ workoutData, onNavigate }: Props) {
                           background: sel ? 'var(--gd-accent-ink)' : 'var(--gd-accent)',
                         }} />
                       )}
+                      {presunutySem && (
+                        <span aria-hidden="true" title="přesunuto z jiného dne" style={{
+                          position: 'absolute', top: 2, left: 3, lineHeight: 1, fontSize: 9,
+                          color: sel ? 'var(--gd-accent-ink)' : 'var(--gd-text-3)',
+                        }}>⇄</span>
+                      )}
                     </button>
                   );
                 })}
               </div>
             );
           })()}
+          <div style={{ padding: '0 20px 8px', fontSize: 10, color: 'var(--gd-text-4)', letterSpacing: '0.04em' }}>
+            {drzeny ? 'Táhni na den, se kterým to chceš prohodit.' : 'Přidrž den a táhni — prohodíš tréninky mezi dny.'}
+          </div>
           <div style={{ display: 'flex', gap: 8, padding: '0 20px 20px' }}>
             <button
               onClick={() => { setWeekNum(w => Math.max(1, w - 1)); setPickedDay(null); }}
@@ -260,12 +370,19 @@ export default function Overview({ workoutData, onNavigate }: Props) {
           <Reveal>
             <SectionHead
               n="03"
-              label={activeTraining ? (isToday ? 'Dnešní trénink' : `${activeDay!.label} · T${currentWeek.number}`) : 'Volno'}
+              label={
+                !activeTraining ? 'Volno'
+                // Po přesunu musí být vidět OBOJE: co se cvičí a kdy.
+                : jePresunuty ? `${activeDay!.label} → ${DAY_LABEL[activeKey] ?? activeKey}`
+                : isToday ? 'Dnešní trénink'
+                : `${activeDay!.label} · T${currentWeek.number}`
+              }
               right={activeTraining && activeDay ? `${activeDay.exercises.length} ${plural(activeDay.exercises.length, 'cvik', 'cviky', 'cviků')}` : dm(activeISO)}
             />
             {!isToday && (
               <div style={{ margin: '0 20px 12px', padding: '10px 12px', border: '1px solid var(--gd-line)', fontSize: 11, lineHeight: 1.5, color: 'var(--gd-text-3)' }}>
-                Zapisuješ do <b style={{ color: 'var(--gd-text)' }}>{activeDay?.label ?? '—'} {dm(activeISO)}</b>, ne do dneška.
+                Zapisuješ do <b style={{ color: 'var(--gd-text)' }}>{DAY_LABEL[activeKey] ?? activeKey} {dm(activeISO)}</b>, ne do dneška.
+                {jePresunuty && activeDay && <> Je to <b style={{ color: 'var(--gd-text)' }}>{DAY_ADJ[activeDay.key] ?? activeDay.label}</b> trénink, přesunutý sem.</>}
               </div>
             )}
             {activeTraining && activeDay ? (
@@ -277,9 +394,60 @@ export default function Overview({ workoutData, onNavigate }: Props) {
                 {/* Rozehřátí patří k tréninku, ne do vlastní sekce na konci
                     stránky — je vidět rovnou a řídí se VYBRANÝM dnem a týdnem,
                     stejně jako série pod ním. */}
-                <RunBlock week={weekNum} dayKey={activeDay.key} />
+                {(() => {
+                  // Dny s lekcí (St/So) jde přepnout mezi HIIT a během — často
+                  // to střídá podle toho, jak mu vyjde týden. Volba je override
+                  // nad plánem, plán samotný se nemění.
+                  const jeLekce = activeDay.type === 'hiit';
+                  if (!jeLekce) return null;
+                  const vychozi: DayMode = runForWeek(weekNum)?.vymenit === activeDay.key ? 'run' : 'hiit';
+                  const rezim: DayMode = ulozenyMode(weekNum, activeDay.key) ?? vychozi;
+                  const prepni = (m: DayMode) => { nastavMode(weekNum, activeDay.key, m); setModeTik(t => t + 1); };
+                  const btn = (m: DayMode, txt: string) => (
+                    <button
+                      onClick={() => prepni(m)}
+                      aria-pressed={rezim === m}
+                      style={{
+                        flex: 1, padding: '10px 8px', borderRadius: 0, cursor: 'pointer',
+                        fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase',
+                        background: rezim === m ? 'var(--gd-accent)' : 'transparent',
+                        color: rezim === m ? 'var(--gd-accent-ink)' : 'var(--gd-text-3)',
+                        border: `1px solid ${rezim === m ? 'var(--gd-accent)' : 'var(--gd-line)'}`,
+                      }}
+                    >{txt}</button>
+                  );
+                  return (
+                    <div style={{ marginBottom: 16 }}>
+                      <span className="gd-tag" style={{ display: 'block', marginBottom: 6, color: 'var(--gd-text-3)' }}>
+                        Co jsi dnes dělal
+                      </span>
+                      <div style={{ display: 'flex', gap: 6 }}>{btn('hiit', 'HIIT lekce')}{btn('run', 'Běh')}</div>
+                    </div>
+                  );
+                })()}
+                <RunBlock
+                  week={weekNum}
+                  dayKey={activeDay.key}
+                  vynutit={activeDay.type === 'hiit' && (ulozenyMode(weekNum, activeDay.key) ?? (runForWeek(weekNum)?.vymenit === activeDay.key ? 'run' : 'hiit')) === 'run'}
+                />
                 <WarmupTable dayType={activeDay.type} weekNumber={weekNum} />
-                {activeDay.exercises.map((ex, i) => (
+                {(() => {
+                  // U dne s lekcí se zapisuje pod jiné id podle režimu, ať se
+                  // běhy a HIIT v datech nemíchají.
+                  if (activeDay.type !== 'hiit') return activeDay.exercises;
+                  const vychozi: DayMode = runForWeek(weekNum)?.vymenit === activeDay.key ? 'run' : 'hiit';
+                  const rezim: DayMode = ulozenyMode(weekNum, activeDay.key) ?? vychozi;
+                  if (rezim === 'hiit') return activeDay.exercises;
+                  const bp = runForWeek(weekNum);
+                  return [{
+                    id: cvikProMode(activeDay.key, 'run'),
+                    name: `Běh ${bp ? `${String(bp.km).replace('.', ',')} km` : ''}`.trim(),
+                    nameShort: 'Běh',
+                    category: 'run',
+                    targetSets: '1',
+                    targetReps: bp?.duration ?? '—',
+                  } as typeof activeDay.exercises[number]];
+                })().map((ex, i) => (
                   <div key={ex.id} style={{ marginBottom: 18 }}>
                     <div style={{
                       display: 'flex', alignItems: 'baseline', gap: 10,
@@ -295,7 +463,7 @@ export default function Overview({ workoutData, onNavigate }: Props) {
                     <SetLogger
                       exercise={ex}
                       week={currentWeek.number}
-                      dayKey={activeKey}
+                      dayKey={planDayKey}
                       date={activeISO}
                       workoutData={workoutData}
                     />

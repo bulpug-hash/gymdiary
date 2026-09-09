@@ -99,7 +99,8 @@ export default function SetLogger({ exercise, week, dayKey, date, workoutData }:
     const note = rec?.note ?? `PLÁN · T${week} · ${row.label}`;
     const w = normalizeDecimal(weight);
     if (!rec) {
-      workoutData.addRecord(exercise.id, date, row.sets, w, reps, note, rpe);
+      // Vždy s plan-id, ať se fajfka po překreslení najde.
+      workoutData.addRecord(exercise.id, date, row.sets, w, reps, note, rpe, row.id);
     } else {
       workoutData.updateRecord(exercise.id, row.id, date, row.sets, w, reps, note, rpe);
     }

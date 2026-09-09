@@ -119,7 +119,11 @@ export function useWorkoutData() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Add a new record
+  // Add a new record.
+  // `forcedId` je pro odškrtávání z Přehledu: záznam MUSÍ dostat plan-id
+  // (plan-w1-st-hiit-wed), jinak ho SetLogger po překreslení nenajde,
+  // fajfka se neuchytí a každé další klepnutí založí duplicitní záznam.
+  // Týkalo se to HIIT dnů, které jako jediné nemají předepsaný záznam.
   const addRecord = useCallback((
     exerciseId: string,
     date: string,
@@ -128,9 +132,10 @@ export function useWorkoutData() {
     reps: string,
     note: string,
     rpe?: string,
+    forcedId?: string,
   ) => {
     const newRecord: TrainingRecord = {
-      id: nanoid(),
+      id: forcedId ?? nanoid(),
       date,
       sets,
       weight,

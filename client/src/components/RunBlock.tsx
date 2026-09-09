@@ -8,13 +8,16 @@ import { runForWeek } from '@/lib/data';
 interface Props {
   week: number;
   dayKey: string;
+  /** Ukázat i tehdy, když plán ten den běh nepředepisuje — uživatel si ho
+   *  přepnul ručně (střídá HIIT a běh podle toho, jak mu vyjde týden). */
+  vynutit?: boolean;
 }
 
-export default function RunBlock({ week, dayKey }: Props) {
+export default function RunBlock({ week, dayKey, vynutit }: Props) {
   const plan = runForWeek(week);
   if (!plan) return null;
 
-  const jeHlavni = plan.vymenit === dayKey;
+  const jeHlavni = plan.vymenit === dayKey || !!vynutit;
   const jeDruhy = dayKey === 'friday' && !!plan.druhy;
   if (!jeHlavni && !jeDruhy) return null;
 
