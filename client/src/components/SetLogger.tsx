@@ -126,17 +126,27 @@ export default function SetLogger({ exercise, week, dayKey, date, workoutData }:
 
   return (
     <div className="gd-sets">
-      {history.length > 0 && (
-        <div className="gd-sets__hist">
-          <span className="gd-tag">Posledně</span>
-          {history.map(h => (
+      {/* „Posledně" musí být čitelné i u cviků bez činky. Dřív se u nich psalo
+          „0×10", což vypadá jako rozbitá appka — přitom je to jen záznam bez
+          váhy (vlastní váha, guma, stroj bez stupnice). Když historie chybí
+          úplně, řekne se to natvrdo, ať není jasné jen z prázdna. */}
+      <div className="gd-sets__hist">
+        <span className="gd-tag">Posledně</span>
+        {history.length === 0 ? (
+          <span className="gd-sets__histitem" style={{ color: 'var(--gd-text-4)' }}>
+            zatím nezapsáno
+          </span>
+        ) : history.map(h => {
+          const kg = parseFloat(normalizeDecimal(h.weight));
+          const bezVahy = !isFinite(kg) || kg <= 0;
+          return (
             <span key={h.date} className="gd-sets__histitem">
-              {formatWeight(h.weight)}×{h.reps}
+              {bezVahy ? `${h.reps} op.` : `${formatWeight(h.weight)}×${h.reps}`}
               {h.rpe && <i>@{h.rpe}</i>}
             </span>
-          ))}
-        </div>
-      )}
+          );
+        })}
+      </div>
 
       {rows.map(row => {
         const key = rowKey(row);

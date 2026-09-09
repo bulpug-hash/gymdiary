@@ -774,15 +774,54 @@ const ZONE_COLORS: Record<string, string> = {
   'Zóna 5 (sprint/VO2max)': 'var(--gd-danger)',
 };
 
+// Náhrobky smazaných běhů/HIIT. Bez nich by se záznam ze seedu po smazání
+// při dalším načtení zase vrátil.
+const RUN_TOMB_KEY = 'gymdiary_run_deleted_v1';
+const HIIT_TOMB_KEY = 'gymdiary_hiit_deleted_v1';
+
+function nactiNahrobky(klic: string): Set<string> {
+  try {
+    const raw = localStorage.getItem(klic);
+    const a = raw ? JSON.parse(raw) : [];
+    return Array.isArray(a) ? new Set(a as string[]) : new Set();
+  } catch { return new Set(); }
+}
+
+function pridejNahrobek(klic: string, id: string) {
+  const s = nactiNahrobky(klic);
+  s.add(id);
+  try { localStorage.setItem(klic, JSON.stringify(Array.from(s))); } catch { /* kvóta */ }
+}
+
+/**
+ * Sloučí uložený log se seedem podle id.
+ *
+ * ⚠️ Dřív se seed použil JEN když byl log prázdný. Jakmile se jednou naplnil,
+ * nové záznamy přidané do recoveryData.ts se k uživateli už nikdy nedostaly.
+ * Proto se teď doplňuje všechno, co v logu chybí a není v náhrobcích.
+ */
+function slucSeSeedem<T extends { id: string; date: string }>(
+  ulozene: T[], seed: T[], tombKey: string,
+): T[] {
+  const tomb = nactiNahrobky(tombKey);
+  const mam = new Set(ulozene.map(r => r.id));
+  const doplnit = seed.filter(r => !mam.has(r.id) && !tomb.has(r.id));
+  return [...ulozene, ...doplnit]
+    .filter(r => !tomb.has(r.id))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
 function loadRunRecords(): RunRecord[] {
   try {
     const raw = localStorage.getItem(RUN_LOG_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as RunRecord[];
-      if (parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return slucSeSeedem(parsed, RECOVERED_RUN_RECORDS, RUN_TOMB_KEY);
+      }
     }
   } catch { /* ignore */ }
-  return RECOVERED_RUN_RECORDS;
+  return slucSeSeedem([], RECOVERED_RUN_RECORDS, RUN_TOMB_KEY);
 }
 
 function RunLog() {
@@ -797,6 +836,7 @@ function RunLog() {
 
   const handleDelete = (id: string) => {
     const previous = runs;
+    pridejNahrobek(RUN_TOMB_KEY, id);
     save(runs.filter(r => r.id !== id));
     undoToast('Běh smazán', () => save(previous));
   };
@@ -1040,10 +1080,12 @@ function loadHIITRecords(): HIITRecord[] {
     const raw = localStorage.getItem(HIIT_LOG_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as HIITRecord[];
-      if (parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return slucSeSeedem(parsed, RECOVERED_HIIT_RECORDS, HIIT_TOMB_KEY);
+      }
     }
   } catch { /* ignore */ }
-  return RECOVERED_HIIT_RECORDS;
+  return slucSeSeedem([], RECOVERED_HIIT_RECORDS, HIIT_TOMB_KEY);
 }
 
 function saveHIITRecords(records: HIITRecord[]) {
@@ -1122,6 +1164,7 @@ function HIITLog() {
 
   const handleDelete = (id: string) => {
     const previous = records;
+    pridejNahrobek(HIIT_TOMB_KEY, id);
     const updated = records.filter(r => r.id !== id);
     setRecords(updated);
     saveHIITRecords(updated);

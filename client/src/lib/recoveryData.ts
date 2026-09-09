@@ -115,6 +115,16 @@ export const RECOVERED_RUN_RECORDS: RunRecord[] = [
   run('run-2026-08-06-2', '2026-08-06', '42:00', '6.85', '6:08/km', '162', 'Thursday Evening Run'),
   run('run-2026-08-06-3', '2026-08-06', '14:42', '2.41', '6:06/km', '165', 'Thursday Evening Run'),
   run('run-2026-08-12', '2026-08-12', '1:04:44', '10.54', '6:08/km', '159', 'Wednesday Morning Run'),
+  // Doplněno 10. 9. 2026 ze screenshotů z Oury (Workouts). Časy z výpisu,
+  // dva běhy 2. 9. a 8. 9. proto mají v id pořadí.
+  run('run-2026-08-18', '2026-08-18', '1:12:49', '11.93', '6:06/km', '160', 'Tuesday Morning Run'),
+  run('run-2026-08-21', '2026-08-21', '31:45', '5.26', '6:02/km', '161', 'Friday Morning Run'),
+  run('run-2026-08-29', '2026-08-29', '49:40', '8.61', '5:46/km', '168', 'Saturday Afternoon Run'),
+  run('run-2026-08-30', '2026-08-30', '2:54', '0.78', '3:43/km', '121', 'Sunday Evening Run'),
+  run('run-2026-09-02-1', '2026-09-02', '39:39', '6.93', '5:44/km', '170', 'Wednesday Morning Run'),
+  run('run-2026-09-02-2', '2026-09-02', '9:47', '0.17', '57:33/km', '87', 'Wednesday Evening Run — rozklus před HIIT lekcí'),
+  run('run-2026-09-08-1', '2026-09-08', '40:17', '6.41', '6:17/km', '150', 'Tuesday Evening Run'),
+  run('run-2026-09-08-2', '2026-09-08', '11:33', '1.97', '5:52/km', '152', 'Tuesday Evening Run — druhý, 1944 kroků'),
 ];
 
 function hiit(id: string, date: string, duration: string, avgHr: string, calories: string): HIITRecord {
@@ -166,4 +176,6 @@ export const RECOVERED_HIIT_RECORDS: HIITRecord[] = [
   hiit('hiit-2026-07-26-3', '2026-07-26', '2:58', '151', '48'),
   hiit('hiit-2026-08-01-1', '2026-08-01', '8:57', '120', '112'),
   hiit('hiit-2026-08-01-2', '2026-08-01', '40:16', '142', '622'),
+  // Doplněno 10. 9. 2026 ze screenshotu Oury.
+  hiit('hiit-2026-09-02', '2026-09-02', '25:57', '150', '417'),
 ];

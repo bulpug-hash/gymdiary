@@ -1079,6 +1079,17 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
     // ===== Listy 5 a 6: Běhy a HIIT =====
     // Do XLSX se dřív nedostaly vůbec, přestože HIIT je v plánu napevno
     // dvakrát týdně (St + So). Export tvrdil „všechna data" a tiše je vynechal.
+    // „1:04:44" i „25:57" musí dát minuty. parseFloat by z prvního udělalo 1.
+    const minuty = (t?: string): number | null => {
+      if (!t) return null;
+      const d = t.split(':').map(Number);
+      if (d.some(n => !Number.isFinite(n))) return null;
+      const s = d.length === 3 ? d[0] * 3600 + d[1] * 60 + d[2]
+              : d.length === 2 ? d[0] * 60 + d[1]
+              : d[0] * 60;
+      return Math.round((s / 60) * 10) / 10;
+    };
+
     const nactiLog = <T,>(klic: string): T[] => {
       try {
         const raw = localStorage.getItem(klic);
@@ -1097,7 +1108,7 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
     for (const b of behy) {
       listBehy.push([
         dateCell(b.date), getDayName(b.date),
-        parseFloat(b.duration) || null, parseFloat(b.distance) || null,
+        minuty(b.duration), parseFloat(b.distance) || null,
         b.zone || '–', b.avgPace || null, parseInt(b.avgHr ?? '', 10) || null, b.note || null,
       ]);
     }
@@ -1113,7 +1124,7 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
     for (const h of hiit) {
       listHiit.push([
         dateCell(h.date), getDayName(h.date), HIIT_LABEL[h.type] ?? h.type,
-        parseFloat(h.duration) || null, parseInt(h.rounds ?? '', 10) || null,
+        minuty(h.duration), parseInt(h.rounds ?? '', 10) || null,
         parseInt(h.workInterval ?? '', 10) || null, parseInt(h.restInterval ?? '', 10) || null,
         h.zone || '–', parseInt(h.avgHr ?? '', 10) || null, parseInt(h.maxHr ?? '', 10) || null,
         parseInt(h.calories ?? '', 10) || null, h.exercises || null, h.note || null,

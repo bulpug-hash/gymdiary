@@ -261,6 +261,13 @@ se `setPlan` nekončí číslicí – ale kdyby takový přibyl, tohle praskne.
 **Odškrtnutí nikdy nezakládá nový záznam** – volá `updateRecord()` na existující
 plan-id, takže se objem nemůže započítat dvakrát.
 
+⚠️ **„Posledně" u cviků bez činky.** Část historie má `weight: '0'`
+(vlastní váha, guma, stroj bez stupnice) — psalo se „0×10", což vypadá jako
+rozbitá appka. Nově se u nulové váhy vypíše jen `10 op.`, a když historie
+chybí úplně, řekne se „zatím nezapsáno".
+Pozor: `exerciseHistory()` bere `beforeDate`, takže **dnešní zápis se
+v „Posledně" NEUKÁŽE** — je to minulá expozice, ne dnešek. Není to chyba.
+
 ⚠️ **`addRecord()` musí u odškrtnutí dostat `forcedId` = plan-id.** Bez něj
 založí záznam s `nanoid()`, SetLogger ho po překreslení podle `row.id`
 nenajde, fajfka se neuchytí a **každé další klepnutí přidá duplicitní
@@ -384,6 +391,23 @@ osmi nesouvisejících sekcí — ale struktura záložek je v sekci 7 na seznam
 věcí, které se bez jeho výslovného souhlasu nemění. Stejně tak přechod
 z vložených formulářů na sheety: velký zásah do `Diary.tsx` i `Tools.tsx`
 s reálným rizikem, že se něco rozbije. Obojí čeká na jeho rozhodnutí.
+
+### 4k. Běhy a HIIT ze seedu (10. 9. 2026)
+
+⚠️ **`loadRunRecords()` / `loadHIITRecords()` MUSÍ slučovat, ne jen fallbackovat.**
+Původně vracely seed jen když byl log prázdný — jakmile se jednou naplnil,
+nové záznamy dopsané do `recoveryData.ts` se k uživateli **už nikdy nedostaly**.
+Teď `slucSeSeedem()` doplní podle `id` všechno, co v logu chybí.
+Kvůli tomu mají běhy i HIIT náhrobky (`gymdiary_run_deleted_v1`,
+`gymdiary_hiit_deleted_v1`) — bez nich by smazaný seedový záznam po reloadu
+zase vstal z mrtvých.
+
+Doplněno 10. 9. 2026 ze screenshotů z Oury: 8 běhů (18. 8. – 8. 9.) a 1 HIIT
+(2. 9.). Dva běhy padly na týž den (2. 9. a 8. 9.), proto mají v id pořadí.
+
+**Délka je v logu jako `„1:04:44"` nebo `„25:57"`, ne v minutách.**
+V XLSX exportu to dřív procházelo přes `parseFloat`, takže z hodinového běhu
+byla **1 minuta**. Nově to řeší `minuty()` v `Tools.tsx`.
 
 ### 4j. HIIT × běh a přesun dne (10. 9. 2026)
 
