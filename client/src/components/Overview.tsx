@@ -1,6 +1,7 @@
 // Přehled — první obrazovka. Odpovídá na jednu otázku: co dnes a s jakou vahou.
 // Kit 247: celoplošný hero s fotkou, pod ním hustá typografická data.
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 import {
   PHASE3_WEEKS, getTodayDayKey, getTodayISO, getCurrentWeek, runForWeek,
   GOALS,
@@ -10,7 +11,8 @@ import type { WorkoutDataHook, Tab } from '@/lib/types';
 import { Hero, QuoteBar, Reveal, SectionHead, Watermark } from '@/components/kit';
 import WarmupTable from '@/components/WarmupTable';
 import RunBlock from '@/components/RunBlock';
-import { ulozenyMode, nastavMode, cvikProMode, presunyTydne, nastavPresun, type DayMode } from '@/lib/dayMode';
+import LessonLogger from '@/components/LessonLogger';
+import { ulozenyMode, nastavMode, presunyTydne, nastavPresun, maOdchylky, obnovTyden, type DayMode } from '@/lib/dayMode';
 import SetLogger from '@/components/SetLogger';
 import { weekProgress, dateForDay, daySummary } from '@/lib/planLink';
 import { getCurrentMaxes } from '@/lib/maxes';
@@ -26,6 +28,11 @@ const DAY_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'satur
 const DAY_LABEL: Record<string, string> = {
   monday: 'Pondělí', tuesday: 'Úterý', wednesday: 'Středa', thursday: 'Čtvrtek',
   friday: 'Pátek', saturday: 'Sobota', sunday: 'Neděle',
+};
+/** „přesunuto ze středy" — předložka i pád se liší den od dne. */
+const DAY_ZE: Record<string, string> = {
+  monday: 'z pondělí', tuesday: 'z úterý', wednesday: 'ze středy', thursday: 'ze čtvrtka',
+  friday: 'z pátku', saturday: 'ze soboty', sunday: 'z neděle',
 };
 /** Přídavná jména se v češtině netvoří příponou — musí být vypsaná. */
 const DAY_ADJ: Record<string, string> = {
@@ -146,8 +153,15 @@ export default function Overview({ workoutData, onNavigate }: Props) {
   const planDayKey = activeDay?.key ?? activeKey;
   const jePresunuty = !!activeDay && activeDay.key !== activeKey;
   const isToday = isThisWeek && activeKey === todayKey && !pickedDay;
-  const todayDay = currentWeek.days.find(d => d.key === todayKey);
+  // Hero musí říkat, co se dnes OPRAVDU dělá: po prohození dnů jiný trénink
+  // a u lekce to, co si vybral (běh × HIIT). Dřív hlásil „SOBOTA HIIT",
+  // i když byl zvolený běh.
+  const todayDay = trenkyNaDni[todayKey];
   const isTraining = !!todayDay && todayDay.type !== 'rest';
+  const dnesRezim: DayMode | null = todayDay?.type === 'hiit'
+    ? (ulozenyMode(weekNum, todayDay.key) ?? (runForWeek(weekNum)?.vymenit === todayDay.key ? 'run' : 'hiit'))
+    : null;
+  const dnesBeh = dnesRezim === 'run' ? runForWeek(weekNum) : null;
   const activeTraining = !!activeDay && activeDay.type !== 'rest' && activeDay.exercises.length > 0;
   const top = isTraining ? heroSet(todayDay) : null;
 
@@ -160,8 +174,13 @@ export default function Overview({ workoutData, onNavigate }: Props) {
     { name: 'Mrtvý tah', short: 'TAH', current: maxes.deadlift, goal: GOALS.deadlift },
   ];
 
+  const kalendarniDnes = DAY_LABEL[todayKey] ?? todayDay?.label ?? '';
   const heroTitle = isTraining && todayDay
-    ? <>{todayDay.label.toUpperCase()}<br />{todayDay.description.split('–')[0].trim().toUpperCase()}</>
+    ? <>{kalendarniDnes.toUpperCase()}<br />{
+        dnesRezim === 'run' ? 'BĚH'
+        : dnesRezim === 'hiit' ? 'HIIT'
+        : todayDay.description.split('–')[0].trim().toUpperCase()
+      }</>
     : <>Dnes<br />volno</>;
 
   return (
@@ -175,7 +194,11 @@ export default function Overview({ workoutData, onNavigate }: Props) {
         title={heroTitle}
         lead={
           isTraining && todayDay
-            ? <>{todayDay.description.split('–')[0].trim()} · {todayDay.exercises.length} {plural(todayDay.exercises.length, 'cvik', 'cviky', 'cviků')}</>
+            ? dnesRezim === 'run'
+              ? <>Běh místo HIIT{dnesBeh ? <> · {String(dnesBeh.km).replace('.', ',')} km · {dnesBeh.zone}</> : null}</>
+              : dnesRezim === 'hiit'
+                ? <>HIIT lekce · ~45–60 min</>
+                : <>{todayDay.description.split('–')[0].trim()} · {todayDay.exercises.length} {plural(todayDay.exercises.length, 'cvik', 'cviky', 'cviků')}{todayDay.key !== todayKey ? <> · přesunuto {DAY_ZE[todayDay.key] ?? ''}</> : null}</>
             : <>Aktivní regenerace · strečink · sauna</>
         }
         specs={[
@@ -288,8 +311,28 @@ export default function Overview({ workoutData, onNavigate }: Props) {
               </div>
             );
           })()}
-          <div style={{ padding: '0 20px 8px', fontSize: 10, color: 'var(--gd-text-4)', letterSpacing: '0.04em' }}>
-            {drzeny ? 'Táhni na den, se kterým to chceš prohodit.' : 'Přidrž den a táhni — prohodíš tréninky mezi dny.'}
+          <div style={{ padding: '0 20px 8px', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ flex: 1, fontSize: 10, color: 'var(--gd-text-4)', letterSpacing: '0.04em' }}>
+              {drzeny ? 'Táhni na den, se kterým to chceš prohodit.' : 'Přidrž den a táhni — prohodíš tréninky mezi dny.'}
+            </span>
+            {!drzeny && maOdchylky(weekNum) && (
+              <button
+                onClick={() => {
+                  // Zapsané tréninky zůstávají — vrací se jen rozvrh.
+                  obnovTyden(weekNum);
+                  setPresunTik(t => t + 1);
+                  setModeTik(t => t + 1);
+                  setPickedDay(null);
+                  toast('Rozvrh týdne vrácen podle plánu');
+                }}
+                style={{
+                  flexShrink: 0, padding: '6px 10px', borderRadius: 0, cursor: 'pointer',
+                  background: 'transparent', border: '1px solid var(--gd-line)',
+                  color: 'var(--gd-text-2)', fontSize: 9, fontWeight: 800,
+                  letterSpacing: '0.14em', textTransform: 'uppercase',
+                }}
+              >Obnovit plán týdne</button>
+            )}
           </div>
           <div style={{ display: 'flex', gap: 8, padding: '0 20px 20px' }}>
             <button
@@ -350,9 +393,21 @@ export default function Overview({ workoutData, onNavigate }: Props) {
                   </span>
                   <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.16em', color: 'var(--gd-text-3)', paddingBottom: 6 }}>%</span>
                 </div>
-                {wp.dny.map(d => (
+                {wp.dny
+                  // Řádky podle dne, kdy se trénink OPRAVDU dělá. Po prohození by
+                  // jinak svítilo „NEDĚLE 22/22", i když se cvičilo ve středu.
+                  .map(d => ({ ...d, kal: presuny[d.key] ?? d.key }))
+                  .sort((a, b) => DAY_KEYS.indexOf(a.kal) - DAY_KEYS.indexOf(b.kal))
+                  .map(d => (
                   <div key={d.key} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderTop: '1px solid var(--gd-line)' }}>
-                    <span className="gd-tag" style={{ width: 62, flexShrink: 0 }}>{d.label}</span>
+                    <span className="gd-tag" style={{ width: 62, flexShrink: 0, lineHeight: 1.25 }}>
+                      {DAY_LABEL[d.kal] ?? d.label}
+                      {d.kal !== d.key && (
+                        <span style={{ display: 'block', fontSize: 8, letterSpacing: '0.08em', color: 'var(--gd-text-4)' }}>
+                          {DAY_ADJ[d.key]}
+                        </span>
+                      )}
+                    </span>
                     <span style={{ flex: 1, display: 'flex', gap: 3, minWidth: 0 }}>
                       {Array.from({ length: d.celkem }).map((_, i) => (
                         <span key={i} style={{
@@ -437,23 +492,25 @@ export default function Overview({ workoutData, onNavigate }: Props) {
                   vynutit={activeDay.type === 'hiit' && (ulozenyMode(weekNum, activeDay.key) ?? (runForWeek(weekNum)?.vymenit === activeDay.key ? 'run' : 'hiit')) === 'run'}
                 />
                 <WarmupTable dayType={activeDay.type} weekNumber={weekNum} />
-                {(() => {
-                  // U dne s lekcí se zapisuje pod jiné id podle režimu, ať se
-                  // běhy a HIIT v datech nemíchají.
-                  if (activeDay.type !== 'hiit') return activeDay.exercises;
-                  const vychozi: DayMode = runForWeek(weekNum)?.vymenit === activeDay.key ? 'run' : 'hiit';
-                  const rezim: DayMode = ulozenyMode(weekNum, activeDay.key) ?? vychozi;
-                  if (rezim === 'hiit') return activeDay.exercises;
+                {activeDay.type === 'hiit' ? (() => {
+                  // Den s lekcí se nezapisuje jako „série", ale jako běh / HIIT
+                  // s km, časem a tepem — rovnou do deníku běhů a do exportu.
+                  const rezim: DayMode = ulozenyMode(weekNum, activeDay.key)
+                    ?? (runForWeek(weekNum)?.vymenit === activeDay.key ? 'run' : 'hiit');
                   const bp = runForWeek(weekNum);
-                  return [{
-                    id: cvikProMode(activeDay.key, 'run'),
-                    name: `Běh ${bp ? `${String(bp.km).replace('.', ',')} km` : ''}`.trim(),
-                    nameShort: 'Běh',
-                    category: 'run',
-                    targetSets: '1',
-                    targetReps: bp?.duration ?? '—',
-                  } as typeof activeDay.exercises[number]];
-                })().map((ex, i) => (
+                  return (
+                    <LessonLogger
+                      key={`${weekNum}-${activeDay.key}-${rezim}`}
+                      week={currentWeek.number}
+                      planDayKey={planDayKey}
+                      date={activeISO}
+                      mode={rezim}
+                      workoutData={workoutData}
+                      planKm={rezim === 'run' ? bp?.km : undefined}
+                      planZone={rezim === 'run' ? bp?.zone : undefined}
+                    />
+                  );
+                })() : activeDay.exercises.map((ex, i) => (
                   <div key={ex.id} style={{ marginBottom: 18 }}>
                     <div style={{
                       display: 'flex', alignItems: 'baseline', gap: 10,
@@ -477,10 +534,13 @@ export default function Overview({ workoutData, onNavigate }: Props) {
                 ))}
                 {/* Souhrn dne – ukáže se, jakmile je něco odškrtnuté. */}
                 {(() => {
-                  const sum = daySummary(currentWeek, activeKey, workoutData.records);
+                  // Tonáž nemá u běhu/HIIT smysl. A hledá se podle dne v PLÁNU —
+                  // podle kalendářního by po prohození ukázala cizí trénink.
+                  if (activeDay.type === 'hiit') return null;
+                  const sum = daySummary(currentWeek, planDayKey, workoutData.records);
                   if (sum.hotovo === 0) return null;
                   const prevWeek = PHASE3_WEEKS.find(w => w.number === currentWeek.number - 1);
-                  const prev = prevWeek ? daySummary(prevWeek, activeKey, workoutData.records) : null;
+                  const prev = prevWeek ? daySummary(prevWeek, planDayKey, workoutData.records) : null;
                   const diff = prev && prev.tonaz > 0 ? sum.tonaz - prev.tonaz : null;
                   const complete = sum.hotovo === sum.celkem;
                   return (
@@ -517,6 +577,7 @@ export default function Overview({ workoutData, onNavigate }: Props) {
                   );
                 })()}
 
+                {activeDay.type !== 'hiit' && (
                 <button
                   onClick={() => onNavigate('plan')}
                   style={{
@@ -529,6 +590,7 @@ export default function Overview({ workoutData, onNavigate }: Props) {
                 >
                   <span>Otevřít rozpis sérií</span><span>→</span>
                 </button>
+                )}
               </div>
             ) : (
               <div style={{ padding: '0 20px 20px' }}>

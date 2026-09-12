@@ -106,7 +106,8 @@ export default function SetLogger({ exercise, week, dayKey, date, workoutData }:
     }
     ulozeno();
     setOpenRow(null);
-    startRest(restForCategory(exercise.category), exercise.nameShort || exercise.name);
+    // Po běhu / lekci odpočinkový timer nedává smysl.
+    if (exercise.category !== 'run') startRest(restForCategory(exercise.category), exercise.nameShort || exercise.name);
   };
 
   const undoSet = (row: Row) => {
@@ -118,8 +119,15 @@ export default function SetLogger({ exercise, week, dayKey, date, workoutData }:
         return;
       }
     }
-    workoutData.resetToPlanned(exercise.id, row.id);
-    toast('Série vrácena mezi předepsané');
+    // Cvik bez předepsaného záznamu nemá kam „vrátit" — resetToPlanned by
+    // tiše neudělal nic a toast by lhal. Takový záznam se smaže.
+    if (plannedTemplate(exercise.id, row.id)) {
+      workoutData.resetToPlanned(exercise.id, row.id);
+      toast('Série vrácena mezi předepsané');
+    } else {
+      workoutData.deleteRecord(exercise.id, row.id);
+      toast('Zápis zrušen');
+    }
   };
 
   const step = weightStep(exercise.id);

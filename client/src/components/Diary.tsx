@@ -3,8 +3,8 @@
 // BUG FIX: editace záznamu správně předává date, sets, weight, reps, note
 // NOVÉ: cviky rozděleny podle tréninkových dnů (Po/Út/Čt/Pá/So)
 import { useState, useEffect } from 'react';
-import { PHASE3_WEEKS, LEGACY_PLAN_WEEKS, getCategoryColor, getCategoryLabel, formatDate, formatDateFull, getTodayISO, RUN_LOG_KEY, HIIT_LOG_KEY } from '@/lib/data';
-import { RECOVERED_HIIT_RECORDS, RECOVERED_RUN_RECORDS } from '@/lib/recoveryData';
+import { PHASE3_WEEKS, LEGACY_PLAN_WEEKS, getCategoryColor, getCategoryLabel, formatDate, formatDateFull, getTodayISO } from '@/lib/data';
+import { loadRunRecords, saveRunRecords, loadHIITRecords, saveHIITRecords, pridejNahrobek, RUN_TOMB_KEY, HIIT_TOMB_KEY } from '@/lib/activityLog';
 import type { WorkoutDataHook } from '@/lib/types';
 import type { Exercise, TrainingRecord, WorkoutDay, RunRecord, HIITRecord } from '@/lib/data';
 import { nanoid } from 'nanoid';
@@ -540,7 +540,8 @@ function RecordForm({
 }) {
   const [date, setDate] = useState(editingRecord?.date || getTodayISO());
   const [sets, setSets] = useState(editingRecord?.sets || exercise.targetSets || '3');
-  const [weight, setWeight] = useState(editingRecord?.weight || '');
+  // V úpravě česky s čárkou; při uložení normalizeDecimal vrátí tečku.
+  const [weight, setWeight] = useState(editingRecord?.weight ? formatWeight(editingRecord.weight) : '');
   const [reps, setReps] = useState(editingRecord?.reps || exercise.targetReps || '');
   const [note, setNote] = useState(editingRecord?.note || '');
 
@@ -774,55 +775,6 @@ const ZONE_COLORS: Record<string, string> = {
   'Zóna 5 (sprint/VO2max)': 'var(--gd-danger)',
 };
 
-// Náhrobky smazaných běhů/HIIT. Bez nich by se záznam ze seedu po smazání
-// při dalším načtení zase vrátil.
-const RUN_TOMB_KEY = 'gymdiary_run_deleted_v1';
-const HIIT_TOMB_KEY = 'gymdiary_hiit_deleted_v1';
-
-function nactiNahrobky(klic: string): Set<string> {
-  try {
-    const raw = localStorage.getItem(klic);
-    const a = raw ? JSON.parse(raw) : [];
-    return Array.isArray(a) ? new Set(a as string[]) : new Set();
-  } catch { return new Set(); }
-}
-
-function pridejNahrobek(klic: string, id: string) {
-  const s = nactiNahrobky(klic);
-  s.add(id);
-  try { localStorage.setItem(klic, JSON.stringify(Array.from(s))); } catch { /* kvóta */ }
-}
-
-/**
- * Sloučí uložený log se seedem podle id.
- *
- * ⚠️ Dřív se seed použil JEN když byl log prázdný. Jakmile se jednou naplnil,
- * nové záznamy přidané do recoveryData.ts se k uživateli už nikdy nedostaly.
- * Proto se teď doplňuje všechno, co v logu chybí a není v náhrobcích.
- */
-function slucSeSeedem<T extends { id: string; date: string }>(
-  ulozene: T[], seed: T[], tombKey: string,
-): T[] {
-  const tomb = nactiNahrobky(tombKey);
-  const mam = new Set(ulozene.map(r => r.id));
-  const doplnit = seed.filter(r => !mam.has(r.id) && !tomb.has(r.id));
-  return [...ulozene, ...doplnit]
-    .filter(r => !tomb.has(r.id))
-    .sort((a, b) => a.date.localeCompare(b.date));
-}
-
-function loadRunRecords(): RunRecord[] {
-  try {
-    const raw = localStorage.getItem(RUN_LOG_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as RunRecord[];
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return slucSeSeedem(parsed, RECOVERED_RUN_RECORDS, RUN_TOMB_KEY);
-      }
-    }
-  } catch { /* ignore */ }
-  return slucSeSeedem([], RECOVERED_RUN_RECORDS, RUN_TOMB_KEY);
-}
 
 function RunLog() {
   const [runs, setRuns] = useState<RunRecord[]>(loadRunRecords);
@@ -831,7 +783,7 @@ function RunLog() {
 
   const save = (updated: RunRecord[]) => {
     setRuns(updated);
-    localStorage.setItem(RUN_LOG_KEY, JSON.stringify(updated));
+    saveRunRecords(updated);
   };
 
   const handleDelete = (id: string) => {
@@ -880,7 +832,7 @@ function RunLog() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 14 }}>
           {[
             { label: 'Celkem běhů', value: runs.length.toString() },
-            { label: 'Celkem km', value: runs.reduce((s, r) => s + parseFloat(r.distance || '0'), 0).toFixed(1) },
+            { label: 'Celkem km', value: runs.reduce((s, r) => s + parseFloat(r.distance || '0'), 0).toFixed(1).replace('.', ',') },
             { label: 'Celkem min', value: runs.reduce((s, r) => s + parseInt(r.duration || '0'), 0).toString() },
           ].map(stat => (
             <div key={stat.label} style={{ background: 'color-mix(in srgb, var(--gd-text) 3%, transparent)', border: '1px solid var(--gd-line)', borderRadius: 0, padding: '10px 12px', textAlign: 'center' }}>
@@ -919,7 +871,7 @@ function RunForm({ editingRun, onClose, onSave }: {
 }) {
   const [date, setDate] = useState(editingRun?.date || getTodayISO());
   const [duration, setDuration] = useState(editingRun?.duration || '');
-  const [distance, setDistance] = useState(editingRun?.distance || '');
+  const [distance, setDistance] = useState(editingRun?.distance ? String(editingRun.distance).replace('.', ',') : '');
   const [zone, setZone] = useState(editingRun?.zone || 'Zóna 2 (aerobní)');
   const [avgPace, setAvgPace] = useState(editingRun?.avgPace || '');
   const [avgHr, setAvgHr] = useState(editingRun?.avgHr || '');
@@ -930,7 +882,8 @@ function RunForm({ editingRun, onClose, onSave }: {
       toast.error('Vyplň datum a čas');
       return;
     }
-    onSave({ id: editingRun?.id || nanoid(), date, duration, distance, zone, avgPace, avgHr, note });
+    // „6,4“ se musí uložit jako 6.4 — parseFloat by z čárky udělal 6 a v exportu i součtu km by chyběla desetina.
+    onSave({ id: editingRun?.id || nanoid(), date, duration, distance: normalizeDecimal(distance), zone, avgPace, avgHr, note });
   };
 
   const inputStyle = {
@@ -960,7 +913,7 @@ function RunForm({ editingRun, onClose, onSave }: {
         </div>
         <div>
           <label style={labelStyle}>Vzdálenost (km)</label>
-          <input type="text" value={distance} onChange={e => setDistance(e.target.value)} placeholder="5.2" style={inputStyle} />
+          <input type="text" inputMode="decimal" value={distance} onChange={e => setDistance(e.target.value)} placeholder="5,2" style={inputStyle} />
         </div>
         <div>
           <label style={labelStyle}>Průměrné tempo</label>
@@ -1036,7 +989,7 @@ function RunRow({ run, isLatest, onEdit, onDelete }: {
             </div>
             {run.distance && (
               <div>
-                <span style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 18, fontWeight: 800, color: 'var(--gd-text)' }}>{run.distance}</span>
+                <span style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 18, fontWeight: 800, color: 'var(--gd-text)' }}>{String(run.distance).replace('.', ',')}</span>
                 <span style={{ fontSize: 11, color: 'var(--gd-text-4)', marginLeft: 3 }}>km</span>
               </div>
             )}
@@ -1075,24 +1028,6 @@ function RunRow({ run, isLatest, onEdit, onDelete }: {
 // ============================================================
 // HIIT Log Component
 // ============================================================
-function loadHIITRecords(): HIITRecord[] {
-  try {
-    const raw = localStorage.getItem(HIIT_LOG_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as HIITRecord[];
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return slucSeSeedem(parsed, RECOVERED_HIIT_RECORDS, HIIT_TOMB_KEY);
-      }
-    }
-  } catch { /* ignore */ }
-  return slucSeSeedem([], RECOVERED_HIIT_RECORDS, HIIT_TOMB_KEY);
-}
-
-function saveHIITRecords(records: HIITRecord[]) {
-  try {
-    localStorage.setItem(HIIT_LOG_KEY, JSON.stringify(records));
-  } catch { /* ignore */ }
-}
 
 const HIIT_TYPES = [
   { key: 'tabata', label: 'Tabata', desc: '20s práce / 10s odpočinek × 8 kol', color: 'var(--gd-danger)' },

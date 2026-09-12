@@ -4,8 +4,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { toast } from 'sonner';
-import { nanoid, formatDate, PHASE3_WEEKS, LEGACY_PLAN_WEEKS, RUN_LOG_KEY, HIIT_LOG_KEY, NUTRITION } from '@/lib/data';
-import type { RunRecord, HIITRecord } from '@/lib/data';
+import { nanoid, formatDate, PHASE3_WEEKS, LEGACY_PLAN_WEEKS, NUTRITION } from '@/lib/data';
+import { loadRunRecords, loadHIITRecords } from '@/lib/activityLog';
 
 /** Popisky typů HIIT pro export – stejné jako v Deníku. */
 const HIIT_LABEL: Record<string, string> = {
@@ -13,7 +13,7 @@ const HIIT_LABEL: Record<string, string> = {
 };
 import { RECOVERED_HIIT_RECORDS, RECOVERED_RUN_RECORDS } from '@/lib/recoveryData';
 import type { WorkoutDataHook } from '@/lib/types';
-import { tint, formatWeight } from '@/lib/tint';
+import { tint, formatWeight, normalizeDecimal } from '@/lib/tint';
 import { useRestTimer, startRest, pauseRest, resumeRest, resetRest, setRestDuration } from '@/lib/restTimer';
 import { loadSnapshots, markDownloaded, daysSinceDownload, formatStamp, REMIND_AFTER_DAYS, isPersisted, storageEstimate } from '@/lib/backup';
 import { plural } from '@/lib/czech';
@@ -384,7 +384,7 @@ function BodyWeightTracker() {
     const entry: WeightEntry = {
       id: nanoid(),
       date: newDate,
-      weight: parseFloat(newWeight),
+      weight: parseFloat(normalizeDecimal(newWeight)),
       note: newNote,
     };
     const updated = [...entries, entry].sort((a, b) => a.date.localeCompare(b.date));
@@ -443,7 +443,7 @@ function BodyWeightTracker() {
               Poslední: {formatWeight(String(latest.weight))} kg · {formatDate(latest.date)}
               {change !== null && (
                 <span style={{ color: change < 0 ? 'var(--gd-fern)' : 'var(--gd-danger)', marginLeft: 8, fontWeight: 600 }}>
-                  {change > 0 ? '+' : ''}{change.toFixed(1)} kg
+                  {change > 0 ? '+' : ''}{change.toFixed(1).replace('.', ',')} kg
                 </span>
               )}
             </div>
@@ -474,7 +474,10 @@ function BodyWeightTracker() {
             </div>
             <div>
               <label style={labelStyle}>Váha (kg)</label>
-              <input type="number" value={newWeight} onChange={e => setNewWeight(e.target.value)} placeholder="85.5" step="0.1" style={inputStyle} />
+              {/* text + inputMode decimal: type=number na iOSu v češtině čárku buď nenabídne,
+                nebo ji tiše zahodí. Nápověda = poslední vážení, ne vymyšlených 85,5 kg. */}
+              <input type="text" inputMode="decimal" value={newWeight} onChange={e => setNewWeight(e.target.value)}
+                placeholder={latest ? formatWeight(String(latest.weight)) : '99'} style={inputStyle} />
             </div>
           </div>
           <div style={{ marginBottom: 10 }}>
@@ -1090,15 +1093,10 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
       return Math.round((s / 60) * 10) / 10;
     };
 
-    const nactiLog = <T,>(klic: string): T[] => {
-      try {
-        const raw = localStorage.getItem(klic);
-        const arr = raw ? JSON.parse(raw) : [];
-        return Array.isArray(arr) ? arr : [];
-      } catch { return []; }
-    };
+    // Stejné načítání jako Deník — se seedem a náhrobky. Dřív se četlo syrové
+    // úložiště, takže bez uloženého logu vyšel list Běhy prázdný.
 
-    const behy = nactiLog<RunRecord>(RUN_LOG_KEY)
+    const behy = loadRunRecords()
       .slice()
       .sort((a, b) => a.date.localeCompare(b.date));
     const listBehy: (string | number | Date | null)[][] = [[
@@ -1113,7 +1111,7 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
       ]);
     }
 
-    const hiit = nactiLog<HIITRecord>(HIIT_LOG_KEY)
+    const hiit = loadHIITRecords()
       .slice()
       .sort((a, b) => a.date.localeCompare(b.date));
     const listHiit: (string | number | Date | null)[][] = [[
@@ -1348,8 +1346,44 @@ function ExportData({ workoutData }: { workoutData: WorkoutDataHook }) {
 // ============================================================
 // Nutrition Guide - based on v4 training plan
 // ============================================================
+/**
+ * Makra podle POSLEDNÍHO vážení. Dřív byla natvrdo na 99 kg — jakmile si
+ * zapsal jinou váhu, čísla přestala sedět a nikde to nebylo vidět.
+ * Gramy se škálují poměrem k 99 kg (základ, na kterém je NUTRITION spočítaná),
+ * bílkoviny rovnou z g/kg. Zaokrouhlení na 5 g / 10 kcal, ať to jde vážit.
+ */
+function makraPodleVahy() {
+  const zaznamy = loadBodyWeights().slice().sort((a, b) => a.date.localeCompare(b.date));
+  const posledni = zaznamy[zaznamy.length - 1];
+  const kg = posledni?.weight && posledni.weight > 30 ? posledni.weight : NUTRITION.bodyWeightKg;
+  const k = kg / NUTRITION.bodyWeightKg;
+  const g5 = (n: number) => Math.round(n / 5) * 5;
+  const kc = (n: number) => Math.round(n / 10) * 10;
+  const den = (d: typeof NUTRITION.trainingDay) => ({
+    calories: kc(d.calories * k),
+    protein: g5(d.protein.gPerKg * kg),
+    carbs: g5(d.carbs.g * k),
+    fat: g5(d.fat.g * k),
+    carbsPerKg: d.carbs.gPerKg,
+    proteinPerKg: d.protein.gPerKg,
+    fatPct: d.fat.pct,
+  });
+  return {
+    kg,
+    datum: posledni?.date ?? NUTRITION.bodyWeightDate,
+    zmeneno: Math.abs(kg - NUTRITION.bodyWeightKg) >= 0.1,
+    trening: den(NUTRITION.trainingDay),
+    volno: den(NUTRITION.restDay),
+    cutKcal: kc(NUTRITION.cut.calories * k),
+    cutProtein: g5(NUTRITION.cut.protein.gPerKg * kg),
+  };
+}
+
 function NutritionGuide() {
   const [tab, setTab] = useState<'macros' | 'timing' | 'supplements' | 'rules'>('macros');
+  const M = makraPodleVahy();
+  const czKg = (n: number) => String(Math.round(n * 10) / 10).replace('.', ',');
+  const czDm = (iso: string) => { const [, m, d] = iso.split('-'); return `${parseInt(d, 10)}. ${parseInt(m, 10)}.`; };
 
   const tabStyle = (active: boolean) => ({
     padding: '7px 14px',
@@ -1403,20 +1437,21 @@ function NutritionGuide() {
           <div style={{ ...cardStyle, borderColor: 'color-mix(in srgb, var(--gd-accent) 20%, transparent)', background: 'color-mix(in srgb, var(--gd-accent) 4%, transparent)' }}>
             <div style={labelStyle}>Základ výpočtu</div>
             <div style={{ fontSize: 13, color: 'var(--gd-text-2)', lineHeight: 1.6 }}>
-              Vše je přepočtené na <b style={{ color: 'var(--gd-text)' }}>{NUTRITION.bodyWeightKg} kg</b> (nahlášeno 31. 8. 2026).
-              Když se váha posune o víc než ~3 kg, čísla přestanou sedět a je potřeba je přepočítat.
+              Přepočteno na <b style={{ color: 'var(--gd-text)' }}>{czKg(M.kg)} kg</b> — poslední vážení {czDm(M.datum)}
+              {M.zmeneno && <> Plán byl původně spočítaný na {NUTRITION.bodyWeightKg} kg.</>}
+              {' '}Stačí si v Nástrojích → Váha zapsat nové vážení a makra se přepočítají samy.
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
             <div style={cardStyle}>
               <div style={labelStyle}>Tréninkový den</div>
-              <div style={valueStyle}>{NUTRITION.trainingDay.calories.toLocaleString('cs-CZ')}</div>
+              <div style={valueStyle}>{M.trening.calories.toLocaleString('cs-CZ')}</div>
               <div style={subStyle}>kcal · síla, HIIT nebo běh</div>
             </div>
             <div style={cardStyle}>
               <div style={labelStyle}>Volný den (Út, Pá)</div>
-              <div style={valueStyle}>{NUTRITION.restDay.calories.toLocaleString('cs-CZ')}</div>
+              <div style={valueStyle}>{M.volno.calories.toLocaleString('cs-CZ')}</div>
               <div style={subStyle}>kcal · míň sacharidů</div>
             </div>
           </div>
@@ -1425,18 +1460,18 @@ function NutritionGuide() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
             <div style={{ ...cardStyle, borderColor: 'color-mix(in srgb, var(--gd-danger) 20%, transparent)', background: 'color-mix(in srgb, var(--gd-danger) 4%, transparent)' }}>
               <div style={labelStyle}>Bílkoviny</div>
-              <div style={{ ...valueStyle, color: 'var(--gd-danger)' }}>{NUTRITION.trainingDay.protein.g} g</div>
-              <div style={subStyle}>{String(NUTRITION.trainingDay.protein.gPerKg).replace('.', ',')} g/kg</div>
+              <div style={{ ...valueStyle, color: 'var(--gd-danger)' }}>{M.trening.protein} g</div>
+              <div style={subStyle}>{String(M.trening.proteinPerKg).replace('.', ',')} g/kg</div>
             </div>
             <div style={{ ...cardStyle, borderColor: 'color-mix(in srgb, var(--gd-text-2) 20%, transparent)', background: 'color-mix(in srgb, var(--gd-text-2) 4%, transparent)' }}>
               <div style={labelStyle}>Sacharidy</div>
-              <div style={{ ...valueStyle, color: 'var(--gd-text-2)' }}>{NUTRITION.trainingDay.carbs.g} g</div>
-              <div style={subStyle}>{String(NUTRITION.trainingDay.carbs.gPerKg).replace('.', ',')} g/kg</div>
+              <div style={{ ...valueStyle, color: 'var(--gd-text-2)' }}>{M.trening.carbs} g</div>
+              <div style={subStyle}>{String(M.trening.carbsPerKg).replace('.', ',')} g/kg</div>
             </div>
             <div style={{ ...cardStyle, borderColor: 'color-mix(in srgb, var(--gd-accent) 20%, transparent)', background: 'color-mix(in srgb, var(--gd-accent) 4%, transparent)' }}>
               <div style={labelStyle}>Tuky</div>
-              <div style={{ ...valueStyle, color: 'var(--gd-accent)' }}>{NUTRITION.trainingDay.fat.g} g</div>
-              <div style={subStyle}>{NUTRITION.trainingDay.fat.pct} % energie</div>
+              <div style={{ ...valueStyle, color: 'var(--gd-accent)' }}>{M.trening.fat} g</div>
+              <div style={subStyle}>{M.trening.fatPct} % energie</div>
             </div>
           </div>
 
@@ -1444,18 +1479,18 @@ function NutritionGuide() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
             <div style={cardStyle}>
               <div style={labelStyle}>Bílkoviny</div>
-              <div style={{ ...valueStyle, fontSize: 18 }}>{NUTRITION.restDay.protein.g} g</div>
+              <div style={{ ...valueStyle, fontSize: 18 }}>{M.volno.protein} g</div>
               <div style={subStyle}>nesnižují se nikdy</div>
             </div>
             <div style={cardStyle}>
               <div style={labelStyle}>Sacharidy</div>
-              <div style={{ ...valueStyle, fontSize: 18 }}>{NUTRITION.restDay.carbs.g} g</div>
-              <div style={subStyle}>{String(NUTRITION.restDay.carbs.gPerKg).replace('.', ',')} g/kg</div>
+              <div style={{ ...valueStyle, fontSize: 18 }}>{M.volno.carbs} g</div>
+              <div style={subStyle}>{String(M.volno.carbsPerKg).replace('.', ',')} g/kg</div>
             </div>
             <div style={cardStyle}>
               <div style={labelStyle}>Tuky</div>
-              <div style={{ ...valueStyle, fontSize: 18 }}>{NUTRITION.restDay.fat.g} g</div>
-              <div style={subStyle}>{NUTRITION.restDay.fat.pct} % energie</div>
+              <div style={{ ...valueStyle, fontSize: 18 }}>{M.volno.fat} g</div>
+              <div style={subStyle}>{M.volno.fatPct} % energie</div>
             </div>
           </div>
 
@@ -1471,8 +1506,8 @@ function NutritionGuide() {
           <div style={{ ...cardStyle, borderColor: 'color-mix(in srgb, var(--gd-fern) 25%, transparent)' }}>
             <div style={{ ...labelStyle, color: 'var(--gd-fern)' }}>Kdyby ses rozhodl zhubnout kvůli běhu</div>
             <div style={{ fontSize: 13, color: 'var(--gd-text-2)', lineHeight: 1.6 }}>
-              Tempo {NUTRITION.cut.rate}. Kalorie na {NUTRITION.cut.calories.toLocaleString('cs-CZ')},
-              bílkoviny nahoru na {NUTRITION.cut.protein.g} g ({String(NUTRITION.cut.protein.gPerKg).replace('.', ',')} g/kg).<br />
+              Tempo {NUTRITION.cut.rate}. Kalorie na {M.cutKcal.toLocaleString('cs-CZ')},
+              bílkoviny nahoru na {M.cutProtein} g ({String(NUTRITION.cut.protein.gPerKg).replace('.', ',')} g/kg).<br />
               <b style={{ color: 'var(--gd-text)' }}>{NUTRITION.cut.warning}</b>
             </div>
           </div>

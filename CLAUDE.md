@@ -392,6 +392,44 @@ věcí, které se bez jeho výslovného souhlasu nemění. Stejně tak přechod
 z vložených formulářů na sheety: velký zásah do `Diary.tsx` i `Tools.tsx`
 s reálným rizikem, že se něco rozbije. Obojí čeká na jeho rozhodnutí.
 
+### 4l. Audit + 7 vylepšení (12. 9. 2026)
+
+Ruční proklik všech záložek a sekcí ve vestavěném Chromiu. Fungovalo: všech
+6 záložek + 8 sekcí Nástrojů, RPE kalkulačka, kotouče, tělesná váha, přidání /
+úprava / smazání / vrácení záznamu v Deníku, graf v Progresu.
+
+⚠️ **Test v emulovaném mobilu 375×812 klepe mimo.** Panel se zmenšuje a klik
+přistane o ~35 px níž — na spodní liště tedy mimo stránku. Testuj na
+**390×640** (vejde se bez škálování) a klikej přes `ref` z `find`.
+
+| # | Vylepšení | Kde |
+|---|---|---|
+| 1 | Běh/HIIT se zapisuje jako běh/HIIT (km, čas, tep / délka, tep, kcal) — rovnou do logu běhů/HIIT **i** jako tréninkový záznam | `components/LessonLogger.tsx` |
+| 2 | Po běhu/HIIT se nespouští odpočinkový timer | LessonLogger + guard v `SetLogger` |
+| 3 | Hero ukazuje volbu běh/HIIT a prohozený trénink | `Overview.tsx` `dnesRezim` |
+| 4 | „Obnovit plán týdne" — zruší prohození i volby, zápisy nechá | `dayMode.obnovTyden()` |
+| 5 | Souhrn týdne podle kalendářního dne, s nápovědou „nedělní" | sekce 02 v `Overview.tsx` |
+| 6 | Výživa podle posledního vážení (ne natvrdo 99 kg) | `Tools.tsx` `makraPodleVahy()` |
+| 7 | Česká čárka: trend váhy, editace záznamu, vzdálenost běhu; nápověda z posledního vážení | `Tools.tsx`, `Diary.tsx` |
+
+**Jedna evidence běhů a HIIT: `lib/activityLog.ts`.** Deník, Přehled i XLSX
+export čtou a píšou přes ni. Dřív měl každý svou kopii a:
+- běh odškrtnutý v Přehledu se **nedostal do Deníku → Běhy ani do exportu**,
+- export četl syrové úložiště, takže bez uloženého logu vyšel list Běhy prázdný.
+
+⚠️ **Zápis z Přehledu = dva záznamy se stejným id** (`plan-w2-so-run-sat`):
+v logu běhů (to vidí Deník a export) a v tréninkových záznamech (podle toho
+`weekProgress` označí den). „Zrušit zápis" maže oboje, „Vrátit zpět" vrací
+oboje. Opakovaný zápis jde přes `restoreRecord` / `upsertRun`, které **mažou
+náhrobek** — jinak by zápis po reloadu zmizel. Ověřeno reloadem.
+
+⚠️ **Opravená lež v `undoSet`:** u cviku bez předepsaného záznamu (HIIT, běh)
+`resetToPlanned` tiše skončil, ale toast hlásil „Série vrácena mezi
+předepsané". Teď se takový záznam smaže a toast říká „Zápis zrušen".
+
+⚠️ **`daySummary` se volá s `planDayKey`,** ne s kalendářním dnem — po
+prohození by jinak ukázal tonáž cizího tréninku.
+
 ### 4k. Běhy a HIIT ze seedu (10. 9. 2026)
 
 ⚠️ **`loadRunRecords()` / `loadHIITRecords()` MUSÍ slučovat, ne jen fallbackovat.**

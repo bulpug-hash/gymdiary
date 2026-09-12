@@ -68,3 +68,24 @@ export function presunyTydne(week: number): Record<string, string> {
   }
   return out;
 }
+
+/** Má týden nějakou ruční odchylku od plánu? */
+export function maOdchylky(week: number): boolean {
+  const pref = `w${week}:`;
+  return Object.keys(nacti<string>(MOVE_KEY)).some(k => k.startsWith(pref))
+      || Object.keys(nacti<DayMode>(MODE_KEY)).some(k => k.startsWith(pref));
+}
+
+/**
+ * Vrátí týden do stavu podle plánu: zruší prohozené dny i volby HIIT × běh.
+ * Zapsané tréninky ani běhy se NEMAŽOU — mění se jen to, kde se v rozvrhu ukazují.
+ */
+export function obnovTyden(week: number) {
+  const pref = `w${week}:`;
+  const presuny = nacti<string>(MOVE_KEY);
+  const rezimy = nacti<DayMode>(MODE_KEY);
+  for (const k of Object.keys(presuny)) if (k.startsWith(pref)) delete presuny[k];
+  for (const k of Object.keys(rezimy)) if (k.startsWith(pref)) delete rezimy[k];
+  uloz(MOVE_KEY, presuny);
+  uloz(MODE_KEY, rezimy);
+}
