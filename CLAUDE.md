@@ -414,6 +414,16 @@ byla **1 minuta**. Nově to řeší `minuty()` v `Tools.tsx`.
 `lib/dayMode.ts` drží **uživatelské odchylky nad plánem**, ne změny plánu.
 `data.ts` i `PLANNED_RECORDS` zůstávají nedotčené.
 
+⚠️ **Dny s lekcí MUSÍ počítat `weekProgress()`.** Původně je přeskakoval
+(`if (type === 'rest' || 'hiit' || 'run') continue`), takže odškrtnutý HIIT
+ani běh se nikdy neprojevil — den zůstal v rozvrhu neoznačený, i když byl
+hotový. Počítá se jako **jedna položka** a hledá se pod OBĚMA id
+(`hiit-wed` × `run-wed`), protože planLink nemá k uživatelské volbě přístup:
+hotovo je hotovo, ať to zapsal jako cokoli.
+
+⚠️ **Dlaždice v rozvrhu ukazuje VOLBU, ne typ z plánu.** `TYPE_LABEL[day.type]`
+by u přepnutého dne svítilo dál „HIIT", i když si vybral běh.
+
 **Volba HIIT × běh** (`gymdiary_daymode_v1`). Dny s lekcí (St/So) mají v sekci
 03 přepínač. Výchozí stav se bere z `RUNNING_PROGRAM` (ten týden se běhá St,
 nebo So). Zapisuje se pod JINÉ id podle režimu — `hiit-wed` × `run-wed` —

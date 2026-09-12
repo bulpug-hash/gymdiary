@@ -56,7 +56,28 @@ export function weekProgress(week: Week, records: Record<string, TrainingRecord[
   let celkem = 0;
 
   for (const day of week.days) {
-    if (day.type === 'rest' || day.type === 'hiit' || day.type === 'run') continue;
+    if (day.type === 'rest') continue;
+
+    // Den s lekcí (St/So) se počítá jako JEDNA položka. Dřív se přeskakoval
+    // úplně, takže odškrtnutý HIIT ani běh se nikdy neprojevil — den zůstal
+    // v rozvrhu neoznačený, i když byl hotový.
+    // Uživatel si lekci může přepnout na běh, proto se hledá pod OBĚMA id
+    // (hiit-wed × run-wed) — planLink nemá k té volbě přístup a ani ho mít
+    // nemusí: hotovo je hotovo, ať to zapsal jako cokoli.
+    if (day.type === 'hiit' || day.type === 'run') {
+      const zaklad = day.exercises[0]?.id;
+      if (!zaklad) continue;
+      const varianty = [zaklad, zaklad.replace(/^hiit-/, 'run-'), zaklad.replace(/^run-/, 'hiit-')];
+      const hotovoDne = varianty.some(exId => {
+        const id = plannedId(week.number, day.key, exId);
+        return (records[exId] ?? []).some(r => r.id === id && isDone(r));
+      });
+      dny.push({ key: day.key, label: day.label, hotovo: hotovoDne ? 1 : 0, celkem: 1 });
+      hotovo += hotovoDne ? 1 : 0;
+      celkem += 1;
+      continue;
+    }
+
     let dHotovo = 0;
     let dCelkem = 0;
 

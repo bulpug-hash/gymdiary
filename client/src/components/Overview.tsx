@@ -253,7 +253,13 @@ export default function Overview({ workoutData, onNavigate }: Props) {
                         color: sel ? 'color-mix(in srgb, var(--gd-accent-ink) 65%, transparent)'
                              : hotovo ? 'color-mix(in srgb, var(--gd-accent) 70%, transparent)' : 'var(--gd-text-4)',
                       }}>
-                        {isRest ? '–' : (day ? TYPE_LABEL[day.type] || '?' : '?')}
+                        {/* U dne s lekcí se ukazuje, co si VYBRAL, ne co je v plánu —
+                            jinak po přepnutí na běh svítí dál „HIIT". */}
+                        {isRest ? '–'
+                          : !day ? '?'
+                          : day.type === 'hiit'
+                            ? ((ulozenyMode(weekNum, day.key) ?? (runForWeek(weekNum)?.vymenit === day.key ? 'run' : 'hiit')) === 'run' ? 'BĚH' : 'HIIT')
+                            : (TYPE_LABEL[day.type] || '?')}
                       </div>
 
                       {/* Hotovo: značka v rohu. Rozděláno: proužek podle procent. */}
