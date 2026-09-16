@@ -5,7 +5,7 @@
 //   plan-w{týden}-{den}-{idCviku}-{index}  … cvik se setPlan, jeden záznam na sérii
 // Díky tomu jde každou sérii z rozpisu spárovat s konkrétním záznamem v deníku
 // a odklepnout ji, aniž by se objem započítal dvakrát.
-import { PHASE3_WEEKS, PLANNED_RECORDS } from '@/lib/data';
+import { PHASE3_WEEKS, PLANNED_RECORDS, jeDvojitaStreda } from '@/lib/data';
 import type { TrainingRecord, Week, WorkoutDay, Exercise } from '@/lib/data';
 
 export const DAY_CODE: Record<string, string> = {
@@ -67,6 +67,20 @@ export function weekProgress(week: Week, records: Record<string, TrainingRecord[
     if (day.type === 'hiit' || day.type === 'run') {
       const zaklad = day.exercises[0]?.id;
       if (!zaklad) continue;
+      // Středa s ranním během (od 16. 9. 2026) jsou DVĚ jednotky: běh ráno
+      // a HIIT večer. Každá se počítá zvlášť, jinak by den svítil hotový
+      // už po jedné z nich.
+      if (jeDvojitaStreda(week.number, day.key)) {
+        const hotoveId = [zaklad.replace(/^hiit-/, 'run-'), zaklad.replace(/^run-/, 'hiit-')]
+          .filter(exId => {
+            const id = plannedId(week.number, day.key, exId);
+            return (records[exId] ?? []).some(r => r.id === id && isDone(r));
+          }).length;
+        dny.push({ key: day.key, label: day.label, hotovo: hotoveId, celkem: 2 });
+        hotovo += hotoveId;
+        celkem += 2;
+        continue;
+      }
       const varianty = [zaklad, zaklad.replace(/^hiit-/, 'run-'), zaklad.replace(/^run-/, 'hiit-')];
       const hotovoDne = varianty.some(exId => {
         const id = plannedId(week.number, day.key, exId);

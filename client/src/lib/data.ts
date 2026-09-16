@@ -838,10 +838,10 @@ function npStrength(dm: [string,string,string,'lower'|'upper'|'fullbody',string]
 const NP_MON: [string,string,string,'lower'|'upper'|'fullbody',string] = ['monday','Pondělí','Po','lower','DŘEP – nohy, silový důraz. Dřep vlnou + sekundární dřep + rotující leg cvik + core. Fresh nohy (2 dny po So HIIT).'];
 const NP_SUN: [string,string,string,'lower'|'upper'|'fullbody',string] = ['sunday','Neděle','Ne','upper','BENCH – tlak. Bench vlnou + variace na prsa + triceps (bez dipů) + pull-up (biceps) + biceps + core. Horní půlka, takže So HIIT den předtím nevadí.'];
 const NP_THU: [string,string,string,'lower'|'upper'|'fullbody',string] = ['thursday','Čtvrtek','Čt','fullbody','MRTVÝ TAH – tah/posterior. Tah vlnou + veslování + pull-up (záda) + biceps + hamstringy + core. 3 dny po dřepu.'];
-const npWedHiit = (): WorkoutDay => ({ key: 'wednesday', label: 'Středa', labelShort: 'St', type: 'hiit', description: 'HIIT – skupinová lekce (běh). Pevná lekce. 2 dny před tahem.', exercises: [{ id: 'hiit-wed', name: 'HIIT – Skupinová lekce', nameShort: 'HIIT', category: 'run', targetSets: '1', targetReps: '~45–60 min', note: 'Po: rychlé sacharidy okamžitě (AMPK/mTOR interference).' }] });
-const npSatHiit = (): WorkoutDay => ({ key: 'saturday', label: 'Sobota', labelShort: 'So', type: 'hiit', description: 'HIIT – skupinová lekce (běh). Pevná lekce. Den po tahu (HIIT po síle = OK).', exercises: [{ id: 'hiit-sat', name: 'HIIT – Skupinová lekce', nameShort: 'HIIT', category: 'run', targetSets: '1', targetReps: '~45–60 min', note: 'Regenerace zadního řetězce.' }] });
+const npWedHiit = (): WorkoutDay => ({ key: 'wednesday', label: 'Středa', labelShort: 'St', type: 'hiit', description: 'Ráno BĚH podle běžeckého plánu, večer HIIT – skupinová lekce. Den před tahem: ranní běh drž kontrolovaně, ždímačka je HIIT.', exercises: [{ id: 'hiit-wed', name: 'HIIT – Skupinová lekce', nameShort: 'HIIT', category: 'run', targetSets: '1', targetReps: '~45–60 min', note: 'Po: rychlé sacharidy okamžitě (AMPK/mTOR interference).' }] });
+const npSatHiit = (): WorkoutDay => ({ key: 'saturday', label: 'Sobota', labelShort: 'So', type: 'hiit', description: 'HIIT – skupinová lekce. Pevná lekce, 2 dny po tahu. Když nevyjde, přepni na běh: volný běh v Z2 podle plánu.', exercises: [{ id: 'hiit-sat', name: 'HIIT – Skupinová lekce', nameShort: 'HIIT', category: 'run', targetSets: '1', targetReps: '~45–60 min', note: 'Regenerace zadního řetězce.' }] });
 const npTueRest = (): WorkoutDay => ({ key: 'tuesday', label: 'Úterý', labelShort: 'Út', type: 'rest', description: 'VOLNO – plná regenerace. Spánek, výživa, mobilita. Pevné volno, nepřesouvat.', exercises: [] });
-const npFriRest = (): WorkoutDay => ({ key: 'friday', label: 'Pátek', labelShort: 'Pá', type: 'rest', description: 'VOLNO – regenerace mezi tahem a So lekcí. Volitelně lehký Z2 klus, když je to týden se dvěma běhy.', exercises: [] });
+const npFriRest = (): WorkoutDay => ({ key: 'friday', label: 'Pátek', labelShort: 'Pá', type: 'rest', description: 'VOLNO – regenerace mezi tahem a So lekcí. Žádný běh navíc.', exercises: [] });
 
 const np1: Week = {
   number: 1, label: 'W1 – Akumulace', dateFrom: '2026-08-31', dateTo: '2026-09-06',
@@ -1350,71 +1350,172 @@ export const NUTRITION = {
 
 
 // ============================================================
-// RUNNING PROGRAM (Viada – concurrent scheduling)
-// ============================================================
-// ============================================================
-// BĚŽECKÝ PROGRAM — Podzim 2026
+// BĚŽECKÝ PROGRAM — Mílařský podzim (od 16. 9. 2026)
 // ============================================================
 //
-// Zadání: NEPŘIDÁVAT tréninky. Jeden běh týdně (výjimečně dva) se získá tak,
-// že se v daném týdnu VYMĚNÍ jedna HIIT lekce za běh. Střídá se St a So,
-// aby nevypadávala pořád tatáž lekce.
+// Zdroj: FB skupina „Dlouhá míle" (trenér Jan Pernica), sloupec MÍLAŘ.
+// Plánek chodí v neděli jako obrázek tabulky se sloupci mílař / vytrvalec /
+// maratonec. Týdny skupiny sedí 1:1 na týdny plánu (T1 = týden 34).
+// T1–T3 jsou převzaté z tabulek 34–36. Tabulky pro T4+ ještě nevyšly —
+// jednotky jsou z trenérova repertoáru týdnů 32–36 a počítají s tím, že
+// mílaře po zářijové klubové míli „zazimuje".
 //
-// Kalibrace podle jeho REÁLNÝCH dat, ne z tabulky: 34 zaznamenaných běhů
-// (III–VIII 2026), nejdelší 10,54 km za 1:04:44 (12. 8.) v tempu 6:08/km.
-// Proto program nezačíná na pěti kilometrech, ale na osmi.
+// Zadání (16. 9. 2026): běhy NEPŘIDÁVAT. Běhá jednou týdně — ve středu
+// ráno, večer jde na HIIT. Sobota je pevně HIIT; když lekce nevyjde,
+// přepne si ji na běh. Druhý běh navíc nechce.
+// Tím nahrazuje předchozí program (dlouhý běh 8 → 18 km směrem
+// k půlmaratonu, střídavě místo St a So HIIT).
 //
-// ⚠️ Dlouhý běh je tu 100 % týdenního objemu. Běžné doporučení je ≤ 30–35 %.
-// To je hlavní riziko celého programu (kostní stres, achilovka) a jediná
-// obrana je druhý, kratší běh v pátek — proto je u stavebních týdnů `druhy`.
+// Proč mílař, ne vytrvalec: nejmenší objem ze tří sloupců a intenzita
+// v krátkých úsecích — nervová práce, málo svalového poškození. Vytrvalci
+// v září stavěli na Běchovice = 5–6 běhů týdně.
 //
-// ⚠️ T12 je taper a T13 test maxim. Běh tam musí jít dolů, jinak si sníží
-// čísla na dřepu, benchi a tahu — kvůli tomu celý plán je.
-export interface RunPlan {
-  week: number;
-  /** Kterou HIIT lekci ten týden vyměnit za běh. */
-  vymenit: 'wednesday' | 'saturday' | null;
+// ⚠️ Středa je den PŘED mrtvým tahem a večer je HIIT. Ranní běh je proto
+// vždycky zmenšená verze skupinové kvality (~60–70 % objemu), strop RPE 8,
+// žádný sprint naplno. Ždímačka je večerní HIIT, ne ranní běh.
+// ⚠️ Sobotní náhrada je VŽDYCKY volný běh v Z2 (nanejvýš rovinky nebo krátké
+// kopce). Leží mezi tahem a pondělním dřepem a lekci nahrazuje, nepřidává.
+// ⚠️ „Osmička s finišem" je jeho přání: ~8 km souvisle a rychlý konec. Jde
+// ve čtyřech krocích a ostrý finiš je až od v3, a to na deloadové středě —
+// sprint na unavených nohách den před tahem je v jeho váze nejrychlejší
+// cesta k natrženému zadnímu stehnu.
+// ⚠️ Tempa jsou z JEHO běhů, ne z predikce Garminu (ta slibovala 5 km za
+// 20:30): 6,58 km za 5:14/km při tepu 169, úseky 400 m za 3:26–3:44/km
+// (5. 8.), lehké běhy 5:45–6:10/km při tepu 155–170 — to je spíš Z3.
+// Kotva: 5 km ≈ 24–25 min.
+// ⚠️ T12 taper a T13 test maxim: neběhá se (Viada, interference před maximem).
+
+export interface RunSession {
+  /** Krátký název jednotky. */
+  type: string;
+  /** Celkem včetně rozklusu a vyklusu, orientačně. */
   km: number;
   duration: string;
+  /** Hlavní intenzita s tempem. */
   zone: string;
-  type: string;
+  /** Rozpis po krocích. */
+  kroky: string[];
+  /** Proč zrovna tohle a zrovna tenhle týden. */
   description: string;
-  /** Nepovinný druhý, krátký běh v pátek — rozloží zátěž. */
-  druhy?: string;
+  /** Co měli ten den mílaři ve skupině — zdroj jednotky. */
+  skupina?: string;
 }
 
+export interface RunPlan {
+  week: number;
+  /** Ranní běh ve středu, PŘED večerní HIIT lekcí. Nic nenahrazuje. null = neběhá se. */
+  streda: RunSession | null;
+  /** Náhrada za sobotní HIIT, když lekce nevyjde. Není to běh navíc. */
+  sobota: RunSession | null;
+}
+
+const ROZKLUS = 'Rozklus 10–12 min Z2 + 4 × 80 m rovinka';
+const VYKLUS = 'Vyklus 10 min';
+const TEMPO_Z2 = 'Z2 · 6:15–6:45/km · tep 135–150';
+
+const osmicka = (verze: 1 | 2 | 3 | 4, description: string): RunSession => {
+  const finis = {
+    1: ['6,5 km Z2 souvisle', '1 km stupňovaně až na @T10K (5:10–5:20/km)', '500 m @T5K (4:50–5:00/km) — svižně, ne naplno'],
+    2: ['6 km Z2 souvisle', '1,6 km @T10K (5:10–5:20/km)', '400 m @T1500m (4:05–4:15/km)'],
+    3: ['6 km Z2 souvisle', '1,6 km @T10K (5:10–5:20/km)', '300 m na 95 % + 100 m volně'],
+    4: ['6 km Z2 souvisle', '1,6 km @T10K (5:10–5:20/km)', '400 m na 95 % — nejrychleji, co udržíš s čistou technikou'],
+  }[verze];
+  return {
+    type: `Osmička s finišem v${verze}`,
+    km: 9,
+    duration: '55–60 min',
+    zone: verze < 3 ? 'Z2 → @T10K → svižný finiš' : 'Z2 → @T10K → ostrý finiš',
+    kroky: [...finis, 'Vyklus 800 m'],
+    description,
+    skupina: 'Souvislá náhrada tempových úseků ze sobot (týden 36: 6–7 × 1 km @půlmaraton, pauza 2 min).',
+  };
+};
+
+const volny = (duration: string, km: number, navic?: string, skupina?: string, description?: string): RunSession => ({
+  type: navic ? 'Volný běh + ' + (navic.includes('kopce') ? 'kopce' : 'rovinky') : 'Volný běh',
+  km,
+  duration,
+  zone: TEMPO_Z2,
+  kroky: [`${duration} volný běh Z2`, ...(navic ? [navic] : [])],
+  description: description ?? 'Jen když nevyjde sobotní HIIT. Leží mezi tahem a pondělním dřepem, proto vždycky Z2 — žádné tempo.',
+  skupina,
+});
+
 export const RUNNING_PROGRAM: RunPlan[] = [
-  { week: 1,  vymenit: 'wednesday', km: 8,  duration: '50–55 min', zone: 'Z2 · tep 135–150', type: 'Dlouhý Z2',
-    description: 'Vědomě pomaleji, než jsi zvyklý. Tempo kolem 6:30–6:50/km. Když tep leze přes 150, jdi do chůze.' },
-  { week: 2,  vymenit: 'saturday',  km: 10, duration: '65–70 min', zone: 'Z2 · tep 135–150', type: 'Dlouhý Z2',
-    description: 'Zopakování tvého maxima z 12. 8., ale o poznání pomaleji. Cíl je tep, ne čas.' },
-  { week: 3,  vymenit: 'wednesday', km: 11, duration: '72–78 min', zone: 'Z2 · tep 135–150', type: 'Dlouhý Z2',
-    description: 'První nové maximum. Poslední 2 km musíš zvládnout bez zpomalení.', druhy: 'Pá 5 km velmi lehce' },
-  { week: 4,  vymenit: 'saturday',  km: 6,  duration: '40 min',    zone: 'Z2 · tep ≤ 145', type: 'Deload',
-    description: 'Deload i v běhu. Stejný týden, kdy jde dolů činka.' },
-  { week: 5,  vymenit: 'wednesday', km: 12, duration: '78–85 min', zone: 'Z2 · tep 135–150', type: 'Dlouhý Z2',
-    description: 'Nad hodinu a čtvrt. Vezmi si s sebou pití.', druhy: 'Pá 5 km velmi lehce' },
-  { week: 6,  vymenit: 'saturday',  km: 13, duration: '85–92 min', zone: 'Z2 · tep 135–150', type: 'Dlouhý Z2',
-    description: 'Od téhle délky řeš i jídlo během běhu — 30 g sacharidů po 45 min.', druhy: 'Pá 5 km velmi lehce' },
-  { week: 7,  vymenit: 'wednesday', km: 14, duration: '92–100 min', zone: 'Z2 · tep 135–150', type: 'Dlouhý Z2',
-    description: 'Dvě třetiny půlmaratonu. Zkus přesně tu obuv a to jídlo, co bys měl na závodě.', druhy: 'Pá 6 km velmi lehce' },
-  { week: 8,  vymenit: 'saturday',  km: 8,  duration: '52 min',    zone: 'Z2 · tep ≤ 145', type: 'Deload',
-    description: 'Druhý deload. Nepřeskakuj ho — tady se ta předchozí práce teprve vstřebá.' },
-  { week: 9,  vymenit: 'wednesday', km: 15, duration: '100–108 min', zone: 'Z2 · tep 135–150', type: 'Dlouhý Z2',
-    description: 'Přes hodinu a půl. Od téhle délky je limit spíš hlava a nohy než plíce.', druhy: 'Pá 6 km velmi lehce' },
-  { week: 10, vymenit: 'saturday',  km: 16, duration: '105–115 min', zone: 'Z2 + 2 km tempo', type: 'Dlouhý + tempo',
-    description: 'Prvních 14 km Z2, poslední 2 km zrychli na 5:45–6:00/km. Naučí tělo běžet unavené.', druhy: 'Pá 6 km velmi lehce' },
-  { week: 11, vymenit: 'wednesday', km: 18, duration: '2:00–2:10', zone: 'Z2 · tep 135–150', type: 'Nejdelší běh',
-    description: 'Vrchol objemu. 18 km v Z2 znamená, že půlmaraton doběhneš — jen ne rychle.', druhy: 'Pá 6 km velmi lehce' },
-  { week: 12, vymenit: 'saturday',  km: 8,  duration: '50 min',    zone: 'Z2 · tep ≤ 145', type: 'Taper',
-    description: 'Objem prudce dolů. Tenhle týden se ladí na test maxim, ne na běh.' },
-  { week: 13, vymenit: null,        km: 4,  duration: '25 min',    zone: 'Z1 · velmi lehce', type: 'Bez zátěže',
-    description: 'Týden testu maxim (Po dřep, Čt tah, Ne bench). Běh jen jako rozklusání, ideálně vůbec. Obě HIIT lekce nech být, nebo je odchoď.' },
+  { week: 1,
+    streda: { type: 'Pyramidy 600–400–200', km: 6, duration: '45–50 min', zone: '@T5K a rychleji · 4:50/km a lépe',
+      kroky: [ROZKLUS, '2 × (600 m – 400 m – 200 m) @T5K a rychleji', 'Pauza 2 min mezi úseky, 5 min mezi sériemi', VYKLUS],
+      description: 'Skupina 3–4 série, ty 2: večer HIIT a zítra tah 202,5.',
+      skupina: 'Týden 34 · ÚT 3–4 × (600-400-200), pauza 2 min, po sérii 5 min. Tempo 5K a lépe.' },
+    sobota: volny('50–60 min', 8.5, undefined, 'Týden 34 · SO volný běh 50–70 min') },
+  { week: 2,
+    streda: { type: '800 + 200', km: 7, duration: '50–55 min', zone: '@T10K 5:10–5:20 · @T800m 3:40–3:50',
+      kroky: [ROZKLUS, '4 × 800 m @T10K — pauza 2:30', '6 min klus', '3 × 200 m @T800m — pauza 2–3 min', VYKLUS],
+      description: 'Skupina 6 × 800 + 4 × 200, ty zhruba dvě třetiny.',
+      skupina: 'Týden 35 · ÚT 6 × 800 m @půlmaraton až 10K + 4 × 200 @T800m, pauzy 2:30, po sérii 6 min.' },
+    sobota: volny('40–50 min', 7.5, '2 × 4 × 60 m do kopce, dolů chůze, po sérii 5 min', 'Týden 35 · PÁ volný běh 20 min + 2 × 4 × 60 m kopce') },
+  { week: 3,
+    streda: { type: '500 + 300', km: 6, duration: '45–50 min', zone: '@T5K 4:50–5:00 · @T1500m 4:05–4:15',
+      kroky: [ROZKLUS, '3 × 500 m @T5K — pauza 1:30–1:45', '5 min klus', '3 × 300 m @T1500m — pauza 1:30', VYKLUS],
+      description: 'Skupina 4 + 4, ty 3 + 3 — zítra tah 212,5 v silovém týdnu.',
+      skupina: 'Týden 36 · ÚT 4 × 500 @T5K – 4 × 300 @T1500m, pauzy 1:30–1:45 mezi 500, pak 5 min, 1:30 mezi 300.' },
+    sobota: volny('45–55 min', 8, '6 × 100 m rovinka, pauza 1 min chůze', 'Týden 36 · PÁ volný běh 15–20 min + 10–12 × 100 m rovinka') },
+  { week: 4,
+    streda: osmicka(1, 'Deload — zítřejší tah je lehký (165), takže první osmička jde na nejbezpečnější středu bloku. Finiš jen svižně.'),
+    sobota: volny('50–60 min', 8.5, undefined, undefined, 'Deload. Když nevyjde HIIT, nejdelší volný běh bloku si můžeš dovolit — pořád Z2.') },
+  { week: 5,
+    streda: { type: '400 m úseky', km: 7, duration: '50 min', zone: '@T5K 4:50–5:00',
+      kroky: [ROZKLUS, '2 × 4 × 400 m @T5K — pauza 60–75 s', '5 min klus mezi sériemi', VYKLUS],
+      description: 'Začátek Bloku B. Skupina měla 2 × 6, ty 2 × 4.',
+      skupina: 'Týden 33 · ÚT 2 × 6 × 400 m @T5K, pauza 60–75 s, po sérii 5 min.' },
+    sobota: volny('45–55 min', 8, '6 × 100 m rovinka, pauza 1 min chůze') },
+  { week: 6,
+    streda: osmicka(2, 'Objemový týden na čince — běh v jednom kuse, bez tvrdých úseků, jen delší tempo a krátký finiš.'),
+    sobota: volny('45–55 min', 8) },
+  { week: 7,
+    streda: { type: '500 + 100', km: 6, duration: '45 min', zone: '@T3K 4:30–4:40 · @T800m 3:40–3:50',
+      kroky: [ROZKLUS, '4 × (500 m @T3K + 100 m @T800m)', 'Mezi 500 a 100 pauza 1 min, po sérii 3–4 min', VYKLUS],
+      description: 'Nejtěžší týden Bloku B (zítra tah 215). Skupina 6 sérií, ty 4.',
+      skupina: 'Týden 32 · ÚT 6 × (500 + 100), 500 @T3K a 100 @T800m, pauza 1 min, po sérii 3–4 min.' },
+    sobota: volny('40–50 min', 7.5, '2 × 4 × 60 m do kopce, dolů chůze, po sérii 5 min') },
+  { week: 8,
+    streda: osmicka(3, 'Druhý deload = druhá bezpečná středa (zítra tah 177,5). První opravdu ostrý finiš — po sedmi týdnech rovinek.'),
+    sobota: volny('50–60 min', 8.5, undefined, undefined, 'Deload. Když nevyjde HIIT, delší volný běh je v pořádku — pořád Z2.') },
+  { week: 9,
+    streda: { type: 'Udržovací 400', km: 5.5, duration: '40 min', zone: '@T5K 4:50–5:00',
+      kroky: [ROZKLUS, '5 × 400 m @T5K — pauza 2 min', VYKLUS],
+      description: 'Blok C. Od teď běh jen udržuje: tempa zůstávají, objem dolů. Zítra tah 215.' },
+    sobota: volny('40–50 min', 7) },
+  { week: 10,
+    streda: osmicka(4, 'Poslední finiš bloku. Zítra je objemový tah (217,5), takže na 95 %, ne naplno. Od příštího týdne patří nohy čince.'),
+    sobota: volny('40 min', 6.5) },
+  { week: 11,
+    streda: { type: 'Rozklus + rovinky', km: 5.5, duration: '35–40 min', zone: TEMPO_Z2,
+      kroky: ['30 min volný běh Z2', '6 × 100 m rovinka svižně — pauza 1 min chůze'],
+      description: 'Žádná kvalita. Zítra 222,5 — nejtěžší tah před testem.',
+      skupina: 'Týden 36 · PÁ volný běh 15–20 min + 10–12 × 100 m rovinka, pauza 1 min.' },
+    sobota: volny('30–40 min', 5.5, undefined, undefined, 'Nejtěžší týden na čince. Když nevyjde HIIT, klidně kratší — nebo vůbec.') },
+  { week: 12, streda: null, sobota: null },
+  { week: 13, streda: null, sobota: null },
 ];
 
 /** Běžecký plán pro daný týden. */
 export function runForWeek(week: number): RunPlan | null {
   return RUNNING_PROGRAM.find(r => r.week === week) ?? null;
+}
+
+/** Běh předepsaný na den s lekcí: středa = ranní běh, sobota = náhrada za HIIT. */
+export function runSessionFor(week: number, dayKey: string): RunSession | null {
+  const plan = runForWeek(week);
+  if (!plan) return null;
+  if (dayKey === 'wednesday') return plan.streda;
+  if (dayKey === 'saturday') return plan.sobota;
+  return null;
+}
+
+/** Středa s ranním během = dvě jednotky v jednom dni (běh + HIIT). */
+export function jeDvojitaStreda(week: number, dayKey: string): boolean {
+  return dayKey === 'wednesday' && !!runForWeek(week)?.streda;
 }
 
 

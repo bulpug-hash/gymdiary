@@ -1842,6 +1842,15 @@ function DocumentsSection() {
     },
     {
       icon: 'RUN',
+      title: 'Běžecký plán Mílařský podzim',
+      subtitle: 'Podle skupiny Dlouhá míle (mílař) · St ráno + So náhrada · T1–T13',
+      type: 'PDF',
+      color: 'var(--gd-fern)',
+      url: './docs/bezecky-plan-milarsky-podzim-2026.pdf',
+      filename: 'Bezecky_plan_Milarsky_podzim_2026.pdf',
+    },
+    {
+      icon: 'RUN',
       title: 'Strava profil',
       subtitle: 'Běžecké a kardio aktivity · Strava.com',
       type: 'LINK',

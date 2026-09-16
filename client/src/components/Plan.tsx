@@ -446,8 +446,8 @@ function DayCard({ day, isExpanded, onToggle, workoutData, weekNumber }: {
           padding: '8px 14px 12px',
         }}>
           <div style={{ color: 'var(--gd-text-3)', fontSize: 11, marginBottom: 10, paddingTop: 6 }}>{day.description}</div>
-          {/* Běh, když ten týden nahrazuje právě tuhle HIIT lekci */}
-          <RunBlock week={weekNumber} dayKey={day.key} />
+          {/* Středa: ranní běh před HIIT. Sobota: náhradní běh, když lekce nevyjde. */}
+          <RunBlock week={weekNumber} dayKey={day.key} alternativa />
           {/* Warm-up series for strength days */}
           {(day.type === 'lower' || day.type === 'upper' || day.type === 'fullbody') && (
             <WarmupSeriesBlock dayType={day.type} weekNumber={weekNumber} />

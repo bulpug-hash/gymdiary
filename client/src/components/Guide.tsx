@@ -1,7 +1,7 @@
 // Průvodce – detailní rozpis a vysvětlení ke každému týdnu plánu
 import { useState } from 'react';
 import { WEEK_GUIDE } from '@/lib/weekGuide';
-import { getCurrentWeek } from '@/lib/data';
+import { getCurrentWeek, runForWeek } from '@/lib/data';
 import { Hero, QuoteBar, SectionHead } from '@/components/kit';
 import { tint } from '@/lib/tint';
 
@@ -161,7 +161,18 @@ export default function Guide() {
       {/* kardio */}
       <div style={card}>
         <div style={label}>HIIT A BĚH</div>
-        <div style={{ fontSize: 12.5, color: 'var(--gd-text-2)', lineHeight: 1.55 }}>{g.cardio}</div>
+        {(() => {
+          // Konkrétní běh týdne z RUNNING_PROGRAM; text v WEEK_GUIDE je jen záloha.
+          const b = runForWeek(g.wk);
+          if (!b?.streda) return <div style={{ fontSize: 12.5, color: 'var(--gd-text-2)', lineHeight: 1.55 }}>{g.cardio}</div>;
+          return (
+            <div style={{ fontSize: 12.5, color: 'var(--gd-text-2)', lineHeight: 1.55 }}>
+              <b style={{ color: 'var(--gd-text)' }}>St ráno · {b.streda.type}</b> ({String(b.streda.km).replace('.', ',')} km, {b.streda.duration}):{' '}
+              {b.streda.kroky.join(' → ')}. Večer HIIT.
+              {b.sobota && <><br /><b style={{ color: 'var(--gd-text)' }}>So</b> HIIT – když nevyjde: {b.sobota.kroky.join(' + ')}.</>}
+            </div>
+          );
+        })()}
       </div>
 
       </div>

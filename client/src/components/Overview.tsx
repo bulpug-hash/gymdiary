@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 import {
-  PHASE3_WEEKS, getTodayDayKey, getTodayISO, getCurrentWeek, runForWeek,
+  PHASE3_WEEKS, getTodayDayKey, getTodayISO, getCurrentWeek, runSessionFor, jeDvojitaStreda,
   GOALS,
 } from '@/lib/data';
 import type { Week } from '@/lib/data';
@@ -158,10 +158,13 @@ export default function Overview({ workoutData, onNavigate }: Props) {
   // i když byl zvolený běh.
   const todayDay = trenkyNaDni[todayKey];
   const isTraining = !!todayDay && todayDay.type !== 'rest';
-  const dnesRezim: DayMode | null = todayDay?.type === 'hiit'
-    ? (ulozenyMode(weekNum, todayDay.key) ?? (runForWeek(weekNum)?.vymenit === todayDay.key ? 'run' : 'hiit'))
+  // Výchozí je vždycky HIIT — běh už lekci nenahrazuje. Středa s ranním
+  // během je dvojitá (běh + HIIT) a přepínač nemá.
+  const dnesDvojita = !!todayDay && jeDvojitaStreda(weekNum, todayDay.key);
+  const dnesRezim: DayMode | null = todayDay?.type === 'hiit' && !dnesDvojita
+    ? (ulozenyMode(weekNum, todayDay.key) ?? 'hiit')
     : null;
-  const dnesBeh = dnesRezim === 'run' ? runForWeek(weekNum) : null;
+  const dnesBeh = todayDay && (dnesDvojita || dnesRezim === 'run') ? runSessionFor(weekNum, todayDay.key) : null;
   const activeTraining = !!activeDay && activeDay.type !== 'rest' && activeDay.exercises.length > 0;
   const top = isTraining ? heroSet(todayDay) : null;
 
@@ -177,7 +180,8 @@ export default function Overview({ workoutData, onNavigate }: Props) {
   const kalendarniDnes = DAY_LABEL[todayKey] ?? todayDay?.label ?? '';
   const heroTitle = isTraining && todayDay
     ? <>{kalendarniDnes.toUpperCase()}<br />{
-        dnesRezim === 'run' ? 'BĚH'
+        dnesDvojita ? 'BĚH + HIIT'
+        : dnesRezim === 'run' ? 'BĚH'
         : dnesRezim === 'hiit' ? 'HIIT'
         : todayDay.description.split('–')[0].trim().toUpperCase()
       }</>
@@ -194,7 +198,9 @@ export default function Overview({ workoutData, onNavigate }: Props) {
         title={heroTitle}
         lead={
           isTraining && todayDay
-            ? dnesRezim === 'run'
+            ? dnesDvojita && dnesBeh
+              ? <>Ráno {dnesBeh.type} · {String(dnesBeh.km).replace('.', ',')} km · večer HIIT lekce</>
+              : dnesRezim === 'run'
               ? <>Běh místo HIIT{dnesBeh ? <> · {String(dnesBeh.km).replace('.', ',')} km · {dnesBeh.zone}</> : null}</>
               : dnesRezim === 'hiit'
                 ? <>HIIT lekce · ~45–60 min</>
@@ -280,8 +286,9 @@ export default function Overview({ workoutData, onNavigate }: Props) {
                             jinak po přepnutí na běh svítí dál „HIIT". */}
                         {isRest ? '–'
                           : !day ? '?'
+                          : jeDvojitaStreda(weekNum, day.key) ? 'B+HIIT'
                           : day.type === 'hiit'
-                            ? ((ulozenyMode(weekNum, day.key) ?? (runForWeek(weekNum)?.vymenit === day.key ? 'run' : 'hiit')) === 'run' ? 'BĚH' : 'HIIT')
+                            ? ((ulozenyMode(weekNum, day.key) ?? 'hiit') === 'run' ? 'BĚH' : 'HIIT')
                             : (TYPE_LABEL[day.type] || '?')}
                       </div>
 
@@ -460,9 +467,9 @@ export default function Overview({ workoutData, onNavigate }: Props) {
                   // to střídá podle toho, jak mu vyjde týden. Volba je override
                   // nad plánem, plán samotný se nemění.
                   const jeLekce = activeDay.type === 'hiit';
-                  if (!jeLekce) return null;
-                  const vychozi: DayMode = runForWeek(weekNum)?.vymenit === activeDay.key ? 'run' : 'hiit';
-                  const rezim: DayMode = ulozenyMode(weekNum, activeDay.key) ?? vychozi;
+                  // Středa s ranním během nemá co přepínat: dělá obojí.
+                  if (!jeLekce || jeDvojitaStreda(weekNum, activeDay.key)) return null;
+                  const rezim: DayMode = ulozenyMode(weekNum, activeDay.key) ?? 'hiit';
                   const prepni = (m: DayMode) => { nastavMode(weekNum, activeDay.key, m); setModeTik(t => t + 1); };
                   const btn = (m: DayMode, txt: string) => (
                     <button
@@ -489,15 +496,45 @@ export default function Overview({ workoutData, onNavigate }: Props) {
                 <RunBlock
                   week={weekNum}
                   dayKey={activeDay.key}
-                  vynutit={activeDay.type === 'hiit' && (ulozenyMode(weekNum, activeDay.key) ?? (runForWeek(weekNum)?.vymenit === activeDay.key ? 'run' : 'hiit')) === 'run'}
+                  vynutit={activeDay.type === 'hiit' && (ulozenyMode(weekNum, activeDay.key) ?? 'hiit') === 'run'}
                 />
                 <WarmupTable dayType={activeDay.type} weekNumber={weekNum} />
                 {activeDay.type === 'hiit' ? (() => {
                   // Den s lekcí se nezapisuje jako „série", ale jako běh / HIIT
                   // s km, časem a tepem — rovnou do deníku běhů a do exportu.
-                  const rezim: DayMode = ulozenyMode(weekNum, activeDay.key)
-                    ?? (runForWeek(weekNum)?.vymenit === activeDay.key ? 'run' : 'hiit');
-                  const bp = runForWeek(weekNum);
+                  const bp = runSessionFor(weekNum, activeDay.key);
+                  // Středa s ranním během: dva samostatné zápisy pod run-wed
+                  // a hiit-wed. Id se nemíchají, weekProgress počítá oba.
+                  if (jeDvojitaStreda(weekNum, activeDay.key)) {
+                    const podnadpis = (t: string) => (
+                      <span className="gd-tag" style={{ display: 'block', marginBottom: 6, color: 'var(--gd-text-3)' }}>{t}</span>
+                    );
+                    return (
+                      <>
+                        {podnadpis('Ráno · běh')}
+                        <LessonLogger
+                          key={`${weekNum}-${activeDay.key}-run`}
+                          week={currentWeek.number}
+                          planDayKey={planDayKey}
+                          date={activeISO}
+                          mode="run"
+                          workoutData={workoutData}
+                          planKm={bp?.km}
+                          planZone={bp?.zone}
+                        />
+                        {podnadpis('Večer · HIIT lekce')}
+                        <LessonLogger
+                          key={`${weekNum}-${activeDay.key}-hiit`}
+                          week={currentWeek.number}
+                          planDayKey={planDayKey}
+                          date={activeISO}
+                          mode="hiit"
+                          workoutData={workoutData}
+                        />
+                      </>
+                    );
+                  }
+                  const rezim: DayMode = ulozenyMode(weekNum, activeDay.key) ?? 'hiit';
                   return (
                     <LessonLogger
                       key={`${weekNum}-${activeDay.key}-${rezim}`}
@@ -594,8 +631,6 @@ export default function Overview({ workoutData, onNavigate }: Props) {
               </div>
             ) : (
               <div style={{ padding: '0 20px 20px' }}>
-                {/* Volný den může nést nepovinný druhý běh (pátek). */}
-                <RunBlock week={weekNum} dayKey={activeDay?.key ?? ''} />
                 <p style={{ fontSize: 13, lineHeight: 1.65, color: 'var(--gd-text-3)', margin: 0 }}>
                   Dnes se netrénuje. Aktivní regenerace, strečink, mobilita.
                   Další jednotku najdeš v Plánu.

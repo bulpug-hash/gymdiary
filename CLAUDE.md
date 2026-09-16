@@ -46,7 +46,7 @@ tarball přes `device_commit_files` je ověřená cesta. Vždy porovnej `sha256`
 ```
 client/
   index.html               ← Google Fonts (Archivo), theme-color, manifest
-  public/docs/             ← zdrojové dokumenty ke stažení (plán v5.2 .docx)
+  public/docs/             ← dokumenty ke stažení (silový plán v5.2 .docx, běžecký plán .pdf)
   src/
     index.css              ← DESIGN TOKENY (--gd-*) pro obě témata + Tailwind aliasy
     App.tsx                ← ThemeProvider (dark default, switchable), Toaster
@@ -77,7 +77,7 @@ client/
 | `LEGACY_PLAN_WEEKS` | starý plán `w1`…`w16` — **nemazat**, drží historii |
 | `DEFAULT_RECORDS` | reálná historie (únor–srpen 2026) |
 | `PLANNED_RECORDS` | 295 předepsaných sérií, `planned: true` |
-| `RUNNING_PROGRAM` / `runForWeek()` | běžecký plán 13 týdnů (viz 5b) |
+| `RUNNING_PROGRAM` / `runForWeek()` / `runSessionFor()` / `jeDvojitaStreda()` | běžecký plán 13 týdnů: středa ráno + sobotní náhrada (viz 5b) |
 | `NUTRITION` | makra přepočtená na 99 kg (viz 5c) |
 | `WARMUP_SERIES_BY_WEEK` | rozehřívací série (Zatsiorsky) |
 | `Exercise.setPlan` | `{ label, weight, reps, rpe }[]` — rozpis pracovních sérií |
@@ -462,10 +462,16 @@ hotovo je hotovo, ať to zapsal jako cokoli.
 ⚠️ **Dlaždice v rozvrhu ukazuje VOLBU, ne typ z plánu.** `TYPE_LABEL[day.type]`
 by u přepnutého dne svítilo dál „HIIT", i když si vybral běh.
 
-**Volba HIIT × běh** (`gymdiary_daymode_v1`). Dny s lekcí (St/So) mají v sekci
-03 přepínač. Výchozí stav se bere z `RUNNING_PROGRAM` (ten týden se běhá St,
-nebo So). Zapisuje se pod JINÉ id podle režimu — `hiit-wed` × `run-wed` —
+**Volba HIIT × běh** (`gymdiary_daymode_v1`). Dny s lekcí mají v sekci 03
+přepínač. **Od 16. 9. 2026 je výchozí stav vždycky HIIT** — běh už lekci
+nenahrazuje. Zapisuje se pod JINÉ id podle režimu — `hiit-sat` × `run-sat` —
 aby se běhy a HIIT v datech nemíchaly.
+
+⚠️ **Středa s ranním během (`jeDvojitaStreda`) přepínač NEMÁ.** Dělá obojí:
+ráno běh, večer HIIT. Přehled ukáže `RunBlock` a DVA `LessonLogger`y
+(`run-wed` + `hiit-wed`), dlaždice v rozvrhu říká `B+HIIT` a `weekProgress`
+počítá středu jako **dvě** položky — den je hotový až po obou zápisech.
+V T12/T13 je `streda: null`, takže se středa vrací na obyčejný den s lekcí.
 
 **Přesun dne** (`gymdiary_daymove_v1`). Přidržení prstu 450 ms na dlaždici
 v rozvrhu → tažení doleva/doprava → puštění. Je to vždycky **VÝMĚNA** dvou
@@ -579,8 +585,8 @@ Ověřeno vyvoláním skutečného pádu: napočítala 366 záznamů a vyrobila 
 | Test maxim | T13 | 3 samostatné dny (Po dřep, Út bench, Pá tah) |
 
 **Týdenní split (od 1. 9. 2026, na jeho žádost):**
-Po = DŘEP · **Út = VOLNO** · St = HIIT/běh · Čt = MRTVÝ TAH ·
-Pá = volno (± druhý běh) · So = HIIT/běh · Ne = BENCH
+Po = DŘEP · **Út = VOLNO** · St = BĚH ráno + HIIT večer · Čt = MRTVÝ TAH ·
+Pá = volno · So = HIIT (když nevyjde → volný běh) · Ne = BENCH
 
 Středa a sobota HIIT jsou **neměnné** — je to skupinová lekce.
 **Úterý musí zůstat volné** — výslovné zadání.
@@ -617,23 +623,36 @@ Reálná výchozí maxima: bench 127, dřep 185, tah 220×3 (odhad 1RM 230).
 - cviky rotují po blocích (výpady, leg press, bulharský dřep, veslování atd.)
 - střídat silové a objemové týdny u doplňků
 
-### 5b. Běžecký program (`RUNNING_PROGRAM`)
+### 5b. Běžecký program (`RUNNING_PROGRAM`) — Mílařský podzim
 
-Zadání: **nepřidávat tréninky.** Jeden běh týdně (výjimečně dva) se získá tak,
-že se **vymění jedna HIIT lekce za běh**, střídavě St a So. Vykresluje to
-`components/RunBlock.tsx` na tom dni, který ten týden odpadá; v pátek se ukáže
-jen nepovinný druhý běh.
+**Přepsáno 16. 9. 2026.** Zdroj: FB skupina **Dlouhá míle** (veřejná, id
+`345528687347951`, trenér Jan Pernica). Plánek chodí v neděli jako OBRÁZEK
+tabulky se sloupci mílař / vytrvalec / maratonec; týdny skupiny sedí 1:1 na
+týdny plánu (T1 = týden 34). Zvolený sloupec **mílař** — nejmenší objem,
+krátká intenzita. T1–T3 převzaté z tabulek 34–36, T4+ z trenérova repertoáru
+týdnů 32–36 (tabulky ještě nevyšly). Dokument: `public/docs/bezecky-plan-milarsky-podzim-2026.pdf`
+(generátor mimo repo — HTML šablona + JSON z `RUNNING_PROGRAM`).
 
-Kalibrováno na jeho **reálná data**, ne z tabulky: 34 zaznamenaných běhů
-(III–VIII 2026), nejdelší **10,54 km za 1:04:44** (12. 8.) v tempu 6:08/km.
-Proto program nezačíná na 5 km, ale na 8. Vrchol T11 = 18 km, pak taper.
+**Jeho zadání:** běhá **jednou týdně, ve středu ráno**, večer jde na HIIT.
+Sobota je pevně HIIT; když lekce nevyjde, přepne si ji na běh. Druhý běh
+navíc nechce. Každý týden má proto dvě pole:
+- `streda` — ranní běh před HIIT, nic nenahrazuje,
+- `sobota` — náhrada za HIIT, jen když lekce nevyjde.
 
-⚠️ **Dlouhý běh je 100 % týdenního běžeckého objemu** (běžné doporučení je
-≤ 30–35 %). To je hlavní riziko a jediná obrana je nepovinný druhý běh v pátek.
-⚠️ **T12 taper a T13 test maxim** — běh tam musí jít dolů, jinak si sníží
-čísla na dřepu, benchi a tahu.
-⚠️ Jeden běh týdně **na půlmaraton nestačí** — viz rozbor v konverzaci.
-Běhá navíc příliš rychle: tep 159–162 na „lehkém" běhu je u 26letého spíš Z3.
+⚠️ **Středa je den PŘED mrtvým tahem a večer je HIIT.** Ranní běh je vždycky
+zmenšená skupinová kvalita (~60–70 % objemu), strop RPE 8.
+⚠️ **Sobotní náhrada je vždycky volný běh v Z2** (nanejvýš rovinky / kopce) —
+leží mezi tahem a pondělním dřepem.
+⚠️ **„Osmička s finišem"** (jeho přání: ~8 km souvisle + rychlý konec) je
+ve středu T4 v1 · T6 v2 · T8 v3 · T10 v4. Ostrý finiš až od v3 na deloadu.
+⚠️ **Tempa jsou z jeho běhů, ne z Garminu** (ten sliboval 5 km za 20:30):
+6,58 km za 5:14/km, úseky 400 m za 3:26–3:44/km. Kotva 5 km ≈ 24–25 min,
+Z2 = 6:15–6:45/km při tepu 135–150. Lehké běhy běhá při tepu 155–170 = Z3.
+⚠️ **T12 taper a T13 test:** `streda` i `sobota` jsou `null`, neběhá se.
+
+⛔ **Předchozí program** (dlouhý běh 8 → 18 km k půlmaratonu, střídavě místo
+St/So HIIT, nepovinný druhý běh v pátek) je nahrazený. Je v gitu
+(commit 526b81c a starší), kdyby se k půlmaratonu chtěl vrátit.
 
 ### 5c. Výživa (`NUTRITION`)
 
@@ -679,6 +698,7 @@ Viada + Schumann (concurrent training, interference běhu a síly).
 | 17 | Citáty do běžícího pásu v Plánu | ✅ `lib/quotes.ts` — 13 ověřených výroků, rotace po dnech |
 | 18 | Grafické prvky ze značky | ✅ 8 rytin (CC0, Met) v hero deskách a za lištou |
 | 19 | Dalších 10 funkcí | ✅ všech 10 nasazeno (viz sekce 4d) |
+| 20 | Běžecký plán podle skupiny Dlouhá míle (mílař), St ráno + So náhrada, osmička s finišem | ✅ 16. 9. 2026, viz 5b |
 
 ### Chyby nalezené při kontrole a opravené
 
