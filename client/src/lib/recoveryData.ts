@@ -137,6 +137,7 @@ export const RECOVERED_RUN_RECORDS: RunRecord[] = [
   run('run-2026-09-08-2', '2026-09-08', '11:33', '1.97', '5:52/km', '152', 'Tuesday Evening Run — druhý, 1944 kroků'),
   // Doplněno 23. 9. 2026 z COROS Training Hubu.
   coros('run-2026-09-16', '2026-09-16', '46:28', '7.80', '5:58/km', '166', 'Praha Běh — středeční ranní běh před HIIT'),
+  coros('run-2026-09-23', '2026-09-23', '38:35', '6.29', '6:08/km', '161', 'Praha Běh — středeční ranní běh, T4 osmička s finišem v1, zátěž 145'),
 ];
 
 function hiit(id: string, date: string, duration: string, avgHr: string, calories: string): HIITRecord {
