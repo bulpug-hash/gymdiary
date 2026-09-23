@@ -3,14 +3,14 @@
 // Spouští se: pnpm zaloha
 // Uloží se na dvě místa:
 //   1) zalohy/ v repu  → pushne se na GitHub = online, verzované, dohledatelné
-//   2) ~/Desktop/GymDiary_zalohy/ → po ruce na Macu
+//   2) ~/Documents/Tréninkový deník/Zálohy/ → po ruce na Macu, u projektu
 //
 // ⚠️ Co tahle záloha OBSAHUJE: kanonická data z repa (data.ts + recoveryData.ts),
 // ze kterých se appka plní. To je celá historie tréninků, běhů i HIIT.
 // ⚠️ Co NEOBSAHUJE: to, co si zapsal na telefonu a ještě to není v repu —
 // ta data leží jen v localStorage prohlížeče. Na ně slouží v appce
 // Nástroje → Export → „Kompletní záloha (JSON)"; ten soubor si ulož
-// do stejné složky na ploše, ať je všechno pohromadě.
+// do stejné složky v Dokumentech, ať je všechno pohromadě.
 import { writeFileSync, mkdirSync, cpSync } from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'node:path';
@@ -73,11 +73,11 @@ const vRepu = path.join(REPO, 'zalohy');
 mkdirSync(vRepu, { recursive: true });
 writeFileSync(path.join(vRepu, jmeno), JSON.stringify(zaloha, null, 2), 'utf-8');
 
-const naPlose = path.join(homedir(), 'Desktop', 'GymDiary_zalohy');
-mkdirSync(naPlose, { recursive: true });
-cpSync(path.join(vRepu, jmeno), path.join(naPlose, jmeno));
+const naDisku = path.join(homedir(), 'Documents', 'Tréninkový deník', 'Zálohy');
+mkdirSync(naDisku, { recursive: true });
+cpSync(path.join(vRepu, jmeno), path.join(naDisku, jmeno));
 
 console.log('Záloha hotová:', jmeno);
 console.log('  v repu :', path.join('zalohy', jmeno));
-console.log('  na ploše:', path.join(naPlose, jmeno));
+console.log('  v Dokumentech:', path.join(naDisku, jmeno));
 console.log('  souhrn :', JSON.stringify(zaloha.souhrn));

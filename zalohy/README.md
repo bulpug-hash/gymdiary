@@ -10,9 +10,10 @@ Vytvoří `gymdiary-zaloha-RRRR-MM-DD.json` a uloží ho na **dvě místa**:
 
 1. **`zalohy/` v repu** → po `git push` je na GitHubu. Online, verzované,
    dohledatelné zpětně i po letech a dostupné odkudkoli.
-2. **`~/Desktop/GymDiary_zalohy/`** → po ruce na Macu, bez internetu.
+2. **`~/Documents/Tréninkový deník/Zálohy/`** → po ruce na Macu, bez internetu,
+   u samotného projektu. Plocha se schválně nepoužívá.
 
-Dvě místa schválně: GitHub tě podrží, když přijdeš o Mac; plocha tě podrží,
+Dvě místa schválně: GitHub tě podrží, když přijdeš o Mac; disk tě podrží,
 když nebude internet nebo GitHub.
 
 ## ⚠️ Co záloha obsahuje a co ne
@@ -26,8 +27,8 @@ leží jen v `localStorage` prohlížeče a z počítače se k nim nedá dostat.
 ### Jak zazálohovat i data z telefonu
 
 V appce: **Nástroje → Export → Kompletní záloha (JSON)**. Soubor ulož do
-`~/Desktop/GymDiary_zalohy/`. Pojmenuj ho `telefon-RRRR-MM-DD.json`, ať je
-poznat, odkud je.
+`~/Documents/Tréninkový deník/Zálohy/`. Pojmenuj ho `telefon-RRRR-MM-DD.json`,
+ať je poznat, odkud je.
 
 ⚠️ **Tohle je jediná obrana proti „Vymazat historii a data webů" v Safari.**
 Ten příkaz smaže celý localStorage a nepomůže proti němu nic, co appka umí.
