@@ -19,8 +19,11 @@ const REPO = path.resolve(import.meta.dirname, '..');
 const { DEFAULT_RECORDS, PLANNED_RECORDS, PHASE3_WEEKS, LEGACY_PLAN_WEEKS,
         NUTRITION, RUNNING_PROGRAM, GOALS, CURRENT_MAXES } =
   await import(path.join(REPO, 'client/src/lib/data.ts'));
-const { RECOVERED_WORKOUT_RECORDS, RECOVERED_RUN_RECORDS, RECOVERED_HIIT_RECORDS } =
+const { RECOVERED_WORKOUT_RECORDS, RECOVERED_RUN_RECORDS, RECOVERED_HIIT_RECORDS,
+        RECOVERED_OTHER_RECORDS } =
   await import(path.join(REPO, 'client/src/lib/recoveryData.ts'));
+const { RUN_FITNESS, COROS_DAYS, COROS_WEEKS, COROS_THRESHOLDS, COROS_SNAPSHOT } =
+  await import(path.join(REPO, 'client/src/lib/corosData.ts'));
 
 /** Sloučí historii z data.ts a recoveryData.ts stejně, jako to dělá appka. */
 function slucZaznamy() {
@@ -52,6 +55,7 @@ const zaloha = {
     predepsanych: Object.values(PLANNED_RECORDS).flat().length,
     behu: RECOVERED_RUN_RECORDS.length,
     hiit: RECOVERED_HIIT_RECORDS.length,
+    ostatni: RECOVERED_OTHER_RECORDS.length,
     tydnuVPlanu: PHASE3_WEEKS.length,
     prvniZaznam: realne.map(r => r.date).sort()[0],
     posledniZaznam: realne.map(r => r.date).sort().pop(),
@@ -64,6 +68,8 @@ const zaloha = {
   predepsane: PLANNED_RECORDS,
   behy: RECOVERED_RUN_RECORDS,
   hiit: RECOVERED_HIIT_RECORDS,
+  ostatni: RECOVERED_OTHER_RECORDS,
+  coros: { snimek: COROS_SNAPSHOT, kondice: RUN_FITNESS, prahy: COROS_THRESHOLDS, dny: COROS_DAYS, tydny: COROS_WEEKS },
   planTydny: PHASE3_WEEKS,
   staryPlan: LEGACY_PLAN_WEEKS,
 };

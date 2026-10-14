@@ -5,7 +5,7 @@ import Overview from '@/components/Overview';
 import Plan from '@/components/Plan';
 import Guide from '@/components/Guide';
 import Diary from '@/components/Diary';
-import Progress from '@/components/Progress';
+import RunProgress from '@/components/RunProgress';
 import Tools from '@/components/Tools';
 import { NavIcon, RestBar, UpdateBar } from '@/components/kit';
 import type { NavIconKey } from '@/components/kit';
@@ -20,7 +20,7 @@ const TABS: { key: Tab; label: string; icon: string }[] = [
   { key: 'plan', label: 'Plán', icon: '02' },
   { key: 'guide', label: 'Průvodce', icon: '03' },
   { key: 'diary', label: 'Deník', icon: '04' },
-  { key: 'progress', label: 'Progres', icon: '05' },
+  { key: 'progress', label: 'Progres v běhu', icon: '05' },
   { key: 'tools', label: 'Nástroje', icon: '06' },
 ];
 
@@ -90,7 +90,7 @@ export default function Home() {
           {activeTab === 'plan' && <Plan workoutData={workoutData} />}
           {activeTab === 'guide' && <Guide />}
           {activeTab === 'diary' && <Diary workoutData={workoutData} />}
-          {activeTab === 'progress' && <Progress workoutData={workoutData} />}
+          {activeTab === 'progress' && <RunProgress />}
           {activeTab === 'tools' && <Tools workoutData={workoutData} />}
         </div>
       </main>

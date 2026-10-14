@@ -4,9 +4,9 @@
 // NOVÉ: cviky rozděleny podle tréninkových dnů (Po/Út/Čt/Pá/So)
 import { useState, useEffect } from 'react';
 import { PHASE3_WEEKS, LEGACY_PLAN_WEEKS, getCategoryColor, getCategoryLabel, formatDate, formatDateFull, getTodayISO } from '@/lib/data';
-import { loadRunRecords, saveRunRecords, loadHIITRecords, saveHIITRecords, pridejNahrobek, RUN_TOMB_KEY, HIIT_TOMB_KEY } from '@/lib/activityLog';
+import { loadRunRecords, saveRunRecords, loadHIITRecords, saveHIITRecords, loadOtherRecords, saveOtherRecords, removeOther, pridejNahrobek, RUN_TOMB_KEY, HIIT_TOMB_KEY } from '@/lib/activityLog';
 import type { WorkoutDataHook } from '@/lib/types';
-import type { Exercise, TrainingRecord, WorkoutDay, RunRecord, HIITRecord } from '@/lib/data';
+import type { Exercise, TrainingRecord, WorkoutDay, RunRecord, HIITRecord, OtherRecord } from '@/lib/data';
 import { nanoid } from 'nanoid';
 import { toast } from 'sonner';
 import { tint, normalizeDecimal, formatWeight } from '@/lib/tint';
@@ -104,7 +104,7 @@ export default function Diary({ workoutData }: Props) {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingRecord, setEditingRecord] = useState<TrainingRecord | null>(null);
-  const [activeTab, setActiveTab] = useState<'exercises' | 'runs' | 'hiit'>('exercises');
+  const [activeTab, setActiveTab] = useState<'exercises' | 'runs' | 'hiit' | 'other'>('exercises');
 
   const trainingDays = getTrainingDays();
   const legacyExercises = getLegacyExercises(workoutData.records);
@@ -158,7 +158,8 @@ export default function Diary({ workoutData }: Props) {
 
   const heroTitle = activeTab === 'exercises'
     ? <>Záznamy<br />cviků</>
-    : activeTab === 'runs' ? <>Běžecký<br />log</> : <>HIIT<br />log</>;
+    : activeTab === 'runs' ? <>Běžecký<br />log</>
+    : activeTab === 'hiit' ? <>HIIT<br />log</> : <>Ostatní<br />aktivity</>;
 
   return (
     <div>
@@ -172,7 +173,9 @@ export default function Diary({ workoutData }: Props) {
             ? <><b>Vyber den a cvik</b><span>·</span><span>Historie, PR, přidání záznamu</span></>
             : activeTab === 'runs'
               ? <><b>Běhy</b><span>·</span><span>Čas, vzdálenost, tepová zóna</span></>
-              : <><b>HIIT</b><span>·</span><span>Tabata · Circuit · AMRAP · EMOM</span></>
+              : activeTab === 'hiit'
+                ? <><b>HIIT</b><span>·</span><span>Tabata · Circuit · AMRAP · EMOM</span></>
+                : <><b>Kolo a turistika</b><span>·</span><span>Mimo běžecké statistiky</span></>
         }
       />
 
@@ -186,6 +189,7 @@ export default function Diary({ workoutData }: Props) {
           { key: 'exercises', label: 'Cviky' },
           { key: 'runs', label: 'Běhy' },
           { key: 'hiit', label: 'HIIT' },
+          { key: 'other', label: 'Ostatní' },
         ] as const).map(tab => (
           <button
             key={tab.key}
@@ -205,6 +209,7 @@ export default function Diary({ workoutData }: Props) {
 
       {activeTab === 'runs' && <RunLog />}
       {activeTab === 'hiit' && <HIITLog />}
+      {activeTab === 'other' && <OtherLog />}
 
       {/* Training days grouped */}
       {activeTab === 'exercises' && <div className="gd-wmhost" style={{ padding: '0 20px 36px' }}>
@@ -1455,6 +1460,104 @@ function HIITLog() {
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+// ============================================================
+// Ostatní aktivity — kolo a turistika z COROSu
+// ============================================================
+// Vlastní log, protože kolo ani výšlap nepatří do běžeckých statistik:
+// 51 km na kole by rozhodilo týdenní kilometry i průměrné tempo v Progresu.
+// Zapisovat se sem ručně nedá — jsou to přepisy z hodinek, smazat jdou.
+
+const OTHER_META: Record<OtherRecord['sport'], { label: string; color: string }> = {
+  bike: { label: 'KOLO', color: 'var(--gd-accent)' },
+  hike: { label: 'TURISTIKA', color: 'var(--gd-fern)' },
+};
+
+function OtherLog() {
+  const [records, setRecords] = useState<OtherRecord[]>(loadOtherRecords);
+  const [openId, setOpenId] = useState<string | null>(null);
+
+  const smaz = (id: string) => {
+    const zaloha = records;
+    removeOther(id);
+    setRecords(records.filter(r => r.id !== id));
+    setOpenId(null);
+    undoToast('Aktivita smazána', () => { saveOtherRecords(zaloha); setRecords(zaloha); });
+  };
+
+  const serazene = [...records].sort((a, b) => b.date.localeCompare(a.date));
+  const celkemKm = serazene.reduce((s, r) => s + parseFloat(r.distance || '0'), 0);
+
+  return (
+    <div className="gd-wmhost" style={{ padding: '14px 20px 36px' }}>
+      <Watermark name="helm" position="104% 10%" size="auto 42%" opacity={0.06} />
+
+      <SectionHead n="01" label="Kolo a turistika" right={`${serazene.length} aktivit · ${celkemKm.toFixed(0)} km`} />
+
+      <div style={{ fontSize: 11, color: 'var(--gd-text-4)', margin: '10px 0 16px', lineHeight: 1.5 }}>
+        Přepsáno z hodinek COROS. Do běžeckých statistik ani do Progresu v běhu se nepočítá —
+        jsou to doplňkové aktivity, ne součást plánu.
+      </div>
+
+      {serazene.length === 0 ? (
+        <div style={{ fontSize: 12, color: 'var(--gd-text-4)', padding: '20px 0' }}>Zatím žádné záznamy.</div>
+      ) : serazene.map(r => {
+        const meta = OTHER_META[r.sport];
+        const otevreno = openId === r.id;
+        return (
+          <div
+            key={r.id}
+            onClick={() => setOpenId(otevreno ? null : r.id)}
+            style={{ border: '1px solid var(--gd-line)', padding: '12px 14px', marginBottom: 10, cursor: 'pointer' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 12, color: 'var(--gd-text-3)' }}>{formatDateFull(r.date)}</span>
+              <span className="gd-tag" style={{ background: tint(meta.color, 13), color: meta.color, padding: '2px 6px' }}>
+                {meta.label}
+              </span>
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--gd-text-2)', marginTop: 5 }}>{r.name}</div>
+            <div style={{ display: 'flex', gap: 14, marginTop: 6, flexWrap: 'wrap' }}>
+              <div>
+                <span style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 18, fontWeight: 800, color: 'var(--gd-text)' }}>
+                  {r.distance.replace('.', ',')}
+                </span>
+                <span style={{ fontSize: 11, color: 'var(--gd-text-4)', marginLeft: 3 }}>km</span>
+              </div>
+              <div>
+                <span style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 16, fontWeight: 700, color: 'var(--gd-fern)' }}>{r.duration}</span>
+              </div>
+              {r.avgSpeed && (
+                <div><span style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 16, fontWeight: 700, color: 'var(--gd-text-3)' }}>{r.avgSpeed}</span></div>
+              )}
+              {r.avgHr && (
+                <div>
+                  <span style={{ fontFamily: 'Archivo, sans-serif', fontStretch: '118%', fontSize: 16, fontWeight: 700, color: 'var(--gd-danger)' }}>{r.avgHr}</span>
+                  <span style={{ fontSize: 11, color: 'var(--gd-text-4)', marginLeft: 3 }}>bpm</span>
+                </div>
+              )}
+            </div>
+            {r.note && <div style={{ fontSize: 11, color: 'var(--gd-text-4)', marginTop: 4 }}>{r.note}</div>}
+
+            {otevreno && (
+              <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--gd-line)' }}>
+                <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', fontSize: 11, color: 'var(--gd-text-3)' }}>
+                  {r.ascent && <span>Převýšení <b style={{ color: 'var(--gd-text-2)' }}>{r.ascent} m</b></span>}
+                  {r.calories && <span>Kalorie <b style={{ color: 'var(--gd-text-2)' }}>{r.calories} kcal</b></span>}
+                  {r.trainingLoad && <span>Zátěž <b style={{ color: 'var(--gd-text-2)' }}>{r.trainingLoad} TL</b></span>}
+                </div>
+                <button
+                  onClick={e => { e.stopPropagation(); smaz(r.id); }}
+                  style={{ marginTop: 10, width: '100%', background: 'color-mix(in srgb, var(--gd-danger) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--gd-danger) 20%, transparent)', borderRadius: 0, color: 'var(--gd-danger)', fontSize: 12, fontWeight: 600, padding: '7px', cursor: 'pointer' }}
+                >Smazat</button>
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

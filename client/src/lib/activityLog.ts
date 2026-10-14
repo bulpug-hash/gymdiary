@@ -3,11 +3,12 @@
 // Dřív měl Deník vlastní načítání logu a Přehled zapisoval odškrtnutý běh jen
 // jako „sérii" do tréninkových záznamů. Běh z Přehledu se tak nikdy nedostal
 // do Deníku → Běhy ani do XLSX exportu. Teď oba čtou a píšou přes tenhle modul.
-import { RUN_LOG_KEY, HIIT_LOG_KEY, type RunRecord, type HIITRecord } from '@/lib/data';
-import { RECOVERED_RUN_RECORDS, RECOVERED_HIIT_RECORDS } from '@/lib/recoveryData';
+import { RUN_LOG_KEY, HIIT_LOG_KEY, OTHER_LOG_KEY, type RunRecord, type HIITRecord, type OtherRecord } from '@/lib/data';
+import { RECOVERED_RUN_RECORDS, RECOVERED_HIIT_RECORDS, RECOVERED_OTHER_RECORDS } from '@/lib/recoveryData';
 
 export const RUN_TOMB_KEY = 'gymdiary_run_deleted_v1';
 export const HIIT_TOMB_KEY = 'gymdiary_hiit_deleted_v1';
+export const OTHER_TOMB_KEY = 'gymdiary_other_deleted_v1';
 
 function nactiNahrobky(klic: string): Set<string> {
   try {
@@ -55,12 +56,20 @@ function nacti<T extends { id: string; date: string }>(klic: string, seed: T[], 
 
 export const loadRunRecords = (): RunRecord[] => nacti(RUN_LOG_KEY, RECOVERED_RUN_RECORDS, RUN_TOMB_KEY);
 export const loadHIITRecords = (): HIITRecord[] => nacti(HIIT_LOG_KEY, RECOVERED_HIIT_RECORDS, HIIT_TOMB_KEY);
+export const loadOtherRecords = (): OtherRecord[] => nacti(OTHER_LOG_KEY, RECOVERED_OTHER_RECORDS, OTHER_TOMB_KEY);
 
 export function saveRunRecords(r: RunRecord[]) {
   try { localStorage.setItem(RUN_LOG_KEY, JSON.stringify(r)); } catch { /* kvóta */ }
 }
 export function saveHIITRecords(r: HIITRecord[]) {
   try { localStorage.setItem(HIIT_LOG_KEY, JSON.stringify(r)); } catch { /* kvóta */ }
+}
+export function saveOtherRecords(r: OtherRecord[]) {
+  try { localStorage.setItem(OTHER_LOG_KEY, JSON.stringify(r)); } catch { /* kvóta */ }
+}
+export function removeOther(id: string) {
+  pridejNahrobek(OTHER_TOMB_KEY, id);
+  saveOtherRecords(loadOtherRecords().filter(r => r.id !== id));
 }
 
 /** Vloží nebo nahradí záznam podle id. */

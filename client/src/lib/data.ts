@@ -82,6 +82,17 @@ export interface RunRecord {
   avgPace?: string;   // e.g. "5:30/km"
   avgHr?: string;     // bpm
   note: string;
+  /* --- Metriky z hodinek COROS. Volitelné: starší záznamy z Oury/Stravy je nemají. --- */
+  /** Kadence v krocích za minutu, e.g. "158". */
+  cadence?: string;
+  /** Převýšení v metrech, e.g. "63". */
+  ascent?: string;
+  /** Tréninková zátěž (TL) podle COROSu, e.g. "145". */
+  trainingLoad?: string;
+  /** Spálené kalorie, e.g. "563". */
+  calories?: string;
+  /** „Tempo úsilí" — tempo přepočtené na rovinu, e.g. "6:05/km". */
+  adjustedPace?: string;
 }
 
 export const RUN_LOG_KEY = '__run_log__';
@@ -102,10 +113,35 @@ export interface HIITRecord {
   stravaUrl?: string;    // odkaz na Strava aktivitu
   exercises?: string;    // seznam cviků, e.g. "Burpees, Box jumps, KB swings"
   note: string;
+  /** Tréninková zátěž (TL) podle COROSu, e.g. "114". */
+  trainingLoad?: string;
 }
 
 export const HIIT_LOG_KEY = '__hiit_log__';
 export type HIITRecordsStore = HIITRecord[];
+
+/**
+ * Ostatní vytrvalostní aktivity — kolo, turistika.
+ * Vlastní log, aby nerozhazovaly běžecké tempo ani týdenní kilometry v Progresu.
+ */
+export interface OtherRecord {
+  id: string;
+  date: string;
+  sport: 'bike' | 'hike';
+  /** Název z hodinek, e.g. "Praha Silniční kolo". */
+  name: string;
+  duration: string;   // čistý čas, e.g. "1:42:34"
+  distance: string;   // km
+  avgHr?: string;
+  avgSpeed?: string;  // e.g. "24,5 km/h"
+  ascent?: string;
+  calories?: string;
+  trainingLoad?: string;
+  note: string;
+}
+
+export const OTHER_LOG_KEY = '__other_log__';
+export type OtherRecordsStore = OtherRecord[];
 
 // ============================================================
 // WARM-UP SERIES TYPE

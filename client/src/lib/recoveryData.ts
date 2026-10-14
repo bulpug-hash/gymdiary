@@ -5,6 +5,7 @@
 import {
   LEGACY_PLAN_WEEKS,
   type HIITRecord,
+  type OtherRecord,
   type RecordsMap,
   type RunRecord,
 } from '@/lib/data';
@@ -84,6 +85,32 @@ function coros(id: string, date: string, duration: string, distance: string, avg
   return { id, date, duration, distance, zone: 'Dle COROS', avgPace, avgHr, note: `Přepsáno z COROS · ${note}` };
 }
 
+/**
+ * Běh z COROSu i s metrikami, které hodinky měří navíc.
+ * `pace` se počítá z čistého času a vzdálenosti — `adjustedPace` je COROSovo
+ * „tempo úsilí" přepočtené na rovinu, proto se u kopcovitého běhu liší.
+ */
+function corosRun(
+  id: string, date: string, duration: string, distance: string, avgPace: string,
+  avgHr: string, cadence: string, ascent: string, trainingLoad: string,
+  calories: string, adjustedPace: string, note: string,
+): RunRecord {
+  return {
+    id, date, duration, distance, zone: 'Dle COROS', avgPace, avgHr,
+    cadence, ascent, trainingLoad, calories, adjustedPace,
+    note: `Přepsáno z COROS · ${note}`,
+  };
+}
+
+/** Kolo nebo turistika z COROSu. */
+function corosOther(
+  id: string, date: string, sport: 'bike' | 'hike', name: string, duration: string,
+  distance: string, avgHr: string, avgSpeed: string, ascent: string,
+  calories: string, trainingLoad: string, note: string,
+): OtherRecord {
+  return { id, date, sport, name, duration, distance, avgHr, avgSpeed, ascent, calories, trainingLoad, note };
+}
+
 /** HIIT přepsaný z COROSu. */
 function corosHiit(id: string, date: string, duration: string, avgHr: string, calories: string, note: string): HIITRecord {
   return { id, date, type: 'other', duration, zone: 'Dle COROS', avgHr, calories, exercises: 'HIIT lekce', note: `Přepsáno z COROS · ${note}` };
@@ -138,6 +165,18 @@ export const RECOVERED_RUN_RECORDS: RunRecord[] = [
   // Doplněno 23. 9. 2026 z COROS Training Hubu.
   coros('run-2026-09-16', '2026-09-16', '46:28', '7.80', '5:58/km', '166', 'Praha Běh — středeční ranní běh před HIIT'),
   coros('run-2026-09-23', '2026-09-23', '38:35', '6.29', '6:08/km', '161', 'Praha Běh — středeční ranní běh, T4 osmička s finišem v1, zátěž 145'),
+  // Doplněno 14. 10. 2026 z COROSu — od tohohle záznamu i s kadencí, převýšením a zátěží.
+  corosRun('run-2026-10-02', '2026-10-02', '47:12', '8.16', '5:47/km', '163', '156', '45', '201', '798', '5:44/km', 'Praha Běh — nejrychlejší a nejdelší běh bloku'),
+  corosRun('run-2026-10-07', '2026-10-07', '44:43', '7.16', '6:14/km', '162', '157', '111', '186', '748', '5:58/km', 'T6 ST · Osmička s finišem v2 — nejkopcovitější běh (111 m převýšení)'),
+  corosRun('run-2026-10-13', '2026-10-13', '42:58', '6.78', '6:20/km', '158', '150', '32', '205', '697', '6:19/km', 'T5 ST · 400 m úseky — intervalový trénink, nejvyšší zátěž 205 TL'),
+];
+
+/** Kolo a turistika z COROSu. Nezapočítávají se do běžeckých statistik. */
+export const RECOVERED_OTHER_RECORDS: OtherRecord[] = [
+  corosOther('other-2026-09-20', '2026-09-20', 'hike', 'Mníšek pod Brdy Turistika', '2:10:51', '8.60', '96', '3,9 km/h', '211', '742', '16', 'Nedělní výšlap'),
+  corosOther('other-2026-09-28', '2026-09-28', 'bike', 'Praha Silniční kolo', '1:31:29', '20.74', '113', '13,6 km/h', '44', '750', '49', 'Nedělní vyjížďka'),
+  corosOther('other-2026-10-03', '2026-10-03', 'bike', 'Libiš Silniční kolo', '2:37:00', '50.99', '118', '19,5 km/h', '148', '1383', '105', 'Nejdelší vyjížďka — 51 km v Z1/Z2'),
+  corosOther('other-2026-10-04', '2026-10-04', 'bike', 'Praha Silniční kolo', '1:42:34', '41.86', '153', '24,5 km/h', '105', '1380', '259', 'Nejtvrdší vyjížďka — 24,5 km/h, zátěž 259 TL'),
 ];
 
 function hiit(id: string, date: string, duration: string, avgHr: string, calories: string): HIITRecord {
@@ -197,4 +236,12 @@ export const RECOVERED_HIIT_RECORDS: HIITRecord[] = [
   // Je to JEDNA lekce — rozděluje si ji kvůli oddělené tepovce na rozcvičce
   // a finiši. Sloučeno: 41:09 celkem, vážený průměr tepu 157.
   corosHiit('hiit-2026-09-19', '2026-09-19', '41:09', '157', '475', 'Hybridní fitness trénink · 3 části sloučené (2:59 + 36:14 + 1:56), zátěž 105'),
+  // Doplněno 14. 10. 2026 z COROSu.
+  corosHiit('hiit-2026-09-23', '2026-09-23', '55:01', '150', '402', 'Hybridní fitness trénink · zátěž 72'),
+  corosHiit('hiit-2026-09-26', '2026-09-26', '51:09', '135', '349', 'HIIT lekce · nejklidnější lekce bloku, zátěž 46'),
+  // ⚠️ Neděle 28. 9. byla v COROSu ve dvou záznamech (39:23 + 3:56) — jedna lekce.
+  corosHiit('hiit-2026-09-28', '2026-09-28', '43:19', '149', '541', 'Hybridní fitness trénink · 2 části sloučené, zátěž 97'),
+  corosHiit('hiit-2026-09-30', '2026-09-30', '53:53', '162', '614', 'Hybridní fitness trénink · nejtvrdší lekce, zátěž 145'),
+  corosHiit('hiit-2026-10-07', '2026-10-07', '50:26', '158', '543', 'HIIT lekce · zátěž 114'),
+  corosHiit('hiit-2026-10-10', '2026-10-10', '45:38', '159', '476', 'Hybridní fitness trénink · zátěž 103'),
 ];
