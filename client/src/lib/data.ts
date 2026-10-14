@@ -1449,19 +1449,25 @@ const ROZKLUS = 'Rozklus 10–12 min Z2 + 4 × 80 m rovinka';
 const VYKLUS = 'Vyklus 10 min';
 const TEMPO_Z2 = 'Z2 · 6:15–6:45/km · tep 135–150';
 
+// ⚠️ Zkráceno 14. 10. 2026. Verze 1 a 2 měly 9 km / 55–60 min, jenže reálně
+// běhá 6,3–8,2 km za 38–47 min — z osmičky 7. 10. odcvičil 39 % předpisu.
+// Verze 3 a 4 proto míří na 7,3 km / 45–50 min: stejná stavba (Z2 → tempo →
+// finiš), ale délka, kterou doopravdy doběhne. Objem tím neklesá, jen přestává
+// být na papíře něco, co se nedá splnit.
 const osmicka = (verze: 1 | 2 | 3 | 4, description: string): RunSession => {
+  const kratka = verze >= 3;
   const finis = {
     1: ['6,5 km Z2 souvisle', '1 km stupňovaně až na @T10K (5:10–5:20/km)', '500 m @T5K (4:50–5:00/km) — svižně, ne naplno'],
     2: ['6 km Z2 souvisle', '1,6 km @T10K (5:10–5:20/km)', '400 m @T1500m (4:05–4:15/km)'],
-    3: ['6 km Z2 souvisle', '1,6 km @T10K (5:10–5:20/km)', '300 m na 95 % + 100 m volně'],
-    4: ['6 km Z2 souvisle', '1,6 km @T10K (5:10–5:20/km)', '400 m na 95 % — nejrychleji, co udržíš s čistou technikou'],
+    3: ['Rozklus 8 min Z1–Z2', '4 km Z2 souvisle', '1,2 km @T10K (5:10–5:20/km)', '300 m na 95 % + 100 m volně'],
+    4: ['Rozklus 8 min Z1–Z2', '4 km Z2 souvisle', '1,2 km @T10K (5:10–5:20/km)', '400 m na 95 % — nejrychleji, co udržíš s čistou technikou'],
   }[verze];
   return {
     type: `Osmička s finišem v${verze}`,
-    km: 9,
-    duration: '55–60 min',
+    km: kratka ? 7.3 : 9,
+    duration: kratka ? '45–50 min' : '55–60 min',
     zone: verze < 3 ? 'Z2 → @T10K → svižný finiš' : 'Z2 → @T10K → ostrý finiš',
-    kroky: [...finis, 'Vyklus 800 m'],
+    kroky: [...finis, kratka ? 'Vyklus 600 m' : 'Vyklus 800 m'],
     description,
     skupina: 'Souvislá náhrada tempových úseků ze sobot (týden 36: 6–7 × 1 km @půlmaraton, pauza 2 min).',
   };

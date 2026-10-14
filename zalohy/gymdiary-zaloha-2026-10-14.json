@@ -1,7 +1,7 @@
 {
   "format": "gymdiary-zaloha",
   "verze": 1,
-  "vytvoreno": "2026-10-14T09:38:27.915Z",
+  "vytvoreno": "2026-10-14T14:28:42.226Z",
   "zdroj": "repo (data.ts + recoveryData.ts)",
   "souhrn": {
     "cviku": 55,
@@ -312,14 +312,15 @@
       "week": 8,
       "streda": {
         "type": "Osmička s finišem v3",
-        "km": 9,
-        "duration": "55–60 min",
+        "km": 7.3,
+        "duration": "45–50 min",
         "zone": "Z2 → @T10K → ostrý finiš",
         "kroky": [
-          "6 km Z2 souvisle",
-          "1,6 km @T10K (5:10–5:20/km)",
+          "Rozklus 8 min Z1–Z2",
+          "4 km Z2 souvisle",
+          "1,2 km @T10K (5:10–5:20/km)",
           "300 m na 95 % + 100 m volně",
-          "Vyklus 800 m"
+          "Vyklus 600 m"
         ],
         "description": "Druhý deload = druhá bezpečná středa (zítra tah 177,5). První opravdu ostrý finiš — po sedmi týdnech rovinek.",
         "skupina": "Souvislá náhrada tempových úseků ze sobot (týden 36: 6–7 × 1 km @půlmaraton, pauza 2 min)."
@@ -364,14 +365,15 @@
       "week": 10,
       "streda": {
         "type": "Osmička s finišem v4",
-        "km": 9,
-        "duration": "55–60 min",
+        "km": 7.3,
+        "duration": "45–50 min",
         "zone": "Z2 → @T10K → ostrý finiš",
         "kroky": [
-          "6 km Z2 souvisle",
-          "1,6 km @T10K (5:10–5:20/km)",
+          "Rozklus 8 min Z1–Z2",
+          "4 km Z2 souvisle",
+          "1,2 km @T10K (5:10–5:20/km)",
           "400 m na 95 % — nejrychleji, co udržíš s čistou technikou",
-          "Vyklus 800 m"
+          "Vyklus 600 m"
         ],
         "description": "Poslední finiš bloku. Zítra je objemový tah (217,5), takže na 95 %, ne naplno. Od příštího týdne patří nohy čince.",
         "skupina": "Souvislá náhrada tempových úseků ze sobot (týden 36: 6–7 × 1 km @půlmaraton, pauza 2 min)."
@@ -426,7 +428,7 @@
   "zaznamy": {
     "bench": [
       {
-        "id": "rJMl5vAnppOErqGRuqXv1",
+        "id": "nu2uTBhttGahgi_7ckJHS",
         "date": "2026-02-01",
         "sets": "4",
         "weight": "95",
@@ -434,7 +436,7 @@
         "note": "Fáze 1 start"
       },
       {
-        "id": "VKKMzPtViJliFA8b0lK6o",
+        "id": "ny1ZV0bB4GLBGFfAij2-i",
         "date": "2026-02-08",
         "sets": "4",
         "weight": "97.5",
@@ -442,7 +444,7 @@
         "note": ""
       },
       {
-        "id": "Ktor-iRzvy3U7aR7NuDh0",
+        "id": "3tgXnhpwcPgWGSVIUY207",
         "date": "2026-02-15",
         "sets": "4",
         "weight": "100",
@@ -450,7 +452,7 @@
         "note": ""
       },
       {
-        "id": "XRs_SQOvNlbqWzIbkrbfE",
+        "id": "xWVI-JKo5U80nu5F5-gaZ",
         "date": "2026-02-22",
         "sets": "4",
         "weight": "100",
@@ -458,7 +460,7 @@
         "note": ""
       },
       {
-        "id": "vUMYp71MLa4BB_6Tp-jAZ",
+        "id": "90_Z1NizApwzooA_V0hQy",
         "date": "2026-03-01",
         "sets": "4",
         "weight": "102.5",
@@ -466,7 +468,7 @@
         "note": ""
       },
       {
-        "id": "uGlnjLJnNGyVXdHOKS3kP",
+        "id": "MTJAeXi4zv_1aJvW5Sg2m",
         "date": "2026-03-08",
         "sets": "4",
         "weight": "105",
@@ -474,7 +476,7 @@
         "note": ""
       },
       {
-        "id": "wepPLrhYF0HKhD9c_noQi",
+        "id": "NG0VMBgUfbGFM6AHNSGSs",
         "date": "2026-03-15",
         "sets": "4",
         "weight": "105",
@@ -482,7 +484,7 @@
         "note": ""
       },
       {
-        "id": "MzHvwBbr3Gv96KTbq-9L9",
+        "id": "xYipkMz7q3tQk94aALgC-",
         "date": "2026-03-23",
         "sets": "4",
         "weight": "105",
@@ -532,7 +534,7 @@
     ],
     "squat": [
       {
-        "id": "yg3JMTCQDKnwiknhIFjew",
+        "id": "4uL0L7RbA8rbHgqIrqSiF",
         "date": "2026-02-01",
         "sets": "4",
         "weight": "140",
@@ -540,7 +542,7 @@
         "note": "Fáze 1 start"
       },
       {
-        "id": "fNxITTvp-bLZo1bi8rM9J",
+        "id": "0KJSQKR2TGFWbyjmgtwK6",
         "date": "2026-02-08",
         "sets": "4",
         "weight": "145",
@@ -548,7 +550,7 @@
         "note": ""
       },
       {
-        "id": "py1Ounl4O60sQ21H99fka",
+        "id": "98Li530ILIhfkgWBJDlTh",
         "date": "2026-02-15",
         "sets": "4",
         "weight": "150",
@@ -556,7 +558,7 @@
         "note": ""
       },
       {
-        "id": "IfAz8rt5LD3NAGNuPrU3Z",
+        "id": "r6cmlfEByPx-N5p91fLTX",
         "date": "2026-02-22",
         "sets": "4",
         "weight": "150",
@@ -564,7 +566,7 @@
         "note": ""
       },
       {
-        "id": "nTkfjgbB86MRjnsEL0Xmv",
+        "id": "9G3aOrRIzigL3zoA1enpC",
         "date": "2026-03-01",
         "sets": "4",
         "weight": "155",
@@ -572,7 +574,7 @@
         "note": ""
       },
       {
-        "id": "NMbVMqen1oNTXvqD284Jz",
+        "id": "sB1YhScYzA3f5tjcrhP07",
         "date": "2026-03-08",
         "sets": "4",
         "weight": "160",
@@ -580,7 +582,7 @@
         "note": "Nové max!"
       },
       {
-        "id": "s-GMCY6LCjKLxryMe9Hnu",
+        "id": "3rM5p4XKUbzIHuTfVI5pK",
         "date": "2026-03-15",
         "sets": "4",
         "weight": "157.5",
@@ -588,7 +590,7 @@
         "note": ""
       },
       {
-        "id": "hsB4Ym2-eKh2aHKMsviV0",
+        "id": "yNEhyFUJMvkZbmxgQ4Jav",
         "date": "2026-03-23",
         "sets": "4",
         "weight": "160",
@@ -638,7 +640,7 @@
     ],
     "deadlift": [
       {
-        "id": "PzWAjy4y85sp_asXpeIDW",
+        "id": "S0SLGlDt-XqVk2ugufV_n",
         "date": "2026-02-01",
         "sets": "3",
         "weight": "185",
@@ -646,7 +648,7 @@
         "note": "Fáze 1 start"
       },
       {
-        "id": "UUz-gqMGUAruE3lp3hz6H",
+        "id": "6-kZBwG9HFncpy2NNwsZ_",
         "date": "2026-02-08",
         "sets": "3",
         "weight": "190",
@@ -654,7 +656,7 @@
         "note": ""
       },
       {
-        "id": "vjpp1i6wE8RboOAEENtJr",
+        "id": "Pduot3qrXQShOA0wWUGFX",
         "date": "2026-02-15",
         "sets": "3",
         "weight": "195",
@@ -662,7 +664,7 @@
         "note": ""
       },
       {
-        "id": "mGciYWI8ON_-O1bbGSUrh",
+        "id": "lklwUvjdB0WIjQcVDSb4d",
         "date": "2026-02-22",
         "sets": "3",
         "weight": "200",
@@ -670,7 +672,7 @@
         "note": ""
       },
       {
-        "id": "sTrK-1OkE_1Gd_uxoYvYw",
+        "id": "dVt8KwBWDcNRaFLzX4Jp2",
         "date": "2026-03-01",
         "sets": "3",
         "weight": "205",
@@ -678,7 +680,7 @@
         "note": ""
       },
       {
-        "id": "1pIfLwJvydxXTrBzxRzEr",
+        "id": "shhlckZSQm0odUfOoGrMK",
         "date": "2026-03-08",
         "sets": "3",
         "weight": "220",
@@ -686,7 +688,7 @@
         "note": "Nové max!"
       },
       {
-        "id": "FMg4IBTb1yOgT677qjUlG",
+        "id": "AYiuFbazYfSRAdDVG37_x",
         "date": "2026-03-15",
         "sets": "3",
         "weight": "215",
@@ -694,7 +696,7 @@
         "note": ""
       },
       {
-        "id": "DSCRmFKxJYB8XqNpHLNdv",
+        "id": "WYtwnupDk5-9KxWVy2vYd",
         "date": "2026-03-23",
         "sets": "3",
         "weight": "230",
@@ -744,7 +746,7 @@
     ],
     "rdl": [
       {
-        "id": "wPL08oOxzts82Y7Q5I13g",
+        "id": "LS10GJjTd6uDeaRU262eb",
         "date": "2026-02-01",
         "sets": "3",
         "weight": "60",
@@ -752,7 +754,7 @@
         "note": ""
       },
       {
-        "id": "AHXcnJFFEz_H5Ku_kgjVm",
+        "id": "E6rOTZAYEjW30b0p1M6vK",
         "date": "2026-02-15",
         "sets": "3",
         "weight": "65",
@@ -760,7 +762,7 @@
         "note": ""
       },
       {
-        "id": "c5SJ18yIndiawqmrv0065",
+        "id": "fIvob-f_BJCZpTy_MO_h7",
         "date": "2026-03-01",
         "sets": "3",
         "weight": "70",
@@ -768,7 +770,7 @@
         "note": ""
       },
       {
-        "id": "hWjesaQfEuoMhauiJsRaj",
+        "id": "_Ry8zpqxhO2AKSLOMHLjb",
         "date": "2026-03-08",
         "sets": "3",
         "weight": "70",
@@ -776,7 +778,7 @@
         "note": ""
       },
       {
-        "id": "j_nz89F7noPKQsvNdlmzb",
+        "id": "Wg47mYs5OHSyAag_PRGQx",
         "date": "2026-03-23",
         "sets": "3",
         "weight": "70",
@@ -810,7 +812,7 @@
     ],
     "leg-press": [
       {
-        "id": "E4J85DUhB_TwMvenIpbcn",
+        "id": "6ChcfDtcAWUQ60xJgYmm1",
         "date": "2026-02-01",
         "sets": "3",
         "weight": "180",
@@ -818,7 +820,7 @@
         "note": ""
       },
       {
-        "id": "XJx18rFpFDrhLrE0E0nV7",
+        "id": "F9_Q27q4AyvSkBV8hnbBx",
         "date": "2026-02-15",
         "sets": "3",
         "weight": "200",
@@ -826,7 +828,7 @@
         "note": ""
       },
       {
-        "id": "TMfeVdrZjaM5crc72J1Xp",
+        "id": "WkED7J-819dIWbZWRIcxm",
         "date": "2026-03-01",
         "sets": "3",
         "weight": "210",
@@ -834,7 +836,7 @@
         "note": ""
       },
       {
-        "id": "CWCm0ZvtW-tJGnB0sgYxm",
+        "id": "C6SXB6wJI7QLfGduXOMix",
         "date": "2026-03-08",
         "sets": "3",
         "weight": "220",
@@ -842,7 +844,7 @@
         "note": ""
       },
       {
-        "id": "pEHn54YnPv_G8Ga9Mk7hC",
+        "id": "XoDRtOpGh37zxz5rENUu7",
         "date": "2026-03-23",
         "sets": "3",
         "weight": "220",
@@ -900,7 +902,7 @@
     ],
     "pullup": [
       {
-        "id": "YpmVnYyQhst4WsIvVh0Ko",
+        "id": "l1f0vQpLHXRtxkSCP-iDh",
         "date": "2026-02-01",
         "sets": "3",
         "weight": "0",
@@ -908,7 +910,7 @@
         "note": "BW"
       },
       {
-        "id": "_HUU4ybq3rSt_1RNQ1Ggm",
+        "id": "YGP1xFEBOAMJqeqm-RPeQ",
         "date": "2026-02-15",
         "sets": "3",
         "weight": "5",
@@ -916,7 +918,7 @@
         "note": "+5 kg"
       },
       {
-        "id": "I6KyCFCRHM5MdUo3PDytY",
+        "id": "A70jb2U_m6wIlJu1jli2d",
         "date": "2026-03-01",
         "sets": "3",
         "weight": "5",
@@ -924,7 +926,7 @@
         "note": ""
       },
       {
-        "id": "s9QzZR9EhL-U0U1mS_Kl4",
+        "id": "NPEhvZD3Ff_5B5_8TrDqs",
         "date": "2026-03-15",
         "sets": "3",
         "weight": "10",
@@ -932,7 +934,7 @@
         "note": "+10 kg"
       },
       {
-        "id": "mJkU7pbD9WoxhYMaXfDyJ",
+        "id": "hK2DVK2JrrCEK9fyBNA6i",
         "date": "2026-03-23",
         "sets": "3",
         "weight": "10",
@@ -974,7 +976,7 @@
     ],
     "front-squat": [
       {
-        "id": "ZrrNlNxe0IAZX9TnC8xRS",
+        "id": "1I6UeuYWu76yZKJksy6kN",
         "date": "2026-02-01",
         "sets": "3",
         "weight": "90",
@@ -982,7 +984,7 @@
         "note": ""
       },
       {
-        "id": "4zBACeNIAD3hdS5Qp-e52",
+        "id": "F_SouMnwHa--K4TmJVln6",
         "date": "2026-02-15",
         "sets": "3",
         "weight": "95",
@@ -990,7 +992,7 @@
         "note": ""
       },
       {
-        "id": "LTd9AY-w3cR6WS-UIxIhw",
+        "id": "K6Xmy2nEG_0B84DU4mJ9Q",
         "date": "2026-02-22",
         "sets": "3",
         "weight": "100",
@@ -998,7 +1000,7 @@
         "note": ""
       },
       {
-        "id": "B1FEo0arH6wM3C9xwJ54j",
+        "id": "31moQiDmIOAeplOitSXMy",
         "date": "2026-03-01",
         "sets": "3",
         "weight": "105",
@@ -1006,7 +1008,7 @@
         "note": ""
       },
       {
-        "id": "pm-BfsH-1Mqbl418gjqS8",
+        "id": "ldqrqZxlpqHl58xitIRZq",
         "date": "2026-03-08",
         "sets": "3",
         "weight": "105",
@@ -1014,7 +1016,7 @@
         "note": ""
       },
       {
-        "id": "ea9do8QNc409gi4q2Se8r",
+        "id": "lwRxeKm3sGe07EKmvPCiA",
         "date": "2026-03-23",
         "sets": "3",
         "weight": "105",
@@ -1024,7 +1026,7 @@
     ],
     "pause-squat": [
       {
-        "id": "deX6tXTos8kBlG1dbZTB-",
+        "id": "6edgqAVknz2vU8JgF_aFb",
         "date": "2026-02-15",
         "sets": "3",
         "weight": "100",
@@ -1032,7 +1034,7 @@
         "note": "2s pauza"
       },
       {
-        "id": "dWB2PRmzcYvTOFuDe0k65",
+        "id": "48483C57AQ5MoQ8lB0qb6",
         "date": "2026-03-01",
         "sets": "3",
         "weight": "105",
@@ -1040,7 +1042,7 @@
         "note": ""
       },
       {
-        "id": "5eBnfZMn1R5tC-iBuKpVg",
+        "id": "Ydmso6qEqit1pWNxno2vH",
         "date": "2026-03-15",
         "sets": "3",
         "weight": "107.5",
@@ -1048,7 +1050,7 @@
         "note": ""
       },
       {
-        "id": "vu_1biIjy-sG83kRLNkOJ",
+        "id": "AYB9GEsQ7qOMSaNakfbNy",
         "date": "2026-03-23",
         "sets": "3",
         "weight": "110",
@@ -1178,7 +1180,7 @@
     ],
     "spoto": [
       {
-        "id": "JHcALOs6svnFMx7COjDrp",
+        "id": "ubWDGuVGwIbEO-eti1GZQ",
         "date": "2026-02-15",
         "sets": "3",
         "weight": "75",
@@ -1186,7 +1188,7 @@
         "note": "2-3 cm nad hrudníkem"
       },
       {
-        "id": "X8ziwXsrfJw7RA7Txxetg",
+        "id": "-I2cQnzMvNLuOOWSvH500",
         "date": "2026-03-01",
         "sets": "3",
         "weight": "80",
@@ -1194,7 +1196,7 @@
         "note": ""
       },
       {
-        "id": "YeiXNZlfCrd6BI1tyW-o5",
+        "id": "sPOJgAOUC7pdwqx5LQfwJ",
         "date": "2026-03-15",
         "sets": "3",
         "weight": "82.5",
@@ -1202,7 +1204,7 @@
         "note": ""
       },
       {
-        "id": "1i_KBEObcXK3ON8mPBhYL",
+        "id": "Zibk1EOQ1CELJv87k_EBH",
         "date": "2026-03-23",
         "sets": "3",
         "weight": "85",
@@ -1260,7 +1262,7 @@
     ],
     "barbell-row": [
       {
-        "id": "LEAI8bR14GOkJnfgU1Zzd",
+        "id": "HF8IfGa0KMk8YiP5uUpBe",
         "date": "2026-02-01",
         "sets": "3",
         "weight": "70",
@@ -1268,7 +1270,7 @@
         "note": ""
       },
       {
-        "id": "JbHygAcFWEcsrwbIf3N3x",
+        "id": "A42pL8mOAdbXaz7tTFmU_",
         "date": "2026-02-15",
         "sets": "3",
         "weight": "75",
@@ -1276,7 +1278,7 @@
         "note": ""
       },
       {
-        "id": "AMizndQ25YUt4eLO5Vdnj",
+        "id": "6Ha1MQwL1o_aUym_IHMLn",
         "date": "2026-03-01",
         "sets": "3",
         "weight": "80",
@@ -1284,7 +1286,7 @@
         "note": ""
       },
       {
-        "id": "oML6UMK8Z-FfRaVShZuON",
+        "id": "t_XAQNwwRoKU4BtBu7-YF",
         "date": "2026-03-15",
         "sets": "3",
         "weight": "85",
@@ -1292,7 +1294,7 @@
         "note": ""
       },
       {
-        "id": "D2CqYH8KKTkBnE-U2Vt4h",
+        "id": "HfQeLFInrbijH5GHV5Ztd",
         "date": "2026-03-23",
         "sets": "3",
         "weight": "87.5",
@@ -1390,7 +1392,7 @@
     ],
     "dips": [
       {
-        "id": "g_J7_oHMr4YMNSq63WOGm",
+        "id": "K1nXxiS9oanyr2t2y2wtu",
         "date": "2026-02-01",
         "sets": "3",
         "weight": "0",
@@ -1398,7 +1400,7 @@
         "note": "BW"
       },
       {
-        "id": "F0m8xa5iry5Z7q4CSRIvA",
+        "id": "mF6fRAl5g6liTUwGdi0QQ",
         "date": "2026-02-15",
         "sets": "3",
         "weight": "5",
@@ -1406,7 +1408,7 @@
         "note": "+5 kg"
       },
       {
-        "id": "f4iP5Xe8RKAsYY6vE8l1V",
+        "id": "6iUmqdqtjuZi_Ge5Cbzsq",
         "date": "2026-03-01",
         "sets": "3",
         "weight": "10",
@@ -1414,7 +1416,7 @@
         "note": ""
       },
       {
-        "id": "xnZgforZipsBqyDJViOzT",
+        "id": "IxqUotNjxRXvo6PUMM8xK",
         "date": "2026-03-15",
         "sets": "3",
         "weight": "10",
@@ -1422,7 +1424,7 @@
         "note": ""
       },
       {
-        "id": "wPp54MWD2GNZp4jgAe3yz",
+        "id": "IfcW9l4bVUcEw2v-cVPvM",
         "date": "2026-03-23",
         "sets": "3",
         "weight": "15",
@@ -1480,7 +1482,7 @@
     ],
     "bulgarian": [
       {
-        "id": "nNBp1FWCxRPgeBZhXl4kn",
+        "id": "yarfDx82-ijvNTmF7w9Yp",
         "date": "2026-02-08",
         "sets": "3",
         "weight": "30",
@@ -1488,7 +1490,7 @@
         "note": "2×DB"
       },
       {
-        "id": "haGqrHkRq_BEubekbCRMe",
+        "id": "QUGrIM-zdwDAQQg2SUchV",
         "date": "2026-02-22",
         "sets": "3",
         "weight": "35",
@@ -1496,7 +1498,7 @@
         "note": ""
       },
       {
-        "id": "ylQKHLoOj8FntvCFxqaSV",
+        "id": "4q9opysXQpbLbUuqYnkZc",
         "date": "2026-03-08",
         "sets": "3",
         "weight": "40",
@@ -1504,7 +1506,7 @@
         "note": ""
       },
       {
-        "id": "i0htZMJiDiAEogsVSNxdJ",
+        "id": "e6OKStQRuzZJfmxKqmHhf",
         "date": "2026-03-23",
         "sets": "3",
         "weight": "40",
@@ -1538,7 +1540,7 @@
     ],
     "larsen": [
       {
-        "id": "q5sHqCTqbI8niCl0wH6wA",
+        "id": "rLrxslfwqwvsrCWLccPOJ",
         "date": "2026-02-08",
         "sets": "3",
         "weight": "70",
@@ -1546,7 +1548,7 @@
         "note": "Nohy nahoře"
       },
       {
-        "id": "oucqdxRmoH05ih5dUv3g3",
+        "id": "otS8h84X7cmOdH94pAiHp",
         "date": "2026-02-22",
         "sets": "3",
         "weight": "75",
@@ -1554,7 +1556,7 @@
         "note": ""
       },
       {
-        "id": "fyJ5lzt4IxTHiSn21e64z",
+        "id": "YXKOfbWPtFFvXJRFSx9HA",
         "date": "2026-03-08",
         "sets": "3",
         "weight": "77.5",
@@ -1562,7 +1564,7 @@
         "note": ""
       },
       {
-        "id": "ecjhD1qT8aADPAvGHcJ_Y",
+        "id": "cMhYPMQ2YyiMeyMqmcf9i",
         "date": "2026-03-23",
         "sets": "3",
         "weight": "80",
@@ -1572,7 +1574,7 @@
     ],
     "run-thu": [
       {
-        "id": "OLrHxF3A13j-R_ZLZMH4B",
+        "id": "kh-noztD73m5UtyABpt3a",
         "date": "2026-02-11",
         "sets": "1",
         "weight": "0",
@@ -1580,7 +1582,7 @@
         "note": "Easy run Z2"
       },
       {
-        "id": "vCcjQtds_tHhcJKq0iw_X",
+        "id": "AdjeK-Zekd01Wo97711P9",
         "date": "2026-02-18",
         "sets": "1",
         "weight": "0",
@@ -1588,7 +1590,7 @@
         "note": "Easy run Z2"
       },
       {
-        "id": "YGMDgt992iU1jWuzwxUKd",
+        "id": "jFUltI79dXNJDO0ZZtB_A",
         "date": "2026-02-25",
         "sets": "1",
         "weight": "0",
@@ -1596,7 +1598,7 @@
         "note": "Easy run Z2"
       },
       {
-        "id": "GZrfD9w90zDpmTEbEN3SB",
+        "id": "Vz9JEGBIZk78nqDclDOQc",
         "date": "2026-03-11",
         "sets": "1",
         "weight": "0",
@@ -1604,7 +1606,7 @@
         "note": "Easy run Z2"
       },
       {
-        "id": "CX7cCqR_a3hPJbH8KsJnz",
+        "id": "KbpjgzZnbQH3I2OQkNqw4",
         "date": "2026-03-25",
         "sets": "1",
         "weight": "0",
