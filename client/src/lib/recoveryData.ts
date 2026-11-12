@@ -173,6 +173,9 @@ export const RECOVERED_RUN_RECORDS: RunRecord[] = [
   corosRun('run-2026-10-21', '2026-10-21', '58:23', '9.41', '6:12/km', '158', '150', '25', '262', '942', '6:15/km', 'T7 ST · 500 + 100 — 4× 500 m za 4:05–4:27/km, max. tep 190, nejvyšší zátěž bloku'),
   corosRun('run-2026-10-29', '2026-10-29', '1:17:52', '13.01', '5:59/km', '161', '160', '130', '254', '1291', '5:57/km', 'Praha Běh — čtvrteční 13 km, 130 m převýšení, poslední km 5:18'),
   corosRun('run-2026-10-30', '2026-10-30', '32:00', '5.34', '5:59/km', '157', '161', '10', '107', '513', '6:01/km', '30 minut základu se zrychlením — 4 rovinky 3:04–3:53/km'),
+  // Doplněno 12. 11. 2026 z COROSu.
+  corosRun('run-2026-11-06', '2026-11-06', '55:15', '9.27', '5:58/km', '160', '158', '73', '191', '912', '5:56/km', 'T10 SO · Volný běh Z2 — páteční běh s dlouhou pauzou v půlce (celkem 1:58:44), konec progresivně 5:25 → 4:55/km, max. tep 182'),
+  corosRun('run-2026-11-11', '2026-11-11', '37:24', '6.27', '5:58/km', '162', '158', '40', '160', '636', '5:57/km', '30 minut základu se zrychlením — 4 rovinky 3:38–3:54/km, max. tep 188'),
 ];
 
 /** Kolo a turistika z COROSu. Nezapočítávají se do běžeckých statistik. */
@@ -255,4 +258,8 @@ export const RECOVERED_HIIT_RECORDS: HIITRecord[] = [
   corosHiit('hiit-2026-10-14', '2026-10-14', '52:50', '142', '457', 'Hybridní fitness trénink · zátěž 68'),
   corosHiit('hiit-2026-10-21', '2026-10-21', '53:23', '156', '574', 'Hybridní fitness trénink · večer po ranních 500 m úsecích, zátěž 115'),
   corosHiit('hiit-2026-10-28', '2026-10-28', '55:58', '134', '479', 'Hybridní fitness trénink · nejklidnější lekce, zátěž 57'),
+  // Doplněno 12. 11. 2026 z COROSu.
+  corosHiit('hiit-2026-11-04', '2026-11-04', '54:27', '152', '538', 'Hybridní fitness trénink · zátěž 101'),
+  corosHiit('hiit-2026-11-07', '2026-11-07', '51:04', '152', '489', 'Hybridní fitness trénink · sobotní lekce, zátěž 89'),
+  corosHiit('hiit-2026-11-11', '2026-11-11', '52:32', '148', '519', 'Hybridní fitness trénink · večer po ranním běhu, zátěž 90'),
 ];
