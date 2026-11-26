@@ -574,7 +574,7 @@ Ověřeno vyvoláním skutečného pádu: napočítala 366 záznamů a vyrobila 
 
 ## 5. Tréninkový plán — Podzim 2026 v5.2
 
-13 týdnů, **31. 8. – 29. 11. 2026**, týdny pondělí–neděle.
+18 týdnů, **31. 8. 2026 – 3. 1. 2027**, týdny pondělí–neděle. T13–T18 přidány 26. 11. 2026 (test posunut o měsíc); jejich předepsané série generuje funkce pod `PLANNED_RECORDS`.
 
 | Blok | Týdny | Zaměření |
 |---|---|---|
@@ -582,7 +582,10 @@ Ověřeno vyvoláním skutečného pádu: napočítala 366 záznamů a vyrobila 
 | B — Síla | T5–T7 (+T8 deload) | 6/5 op., těžší top série |
 | C — Intenzifikace | T9–T11 | dvojky/single na top, objemové back-offy |
 | Taper | T12 | ostrost, minimum objemu |
-| Test maxim | T13 | 3 samostatné dny (Po dřep, Út bench, Pá tah) |
+| Most | T13 | test posunut, bench 120×1 bez tlačení, trojky |
+| Prosinec — těžké trojky | T14–T16 | bench 115→120×3, tah 215→225×3 + 230×1, dřep 172,5→185×3 |
+| Taper (Vánoce) | T17 | bench 122,5×3, dřep 2. týden 185×3, tah taper |
+| Test maxim | T18 | 28. 12. bench 125×3 · 31. 12. tah 230 · 3. 1. dřep 190 |
 
 **Týdenní split (od 1. 9. 2026, na jeho žádost):**
 Po = DŘEP · **Út = VOLNO** · St = BĚH ráno + HIIT večer · Čt = MRTVÝ TAH ·
