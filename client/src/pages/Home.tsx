@@ -11,7 +11,7 @@ import { NavIcon, RestBar, UpdateBar } from '@/components/kit';
 import type { NavIconKey } from '@/components/kit';
 import { useWorkoutData } from '@/hooks/useWorkoutData';
 import { useTheme } from '@/contexts/ThemeContext';
-import { getCurrentWeek } from '@/lib/data';
+import { getCurrentWeek, PHASE3_WEEKS } from '@/lib/data';
 import type { Tab } from '@/lib/types';
 export type { Tab };
 
@@ -70,7 +70,7 @@ export default function Home() {
   return (
     <div className="gd-shell">
       <div className="gd-topbar">
-        <span className="gd-topbar__side">T{String(week).padStart(2, '0')} / 13</span>
+        <span className="gd-topbar__side">T{String(week).padStart(2, '0')} / {PHASE3_WEEKS.length}</span>
         <span className="gd-topbar__brand">Gymdiary</span>
         <span className="gd-topbar__side gd-topbar__side--r">
           {toggleTheme ? (

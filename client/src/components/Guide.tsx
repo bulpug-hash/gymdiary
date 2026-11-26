@@ -46,8 +46,8 @@ export default function Guide() {
 
 
       <div className="gd-body">
-      {/* výběr týdne – pravítko, všech 13 najednou */}
-      <SectionHead n="01" label="Vyber týden" right="01 — 13" />
+      {/* výběr týdne – pravítko, všechny najednou */}
+      <SectionHead n="01" label="Vyber týden" right={`01 — ${WEEK_GUIDE.length}`} />
       <div style={{ margin: '0 20px 22px', borderTop: '1px solid var(--gd-line)', borderBottom: '1px solid var(--gd-line)' }}>
         <div className="gd-weekruler" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
           {WEEK_GUIDE.map((w, i) => {
@@ -56,7 +56,7 @@ export default function Guide() {
             const code = w.mode === 'deload' ? 'DL'
               : w.mode === 'taper' ? 'TAP'
               : w.mode === 'test' ? 'TEST'
-              : (w.block.match(/Blok ([ABC])/)?.[1] ?? '·');
+              : (w.block.match(/Blok ([ABCD])/)?.[1] ?? '·');
             return (
               <button key={w.wk} onClick={() => setSel(i)} style={{
                 padding: '11px 0 9px', border: 'none', cursor: 'pointer',

@@ -567,7 +567,7 @@
 
 /* Pravítko týdnů: na mobilu 7 sloupců ve dvou řadách, výš jedna řada. */
 @media (min-width: 760px) {
-  .gd-weekruler { grid-template-columns: repeat(13, 1fr) !important; }
+  .gd-weekruler { grid-template-columns: repeat(18, 1fr) !important; }
   .gd-weekruler > button {
     border-top: none !important;
     border-right: 1px solid var(--gd-line) !important;

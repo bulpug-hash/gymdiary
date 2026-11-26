@@ -1287,21 +1287,180 @@ const np12: Week = {
   ],
 };
 
+// ===== Prosinec 2026 – měsíc na těžké váhy (přidáno 26. 11. 2026) =====
+// Test maxim posunut z T13 na T18 (28. 12.–3. 1.). Cíle měsíce: bench 125×3, dřep 185×3 dva týdny → 190, tah 230.
 const np13: Week = {
-  number: 13, label: 'W13 – TEST MAXIM', dateFrom: '2026-11-23', dateTo: '2026-11-29',
-  phase: 'TEST MAXIM', phaseKey: 'phase4',
-  description: 'Test maxim. Dvou-faktorový model: únava pryč, fitness zůstala → výkon vyskočí. Cíle: bench 130, dřep 190, mrtvý tah 230+.',
+  number: 13, label: 'W13 – Most do prosince', dateFrom: '2026-11-23', dateTo: '2026-11-29',
+  phase: 'Blok D — Most', phaseKey: 'phase3',
+  description: 'Test maxim posunut na 28. 12.–3. 1. Tenhle týden jen připomenout těžké: bench 120×1 bez tlačení (hotovo 23. 11.), tah a dřep trojky.',
   days: [
     npStrength(NP_DREP, [
-      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'Rozjezd', weight: '150', reps: '1' }, { label: 'Rozjezd', weight: '170', reps: '1' }, { label: 'CÍL', weight: '190', reps: '1' }, { label: 'PR (volitelně)', weight: '195', reps: '1' }], targetSets: '1', targetReps: '1', targetWeight: '190 kg (CÍL)', rpe: 'MAX', note: 'TEST. Postup: 150×1 (Rozjezd) → 170×1 (Rozjezd) → 190×1 (CÍL) → 195×1 (PR (volitelně))' },
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'TOP', weight: '167.5', reps: '3', rpe: '8' }, { label: 'TOP', weight: '167.5', reps: '3', rpe: '8' }, { label: 'TOP', weight: '167.5', reps: '3', rpe: '8' }, { label: 'Back-off', weight: '155', reps: '5', rpe: '7' }, { label: 'Back-off', weight: '155', reps: '5', rpe: '7' }], targetSets: '5', targetReps: '3/3/3/5/5', targetWeight: '167.5/167.5/167.5/155/155 kg', rpe: '8', note: 'Most do prosince – trojky. Postup: 167.5×3 (TOP) → 167.5×3 (TOP) → 167.5×3 (TOP) → 155×5 (Back-off) → 155×5 (Back-off)' },
+      { id: 'pause-squat', name: 'Pauzový dřep (2 s) — variace', category: 'accessory', targetSets: '2', targetReps: '3', targetWeight: '145', note: 'Technika v díře.' },
+      { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
+      { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
     ]),
     npStrength(NP_BENCH, [
-      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Rozjezd', weight: '100', reps: '1' }, { label: 'Rozjezd', weight: '115', reps: '1' }, { label: 'Rozjezd', weight: '125', reps: '1' }, { label: 'CÍL', weight: '130', reps: '1' }, { label: 'PR (volitelně)', weight: '132.5', reps: '1' }], targetSets: '1', targetReps: '1', targetWeight: '130 kg (CÍL)', rpe: 'MAX', note: 'TEST. Postup: 100×1 (Rozjezd) → 115×1 (Rozjezd) → 125×1 (Rozjezd) → 130×1 (CÍL) → 132.5×1 (PR (volitelně))' },
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Nájezd', weight: '110', reps: '1', rpe: '7' }, { label: 'TOP single', weight: '120', reps: '1', rpe: '8' }], targetSets: '2', targetReps: '1/1', targetWeight: '110/120 kg', rpe: '7', note: 'Hotovo 23. 11.: 120×1 bez tlačení na maximum. Postup: 110×1 (Nájezd) → 120×1 (TOP single)' },
+      { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
     ]),
     npWedHiit(),
     npTueRest(),
     npStrength(NP_TAH, [
-      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Rozjezd', weight: '180', reps: '1' }, { label: 'Rozjezd', weight: '207.5', reps: '1' }, { label: 'CÍL', weight: '230', reps: '1' }, { label: 'PR pokus', weight: '235', reps: '1' }], targetSets: '1', targetReps: '1', targetWeight: '230 kg (CÍL)', rpe: 'MAX', note: 'TEST. Postup: 180×1 (Rozjezd) → 207.5×1 (Rozjezd) → 230×1 (CÍL) → 235×1 (PR pokus)' },
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'TOP', weight: '210', reps: '3', rpe: '7.5' }, { label: 'TOP', weight: '210', reps: '3', rpe: '7.5' }], targetSets: '2', targetReps: '3/3', targetWeight: '210/210 kg', rpe: '7.5', note: 'Most do prosince – trojky. Postup: 210×3 (TOP) → 210×3 (TOP)' },
+      { id: 'pendlay-row', name: 'Pendlay row (z podlahy) — silná záda = silný tah', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '95', note: 'Záda pro tah. Zmenšeno, energie jde do hlavního cviku.' },
+      { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Pull-up #2 – záda. Každý tah.' },
+      { id: 'ab-wheel-dl', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
+    ]),
+    npSatHiit(),
+    npFriRest(),
+  ],
+};
+
+const np14: Week = {
+  number: 14, label: 'W14 – Těžké trojky', dateFrom: '2026-11-30', dateTo: '2026-12-06',
+  phase: 'Blok D — Prosinec', phaseKey: 'phase3',
+  description: 'Navyknout na těžké. Trojky na RPE 8, k tomu krátce váha nad maximem (výdrž, bloky, walkout).',
+  days: [
+    npStrength(NP_DREP, [
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'TOP', weight: '172.5', reps: '3', rpe: '8' }, { label: 'TOP', weight: '172.5', reps: '3', rpe: '8' }, { label: 'TOP', weight: '172.5', reps: '3', rpe: '8' }, { label: 'Back-off', weight: '157.5', reps: '5', rpe: '7' }, { label: 'Back-off', weight: '157.5', reps: '5', rpe: '7' }], targetSets: '5', targetReps: '3/3/3/5/5', targetWeight: '172.5/172.5/172.5/157.5/157.5 kg', rpe: '8', note: 'Cesta k 185×3. Postup: 172.5×3 (TOP) → 172.5×3 (TOP) → 172.5×3 (TOP) → 157.5×5 (Back-off) → 157.5×5 (Back-off)' },
+      { id: 'squat-walkout', name: 'Walkout (vyjít z racku, 10 s stát)', category: 'accessory', targetSets: '2', targetReps: '10 s', targetWeight: '200', note: 'Nadmaximální váha na zádech bez dřepu – jen vyjít, zpevnit, 10 s stát, vrátit. Se záchranou.' },
+      { id: 'pause-squat', name: 'Pauzový dřep (2 s) — variace', category: 'accessory', targetSets: '2', targetReps: '3', targetWeight: '140', note: 'Technika v díře.' },
+      { id: 'leg-press', name: 'Leg press (stroj)', category: 'accessory', targetSets: '2', targetReps: '8', targetWeight: 'stroj střední–těžká, RPE 8', note: 'Quad bez osy. Při nízkém readiness vynech.' },
+      { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
+      { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
+    ]),
+    npStrength(NP_BENCH, [
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'TOP', weight: '115', reps: '3', rpe: '8' }, { label: 'TOP', weight: '115', reps: '3', rpe: '8' }, { label: 'TOP', weight: '115', reps: '3', rpe: '8' }, { label: 'Back-off', weight: '105', reps: '6', rpe: '7' }, { label: 'Back-off', weight: '105', reps: '6', rpe: '7' }], targetSets: '5', targetReps: '3/3/3/6/6', targetWeight: '115/115/115/105/105 kg', rpe: '8', note: 'Cíl měsíce 125×3. Postup: 115×3 (TOP) → 115×3 (TOP) → 115×3 (TOP) → 105×6 (Back-off) → 105×6 (Back-off)' },
+      { id: 'bench-hold', name: 'Výdrž nad maximem (z kolíků těsně pod zamčením)', category: 'accessory', targetSets: '2', targetReps: '5 s', targetWeight: '135', note: 'Osa nad cílem jen v zamčení – zvyknout si na pocit těžké váhy v rukou (Zatsiorsky). Kolíky těsně pod zamčené lokty.' },
+      { id: 'pin-press', name: 'Pin press (z kolíků z prsu) — variace na start z prsu', category: 'accessory', targetSets: '2', targetReps: '5', targetWeight: '105', note: 'Start z prsu bez odrazu.' },
+      { id: 'pullup', name: 'Weighted pull-up (podhmat úzko – BICEPS)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Pull-up #1 – biceps. Každý bench den.' },
+      { id: 'bicep-curl', name: 'Bicepsový zdvih (EZ osa)', category: 'isolation', targetSets: '2', targetReps: '8', targetWeight: 'střední', note: 'Biceps, zmenšeno na 2 série.' },
+      { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
+    ]),
+    npWedHiit(),
+    npTueRest(),
+    npStrength(NP_TAH, [
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'TOP', weight: '215', reps: '3', rpe: '8' }, { label: 'TOP', weight: '215', reps: '3', rpe: '8' }], targetSets: '2', targetReps: '3/3', targetWeight: '215/215 kg', rpe: '8', note: 'Cíl 230 jako normál. Postup: 215×3 (TOP) → 215×3 (TOP)' },
+      { id: 'block-pull', name: 'Tah z bloků (osa pod kolenem)', category: 'accessory', targetSets: '2', targetReps: '1', targetWeight: '240', note: 'Nadmaximální váha v krátkém rozsahu – jen zamčení a pocit váhy (Zatsiorsky). Ne na selhání.' },
+      { id: 'pendlay-row', name: 'Pendlay row (z podlahy) — silná záda = silný tah', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '95', note: 'Záda pro tah. Zmenšeno, energie jde do hlavního cviku.' },
+      { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Pull-up #2 – záda. Každý tah.' },
+      { id: 'bicep-curl-2', name: 'Bicepsový zdvih (kladívkový (hammer)) — 2. expozice', category: 'isolation', targetSets: '2', targetReps: '8', targetWeight: 'střední', note: 'Biceps podruhé v týdnu.' },
+      { id: 'ab-wheel-dl', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
+    ]),
+    npSatHiit(),
+    npFriRest(),
+  ],
+};
+
+const np15: Week = {
+  number: 15, label: 'W15 – Těžké trojky', dateFrom: '2026-12-07', dateTo: '2026-12-13',
+  phase: 'Blok D — Prosinec', phaseKey: 'phase3',
+  description: '+2,5–5 kg na stejné trojky. Když minulý týden šlo nad RPE 8, váhu nepřidávej a zopakuj.',
+  days: [
+    npStrength(NP_DREP, [
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'TOP', weight: '177.5', reps: '3', rpe: '8.5' }, { label: 'TOP', weight: '177.5', reps: '3', rpe: '8.5' }, { label: 'Back-off', weight: '160', reps: '5', rpe: '7' }], targetSets: '3', targetReps: '3/3/5', targetWeight: '177.5/177.5/160 kg', rpe: '8.5', note: 'Cesta k 185×3. Postup: 177.5×3 (TOP) → 177.5×3 (TOP) → 160×5 (Back-off)' },
+      { id: 'squat-walkout', name: 'Walkout (vyjít z racku, 10 s stát)', category: 'accessory', targetSets: '2', targetReps: '10 s', targetWeight: '200', note: 'Nadmaximální váha na zádech bez dřepu – jen vyjít, zpevnit, 10 s stát, vrátit. Se záchranou.' },
+      { id: 'pause-squat', name: 'Pauzový dřep (2 s) — variace', category: 'accessory', targetSets: '2', targetReps: '3', targetWeight: '145', note: 'Technika v díře.' },
+      { id: 'leg-press', name: 'Leg press (stroj)', category: 'accessory', targetSets: '2', targetReps: '8', targetWeight: 'stroj střední–těžká, RPE 8', note: 'Quad bez osy. Při nízkém readiness vynech.' },
+      { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
+      { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
+    ]),
+    npStrength(NP_BENCH, [
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'TOP', weight: '117.5', reps: '3', rpe: '8' }, { label: 'TOP', weight: '117.5', reps: '3', rpe: '8' }, { label: 'TOP', weight: '117.5', reps: '3', rpe: '8' }, { label: 'Back-off', weight: '105', reps: '6', rpe: '7' }, { label: 'Back-off', weight: '105', reps: '6', rpe: '7' }], targetSets: '5', targetReps: '3/3/3/6/6', targetWeight: '117.5/117.5/117.5/105/105 kg', rpe: '8', note: 'Cíl měsíce 125×3. Postup: 117.5×3 (TOP) → 117.5×3 (TOP) → 117.5×3 (TOP) → 105×6 (Back-off) → 105×6 (Back-off)' },
+      { id: 'bench-hold', name: 'Výdrž nad maximem (z kolíků těsně pod zamčením)', category: 'accessory', targetSets: '2', targetReps: '5 s', targetWeight: '135', note: 'Osa nad cílem jen v zamčení – zvyknout si na pocit těžké váhy v rukou (Zatsiorsky). Kolíky těsně pod zamčené lokty.' },
+      { id: 'spoto', name: 'Spoto press (2–3 cm nad hrudí) — variace na start z prsu', category: 'accessory', targetSets: '2', targetReps: '5', targetWeight: '102.5', note: 'Start z prsu bez odrazu.' },
+      { id: 'pullup', name: 'Weighted pull-up (podhmat úzko – BICEPS)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Pull-up #1 – biceps. Každý bench den.' },
+      { id: 'bicep-curl', name: 'Bicepsový zdvih (EZ osa)', category: 'isolation', targetSets: '2', targetReps: '8', targetWeight: 'střední', note: 'Biceps, zmenšeno na 2 série.' },
+      { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
+    ]),
+    npWedHiit(),
+    npTueRest(),
+    npStrength(NP_TAH, [
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'TOP', weight: '220', reps: '3', rpe: '8' }, { label: 'TOP', weight: '220', reps: '3', rpe: '8' }], targetSets: '2', targetReps: '3/3', targetWeight: '220/220 kg', rpe: '8', note: 'Cíl 230 jako normál. Postup: 220×3 (TOP) → 220×3 (TOP)' },
+      { id: 'block-pull', name: 'Tah z bloků (osa pod kolenem)', category: 'accessory', targetSets: '2', targetReps: '1', targetWeight: '245', note: 'Nadmaximální váha v krátkém rozsahu – jen zamčení a pocit váhy (Zatsiorsky). Ne na selhání.' },
+      { id: 'pendlay-row', name: 'Pendlay row (z podlahy) — silná záda = silný tah', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '95', note: 'Záda pro tah. Zmenšeno, energie jde do hlavního cviku.' },
+      { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – ZÁDA)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Pull-up #2 – záda. Každý tah.' },
+      { id: 'bicep-curl-2', name: 'Bicepsový zdvih (kladívkový (hammer)) — 2. expozice', category: 'isolation', targetSets: '2', targetReps: '8', targetWeight: 'střední', note: 'Biceps podruhé v týdnu.' },
+      { id: 'ab-wheel-dl', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
+    ]),
+    npSatHiit(),
+    npFriRest(),
+  ],
+};
+
+const np16: Week = {
+  number: 16, label: 'W16 – Nejtěžší týden', dateFrom: '2026-12-14', dateTo: '2026-12-20',
+  phase: 'Blok D — Prosinec', phaseKey: 'phase3',
+  description: 'Klíčový týden: 225 na tahu s rezervou, dřep 185×3 poprvé. Ve středu běh bez úseků v závodním tempu.',
+  days: [
+    npStrength(NP_DREP, [
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'TOP – 1. týden', weight: '185', reps: '3', rpe: '9' }, { label: 'Back-off', weight: '162.5', reps: '3', rpe: '7' }, { label: 'Back-off', weight: '162.5', reps: '3', rpe: '7' }], targetSets: '3', targetReps: '3/3/3', targetWeight: '185/162.5/162.5 kg', rpe: '9', note: '185×3 poprvé. Nevyjde → příští týden znovu, 190 se netestuje. Postup: 185×3 (TOP – 1. týden) → 162.5×3 (Back-off) → 162.5×3 (Back-off)' },
+      { id: 'pause-squat', name: 'Pauzový dřep (2 s) — variace', category: 'accessory', targetSets: '2', targetReps: '2', targetWeight: '145', note: 'Technika v díře.' },
+      { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
+      { id: 'pallof', name: 'Pallof press (anti-rotace)', category: 'core', targetSets: '2', targetReps: '10/str.', targetWeight: 'lehká', note: 'Core stabilita, nízká únava.' },
+    ]),
+    npStrength(NP_BENCH, [
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'TOP', weight: '120', reps: '3', rpe: '8.5' }, { label: 'TOP', weight: '120', reps: '3', rpe: '8.5' }, { label: 'TOP', weight: '120', reps: '3', rpe: '8.5' }, { label: 'Back-off', weight: '107.5', reps: '5', rpe: '7' }, { label: 'Back-off', weight: '107.5', reps: '5', rpe: '7' }], targetSets: '5', targetReps: '3/3/3/5/5', targetWeight: '120/120/120/107.5/107.5 kg', rpe: '8.5', note: 'Cíl měsíce 125×3. Postup: 120×3 (TOP) → 120×3 (TOP) → 120×3 (TOP) → 107.5×5 (Back-off) → 107.5×5 (Back-off)' },
+      { id: 'bench-hold', name: 'Výdrž nad maximem (z kolíků těsně pod zamčením)', category: 'accessory', targetSets: '2', targetReps: '5 s', targetWeight: '137.5', note: 'Osa nad cílem jen v zamčení – zvyknout si na pocit těžké váhy v rukou (Zatsiorsky). Kolíky těsně pod zamčené lokty.' },
+      { id: 'pin-press', name: 'Pin press (z kolíků z prsu) — variace na start z prsu', category: 'accessory', targetSets: '2', targetReps: '5', targetWeight: '105', note: 'Start z prsu bez odrazu.' },
+      { id: 'pullup', name: 'Weighted pull-up (podhmat úzko – BICEPS)', category: 'accessory', targetSets: '3', targetReps: '5', targetWeight: '+5–10 kg', note: 'Pull-up #1 – biceps. Každý bench den.' },
+      { id: 'bicep-curl', name: 'Bicepsový zdvih (EZ osa)', category: 'isolation', targetSets: '2', targetReps: '8', targetWeight: 'střední', note: 'Biceps, zmenšeno na 2 série.' },
+      { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
+    ]),
+    npWedHiit(),
+    npTueRest(),
+    npStrength(NP_TAH, [
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'TOP', weight: '225', reps: '3', rpe: '8.5' }, { label: 'Single', weight: '230', reps: '1', rpe: '8' }], targetSets: '2', targetReps: '3/1', targetWeight: '225/230 kg', rpe: '8.5', note: '230 v ruce bez stresu. Postup: 225×3 (TOP) → 230×1 (Single)' },
+      { id: 'pendlay-row', name: 'Pendlay row (z podlahy) — silná záda = silný tah', category: 'accessory', targetSets: '2', targetReps: '5', targetWeight: '90', note: 'Záda pro tah. Zmenšeno, energie jde do hlavního cviku.' },
+      { id: 'pullup-back', name: 'Weighted pull-up (nadhmat široko – ZÁDA)', category: 'accessory', targetSets: '2', targetReps: '5', targetWeight: '+5–10 kg', note: 'Pull-up #2 – záda. Každý tah.' },
+      { id: 'ab-wheel-dl', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
+    ]),
+    npSatHiit(),
+    npFriRest(),
+  ],
+};
+
+const np17: Week = {
+  number: 17, label: 'W17 – Taper (Vánoce)', dateFrom: '2026-12-21', dateTo: '2026-12-27',
+  phase: 'Taper', phaseKey: 'phase4',
+  description: 'Bench i dřep ještě těžce (122,5×3, druhá 185×3), tah taper. Tah na Štědrý den ráno, nebo St 23. 12. místo HIIT.',
+  days: [
+    npStrength(NP_DREP, [
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'TOP – 2. týden', weight: '185', reps: '3', rpe: '9' }, { label: 'Back-off', weight: '162.5', reps: '3', rpe: '7' }], targetSets: '2', targetReps: '3/3', targetWeight: '185/162.5 kg', rpe: '9', note: 'Druhý týden 185×3. Když vyjde @≤9 → 3. 1. test 190. Postup: 185×3 (TOP – 2. týden) → 162.5×3 (Back-off)' },
+      { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
+    ]),
+    npStrength(NP_BENCH, [
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'TOP', weight: '122.5', reps: '3', rpe: '9' }, { label: 'TOP', weight: '122.5', reps: '3', rpe: '9' }, { label: 'Back-off', weight: '107.5', reps: '5', rpe: '7' }], targetSets: '3', targetReps: '3/3/5', targetWeight: '122.5/122.5/107.5 kg', rpe: '9', note: 'Poslední těžký bench před testem. RPE 9,5 → test o týden posunout. Postup: 122.5×3 (TOP) → 122.5×3 (TOP) → 107.5×5 (Back-off)' },
+      { id: 'pullup', name: 'Weighted pull-up (podhmat úzko – BICEPS)', category: 'accessory', targetSets: '2', targetReps: '5', targetWeight: '+5–10 kg', note: 'Pull-up #1 – biceps. Každý bench den.' },
+      { id: 'ab-wheel', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '3', targetReps: '10–12', note: 'Břicho.' },
+    ]),
+    npWedHiit(),
+    npTueRest(),
+    npStrength(NP_TAH, [
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Taper', weight: '210', reps: '1', rpe: '7' }, { label: 'Taper', weight: '195', reps: '2', rpe: '7' }], targetSets: '2', targetReps: '1/2', targetWeight: '210/195 kg', rpe: '7', note: 'Taper – žádné bloky. Postup: 210×1 (Taper) → 195×2 (Taper)' },
+      { id: 'ab-wheel-dl', name: 'Ab wheel / hanging leg raise', category: 'core', targetSets: '2', targetReps: '10–12', note: 'Břicho.' },
+    ]),
+    npSatHiit(),
+    npFriRest(),
+  ],
+};
+
+const np18: Week = {
+  number: 18, label: 'W18 – TEST MAXIM', dateFrom: '2026-12-28', dateTo: '2027-01-03',
+  phase: 'TEST MAXIM', phaseKey: 'phase4',
+  description: 'Test: bench 125×3, tah 230 (240), dřep 190. Tři pokusy jako na soutěži, pauza 5–8 min. Půlmaraton 10. 1. – po dřepu už žádné nohy.',
+  days: [
+    npStrength(NP_DREP, [
+      { id: 'squat', name: 'Back Squat (Low Bar)', nameShort: 'Back Squat', category: 'main', setPlan: [{ label: 'Rozjezd', weight: '150', reps: '1' }, { label: 'Rozjezd', weight: '170', reps: '1' }, { label: 'Opener', weight: '180', reps: '1' }, { label: 'CÍL', weight: '190', reps: '1' }], targetSets: '4', targetReps: '1/1/1/1', targetWeight: '150/170/180/190 kg', rpe: '', note: 'TEST 190 – jen když 185×3 vyšlo oba týdny. Postup: 150×1 (Rozjezd) → 170×1 (Rozjezd) → 180×1 (Opener) → 190×1 (CÍL)' },
+    ]),
+    npStrength(NP_BENCH, [
+      { id: 'bench', name: 'Bench Press (Comp.)', nameShort: 'Bench Press', category: 'main', setPlan: [{ label: 'Rozjezd', weight: '100', reps: '3' }, { label: 'Rozjezd', weight: '112.5', reps: '1' }, { label: 'Rozjezd', weight: '120', reps: '1' }, { label: 'CÍL', weight: '125', reps: '3' }], targetSets: '4', targetReps: '3/1/1/3', targetWeight: '100/112.5/120/125 kg', rpe: '', note: 'TEST 125×3. Postup: 100×3 (Rozjezd) → 112.5×1 (Rozjezd) → 120×1 (Rozjezd) → 125×3 (CÍL)' },
+    ]),
+    npWedHiit(),
+    npTueRest(),
+    npStrength(NP_TAH, [
+      { id: 'deadlift', name: 'Deadlift (Konvenční)', nameShort: 'Deadlift', category: 'main', setPlan: [{ label: 'Rozjezd', weight: '190', reps: '1' }, { label: 'Opener', weight: '215', reps: '1' }, { label: 'CÍL', weight: '230', reps: '1' }, { label: 'PR pokus', weight: '240', reps: '1' }], targetSets: '4', targetReps: '1/1/1/1', targetWeight: '190/215/230/240 kg', rpe: '', note: 'TEST. 240 jen když 230 šlo @≤8,5. Silvestr – ráno. Postup: 190×1 (Rozjezd) → 215×1 (Opener) → 230×1 (CÍL) → 240×1 (PR pokus)' },
     ]),
     npSatHiit(),
     npFriRest(),
@@ -1317,7 +1476,7 @@ const seradDny = (w: Week): Week => ({
   days: [...w.days].sort((a, b) => DEN_PORADI.indexOf(a.key) - DEN_PORADI.indexOf(b.key)),
 });
 
-export const PHASE3_WEEKS: Week[] = [np1, np2, np3, np4, np5, np6, np7, np8, np9, np10, np11, np12, np13].map(seradDny);
+export const PHASE3_WEEKS: Week[] = [np1, np2, np3, np4, np5, np6, np7, np8, np9, np10, np11, np12, np13, np14, np15, np16, np17, np18].map(seradDny);
 
 
 // ============================================================
@@ -1709,7 +1868,7 @@ export function getCurrentWeek(): number {
   const start = new Date(PLAN_START_DATE + 'T00:00:00');
   const now = new Date();
   const diff = Math.floor((now.getTime() - start.getTime()) / (7 * 24 * 60 * 60 * 1000));
-  return Math.max(1, Math.min(13, diff + 1));
+  return Math.max(1, Math.min(PHASE3_WEEKS.length, diff + 1));
 }
 // Vrací CSS barvu, ne Tailwind třídu. Výsledek se používá přímo ve style={{}},
 // takže 'text-yellow-400' se tiše zahodilo a proužky kategorií byly neviditelné.
@@ -1761,11 +1920,16 @@ export const WARMUP_SERIES_BY_WEEK: Record<number, WarmupSeries> = {
   10: { squat: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 70, reps: 5, note: '~40%' }, { weight: 105, reps: 3, note: '~60%' }, { weight: 130, reps: 2, note: '~75%' } ], bench: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 47.5, reps: 5, note: '~40%' }, { weight: 72.5, reps: 3, note: '~60%' }, { weight: 90, reps: 2, note: '~75%' } ], deadlift: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 87.5, reps: 5, note: '~40%' }, { weight: 130, reps: 3, note: '~60%' }, { weight: 162.5, reps: 2, note: '~75%' } ] },
   11: { squat: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 72.5, reps: 5, note: '~40%' }, { weight: 107.5, reps: 3, note: '~60%' }, { weight: 135, reps: 2, note: '~75%' } ], bench: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 50, reps: 5, note: '~40%' }, { weight: 72.5, reps: 3, note: '~60%' }, { weight: 92.5, reps: 2, note: '~75%' } ], deadlift: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 90, reps: 5, note: '~40%' }, { weight: 132.5, reps: 3, note: '~60%' }, { weight: 167.5, reps: 2, note: '~75%' } ] },
   12: { squat: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 67.5, reps: 5, note: '~40%' }, { weight: 100, reps: 3, note: '~60%' }, { weight: 125, reps: 2, note: '~75%' } ], bench: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 45, reps: 5, note: '~40%' }, { weight: 70, reps: 3, note: '~60%' }, { weight: 85, reps: 2, note: '~75%' } ], deadlift: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 82.5, reps: 5, note: '~40%' }, { weight: 125, reps: 3, note: '~60%' }, { weight: 155, reps: 2, note: '~75%' } ] },
-  13: { squat: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 77.5, reps: 5, note: '~40%' }, { weight: 117.5, reps: 3, note: '~60%' }, { weight: 145, reps: 2, note: '~75%' } ], bench: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 52.5, reps: 5, note: '~40%' }, { weight: 80, reps: 3, note: '~60%' }, { weight: 100, reps: 2, note: '~75%' } ], deadlift: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 95, reps: 5, note: '~40%' }, { weight: 140, reps: 3, note: '~60%' }, { weight: 175, reps: 2, note: '~75%' } ] },
+  13: { squat: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 67.5, reps: 5, note: '~40%' }, { weight: 100, reps: 3, note: '~60%' }, { weight: 125, reps: 2, note: '~75%' } ], bench: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 47.5, reps: 5, note: '~40%' }, { weight: 72.5, reps: 3, note: '~60%' }, { weight: 90, reps: 2, note: '~75%' } ], deadlift: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 85, reps: 5, note: '~40%' }, { weight: 125, reps: 3, note: '~60%' }, { weight: 157.5, reps: 2, note: '~75%' } ] },
+  14: { squat: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 70, reps: 5, note: '~40%' }, { weight: 102.5, reps: 3, note: '~60%' }, { weight: 130, reps: 2, note: '~75%' } ], bench: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 45, reps: 5, note: '~40%' }, { weight: 70, reps: 3, note: '~60%' }, { weight: 85, reps: 2, note: '~75%' } ], deadlift: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 85, reps: 5, note: '~40%' }, { weight: 130, reps: 3, note: '~60%' }, { weight: 160, reps: 2, note: '~75%' } ] },
+  15: { squat: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 70, reps: 5, note: '~40%' }, { weight: 107.5, reps: 3, note: '~60%' }, { weight: 132.5, reps: 2, note: '~75%' } ], bench: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 47.5, reps: 5, note: '~40%' }, { weight: 70, reps: 3, note: '~60%' }, { weight: 87.5, reps: 2, note: '~75%' } ], deadlift: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 87.5, reps: 5, note: '~40%' }, { weight: 132.5, reps: 3, note: '~60%' }, { weight: 165, reps: 2, note: '~75%' } ] },
+  16: { squat: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 75, reps: 5, note: '~40%' }, { weight: 110, reps: 3, note: '~60%' }, { weight: 140, reps: 2, note: '~75%' } ], bench: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 47.5, reps: 5, note: '~40%' }, { weight: 72.5, reps: 3, note: '~60%' }, { weight: 90, reps: 2, note: '~75%' } ], deadlift: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 90, reps: 5, note: '~40%' }, { weight: 135, reps: 3, note: '~60%' }, { weight: 170, reps: 2, note: '~75%' } ] },
+  17: { squat: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 75, reps: 5, note: '~40%' }, { weight: 110, reps: 3, note: '~60%' }, { weight: 140, reps: 2, note: '~75%' } ], bench: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 50, reps: 5, note: '~40%' }, { weight: 72.5, reps: 3, note: '~60%' }, { weight: 92.5, reps: 2, note: '~75%' } ], deadlift: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 85, reps: 5, note: '~40%' }, { weight: 125, reps: 3, note: '~60%' }, { weight: 157.5, reps: 2, note: '~75%' } ] },
+  18: { squat: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 75, reps: 5, note: '~40%' }, { weight: 115, reps: 3, note: '~60%' }, { weight: 142.5, reps: 2, note: '~75%' } ], bench: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 50, reps: 5, note: '~40%' }, { weight: 75, reps: 3, note: '~60%' }, { weight: 95, reps: 2, note: '~75%' } ], deadlift: [ { weight: 20, reps: 8, note: 'Tyč' }, { weight: 92.5, reps: 5, note: '~40%' }, { weight: 137.5, reps: 3, note: '~60%' }, { weight: 172.5, reps: 2, note: '~75%' } ] },
 };
 
 // ============================================================
-// PŘEDVYPLNĚNÝ DENÍK – všechny plánované série (13 týdnů)
+// PŘEDVYPLNĚNÝ DENÍK – všechny plánované série (18 týdnů; T13–T18 generátorem níž)
 // planned: true = jen návrh z plánu. Uprav váhu/opakování a záznam se stane skutečným.
 // ============================================================
 export const PLANNED_RECORDS: RecordsMap = {
@@ -1861,11 +2025,6 @@ export const PLANNED_RECORDS: RecordsMap = {
     { id: 'plan-w12-po-bench-0', date: '2026-11-16', sets: '1', weight: '115', reps: '1', note: 'PLÁN · T12 · Opener · RPE 7', planned: true },
     { id: 'plan-w12-po-bench-1', date: '2026-11-16', sets: '1', weight: '107.5', reps: '2', note: 'PLÁN · T12 · Druhá · RPE 7', planned: true },
     { id: 'plan-w12-po-bench-2', date: '2026-11-16', sets: '1', weight: '102.5', reps: '3', note: 'PLÁN · T12 · Objem · RPE 7', planned: true },
-    { id: 'plan-w13-po-bench-0', date: '2026-11-23', sets: '1', weight: '100', reps: '1', note: 'PLÁN · T13 · Rozjezd', planned: true },
-    { id: 'plan-w13-po-bench-1', date: '2026-11-23', sets: '1', weight: '115', reps: '1', note: 'PLÁN · T13 · Rozjezd', planned: true },
-    { id: 'plan-w13-po-bench-2', date: '2026-11-23', sets: '1', weight: '125', reps: '1', note: 'PLÁN · T13 · Rozjezd', planned: true },
-    { id: 'plan-w13-po-bench-3', date: '2026-11-23', sets: '1', weight: '130', reps: '1', note: 'PLÁN · T13 · CÍL', planned: true },
-    { id: 'plan-w13-po-bench-4', date: '2026-11-23', sets: '1', weight: '132.5', reps: '1', note: 'PLÁN · T13 · PR (volitelně)', planned: true },
   ],
   'bicep-curl': [
     { id: 'plan-w1-po-bicep-curl', date: '2026-08-31', sets: '3', weight: '0', reps: '10–12', note: 'PLÁN · T1 · 3 × 10–12 · střední', planned: true },
@@ -1939,10 +2098,6 @@ export const PLANNED_RECORDS: RecordsMap = {
     { id: 'plan-w12-ct-deadlift-0', date: '2026-11-19', sets: '1', weight: '207.5', reps: '1', note: 'PLÁN · T12 · Opener · RPE 7', planned: true },
     { id: 'plan-w12-ct-deadlift-1', date: '2026-11-19', sets: '1', weight: '195', reps: '2', note: 'PLÁN · T12 · Druhá · RPE 7', planned: true },
     { id: 'plan-w12-ct-deadlift-2', date: '2026-11-19', sets: '1', weight: '185', reps: '3', note: 'PLÁN · T12 · Objem · RPE 7', planned: true },
-    { id: 'plan-w13-ct-deadlift-0', date: '2026-11-26', sets: '1', weight: '180', reps: '1', note: 'PLÁN · T13 · Rozjezd', planned: true },
-    { id: 'plan-w13-ct-deadlift-1', date: '2026-11-26', sets: '1', weight: '207.5', reps: '1', note: 'PLÁN · T13 · Rozjezd', planned: true },
-    { id: 'plan-w13-ct-deadlift-2', date: '2026-11-26', sets: '1', weight: '230', reps: '1', note: 'PLÁN · T13 · CÍL', planned: true },
-    { id: 'plan-w13-ct-deadlift-3', date: '2026-11-26', sets: '1', weight: '235', reps: '1', note: 'PLÁN · T13 · PR pokus', planned: true },
   ],
   'face-pulls': [
     { id: 'plan-w1-po-face-pulls', date: '2026-08-31', sets: '3', weight: '0', reps: '15–20', note: 'PLÁN · T1 · 3 × 15–20 · lehká', planned: true },
@@ -2094,10 +2249,6 @@ export const PLANNED_RECORDS: RecordsMap = {
     { id: 'plan-w12-ne-squat-0', date: '2026-11-22', sets: '1', weight: '167.5', reps: '1', note: 'PLÁN · T12 · Opener · RPE 7', planned: true },
     { id: 'plan-w12-ne-squat-1', date: '2026-11-22', sets: '1', weight: '157.5', reps: '2', note: 'PLÁN · T12 · Druhá · RPE 7', planned: true },
     { id: 'plan-w12-ne-squat-2', date: '2026-11-22', sets: '1', weight: '147.5', reps: '3', note: 'PLÁN · T12 · Objem · RPE 7', planned: true },
-    { id: 'plan-w13-ne-squat-0', date: '2026-11-29', sets: '1', weight: '150', reps: '1', note: 'PLÁN · T13 · Rozjezd', planned: true },
-    { id: 'plan-w13-ne-squat-1', date: '2026-11-29', sets: '1', weight: '170', reps: '1', note: 'PLÁN · T13 · Rozjezd', planned: true },
-    { id: 'plan-w13-ne-squat-2', date: '2026-11-29', sets: '1', weight: '190', reps: '1', note: 'PLÁN · T13 · CÍL', planned: true },
-    { id: 'plan-w13-ne-squat-3', date: '2026-11-29', sets: '1', weight: '195', reps: '1', note: 'PLÁN · T13 · PR (volitelně)', planned: true },
   ],
   'triceps-overhead': [
     { id: 'plan-w5-po-triceps-overhead', date: '2026-09-28', sets: '3', weight: '0', reps: '8–10', note: 'PLÁN · T5 · 3 × 8–10 · střední', planned: true },
@@ -2121,3 +2272,33 @@ export const PLANNED_RECORDS: RecordsMap = {
     { id: 'plan-w7-ne-walking-lunges', date: '2026-10-18', sets: '3', weight: '0', reps: '8/nohu', note: 'PLÁN · T7 · 3 × 8/nohu · 2× činka lehká–stř.', planned: true },
   ],
 };
+
+// T13–T18 (prosinec 2026) se předepisují generátorem z PHASE3_WEEKS, ne ručním literálem.
+// Formát id je stejný: plan-w{týden}-{po|ct|ne}-{cvik}[-{index série}].
+(() => {
+  const KOD: Record<string, string> = { monday: 'po', thursday: 'ct', sunday: 'ne' };
+  const OFF: Record<string, number> = { monday: 0, thursday: 3, sunday: 6 };
+  for (const k of Object.keys(PLANNED_RECORDS)) {
+    PLANNED_RECORDS[k] = PLANNED_RECORDS[k].filter(r => !/^plan-w1[3-9]-/.test(r.id));
+    if (PLANNED_RECORDS[k].length === 0) delete PLANNED_RECORDS[k];
+  }
+  for (const w of PHASE3_WEEKS.filter(x => x.number >= 13)) {
+    for (const d of w.days) {
+      const kod = KOD[d.key];
+      if (!kod) continue;
+      const dt = new Date(w.dateFrom + 'T12:00:00Z');
+      dt.setUTCDate(dt.getUTCDate() + OFF[d.key]);
+      const date = dt.toISOString().slice(0, 10);
+      for (const e of d.exercises) {
+        const list = (PLANNED_RECORDS[e.id] ??= []);
+        if (e.setPlan) {
+          e.setPlan.forEach((s, i) => list.push({ id: `plan-w${w.number}-${kod}-${e.id}-${i}`, date, sets: '1', weight: s.weight, reps: s.reps, note: `PLÁN · T${w.number} · ${s.label}${s.rpe ? ' · RPE ' + s.rpe : ''}`, planned: true }));
+        } else {
+          const cislo = e.targetWeight && /^[0-9.]+$/.test(e.targetWeight) ? e.targetWeight : '0';
+          const popis = cislo === '0' ? ` · ${e.targetWeight ?? 'vlastní'}` : '';
+          list.push({ id: `plan-w${w.number}-${kod}-${e.id}`, date, sets: e.targetSets, weight: cislo, reps: e.targetReps, note: `PLÁN · T${w.number} · ${e.targetSets} × ${e.targetReps}${popis}`, planned: true });
+        }
+      }
+    }
+  }
+})();

@@ -69,7 +69,7 @@ export default function Plan({ workoutData }: Props) {
         stat={{ label: 'Týden', value: String(week.number).padStart(2, '0') }}
         meta={
           <>
-            <b>13 týdnů</b>
+            <b>{PHASE3_WEEKS.length} týdnů</b>
             <span>·</span>
             <span>W1–4 Akumulace</span>
             <span>·</span>
@@ -78,6 +78,10 @@ export default function Plan({ workoutData }: Props) {
             <span>W9–11 Intenzifikace</span>
             <span>·</span>
             <span>W12 Taper</span>
+            <span>·</span>
+            <span>W13–17 Prosinec</span>
+            <span>·</span>
+            <span>W18 Test</span>
             <span>·</span>
             <span>W13 Test</span>
           </>
@@ -104,8 +108,8 @@ export default function Plan({ workoutData }: Props) {
           </div>
         )}
 
-      {/* Week ruler – všech 13 týdnů najednou, bez rolování */}
-      <SectionHead n="01" label="Pravítko týdnů" right="01 — 13" />
+      {/* Week ruler – všechny týdny najednou, bez rolování */}
+      <SectionHead n="01" label="Pravítko týdnů" right={`01 — ${PHASE3_WEEKS.length}`} />
       <div style={{ borderBottom: '1px solid var(--gd-line)', margin: '0 20px' }}>
         <div className="gd-weekruler" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
           {PHASE3_WEEKS.map((w, i) => {
@@ -134,7 +138,7 @@ export default function Plan({ workoutData }: Props) {
                   {String(w.number).padStart(2, '0')}
                 </div>
                 <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: '0.14em', marginTop: 4, opacity: isSelected ? 0.62 : 1, color: isSelected ? 'inherit' : (isCurrent ? 'var(--gd-fern)' : 'var(--gd-text-4)') }}>
-                  {isCurrent ? 'TEĎ' : w.isDeload ? 'DL' : w.phase.includes('Taper') ? 'TAP' : w.phase.includes('TEST') ? 'TEST' : (w.phase.match(/Blok ([ABC])/)?.[1] ?? '·')}
+                  {isCurrent ? 'TEĎ' : w.isDeload ? 'DL' : w.phase.includes('Taper') ? 'TAP' : w.phase.includes('TEST') ? 'TEST' : (w.phase.match(/Blok ([ABCD])/)?.[1] ?? '·')}
                 </div>
               </button>
             );

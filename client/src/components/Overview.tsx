@@ -209,7 +209,7 @@ export default function Overview({ workoutData, onNavigate }: Props) {
         }
         specs={[
           ...(top ? [{ label: 'Top série', value: `${top.weight.replace('.', ',')} kg × ${top.reps}` }] : []),
-          { label: 'Týden', value: `${String(currentWeek.number).padStart(2, '0')} / 13` },
+          { label: 'Týden', value: `${String(currentWeek.number).padStart(2, '0')} / ${PHASE3_WEEKS.length}` },
           { label: 'Blok', value: currentWeek.label },
           { label: 'Termín', value: `${dm(currentWeek.dateFrom)} — ${dm(currentWeek.dateTo)}` },
         ]}
@@ -694,8 +694,8 @@ export default function Overview({ workoutData, onNavigate }: Props) {
               {currentWeek.description}
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', borderTop: '1px solid var(--gd-line)' }}>
-              {[['W1–4', 'Akumulace'], ['W5–8', 'Síla'], ['W9–11', 'Intenzif.'], ['W12–13', 'Taper / Test']].map(([w, label], i) => {
-                const on = currentWeek.number <= 4 ? i === 0 : currentWeek.number <= 8 ? i === 1 : currentWeek.number <= 11 ? i === 2 : i === 3;
+              {[['W1–4', 'Akumulace'], ['W5–8', 'Síla'], ['W9–12', 'Intenzif.'], ['W13–18', 'Prosinec / Test']].map(([w, label], i) => {
+                const on = currentWeek.number <= 4 ? i === 0 : currentWeek.number <= 8 ? i === 1 : currentWeek.number <= 12 ? i === 2 : i === 3;
                 return (
                   <div key={w} style={{
                     padding: '12px 8px 14px',
